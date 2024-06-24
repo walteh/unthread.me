@@ -40,6 +40,7 @@ jobs:
                   bun install
                   bun run build
                   sed -i 's/\/assets\//\/threadsole\/assets\//g' dist/index.html
+                  echo "threadsole.net" > dist/CNAME
             - name: upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
