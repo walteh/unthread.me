@@ -1,6 +1,9 @@
 import { FC } from "react";
 
+import useStore from "../../../../threadsapi/store";
+
 const Home: FC = () => {
+	const [token] = useStore((state) => [state.token]);
 	return (
 		<>
 			<section>
@@ -13,6 +16,7 @@ const Home: FC = () => {
 								Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quia minima laboriosam maxime sed dignissimos
 								harum provident itaque fugiat. A repellat aliquid inventore dolor tempora, omnis perferendis aspernatur quo
 								nisi excepturi. Ex, ullam odio iusto esse necessitatibus doloremque repudiandae!
+								{token}
 							</p>
 							<button className="btn-primary btn">Get Started</button>
 						</div>

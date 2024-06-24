@@ -15,6 +15,7 @@ module.exports = {
 	rules: {
 		"react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 		"no-undef": "off",
+		"@typescript-eslint/restrict-template-expressions": "off",
 	},
 	parserOptions: {
 		ecmaVersion: "latest",

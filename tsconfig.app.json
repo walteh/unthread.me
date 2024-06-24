@@ -51,7 +51,8 @@
 		}
 	},
 	"include": [
-		"src"
+		"src",
+		"test",
 	],
 	"references": [
 		{
