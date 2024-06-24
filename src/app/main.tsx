@@ -6,7 +6,13 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+const root = document.getElementById("root");
+
+if (!root || !(root instanceof HTMLElement)) {
+	throw new Error("Root element not found");
+}
+
+ReactDOM.createRoot(root).render(
 	<BrowserRouter>
 		{/* <Provider store={store}> */}
 		<App />

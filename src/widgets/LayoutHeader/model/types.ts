@@ -1,7 +1,7 @@
-export type Logo = {
+export interface Logo {
 	logoName: string;
-};
+}
 
-export type Menu = {
+export interface Menu {
 	links: { name: string; href: string }[];
-};
+}
