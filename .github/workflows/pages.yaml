@@ -39,6 +39,7 @@ jobs:
               run: |
                   bun install
                   bun run build
+                  sed -i '' 's/\/assets\//\/threadsole\/assets\//g' dist/index.html
             - name: upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
