@@ -9,4 +9,10 @@ module.exports = {
 		"react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 		"no-undef": "off",
 	},
+	parserOptions: {
+		ecmaVersion: "latest",
+		sourceType: "module",
+		project: ["./tsconfig.json", "./tsconfig.node.json", "./tsconfig.app.json"],
+		tsconfigRootDir: __dirname,
+	},
 };
