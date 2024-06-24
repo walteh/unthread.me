@@ -37,6 +37,7 @@ jobs:
               uses: actions/configure-pages@v5
             - name: build
               run: |
+                  bun install
                   bun run build
             - name: upload artifact
               uses: actions/upload-pages-artifact@v3
