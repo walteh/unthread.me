@@ -2,8 +2,6 @@ import { FC } from "react";
 
 import { useLocation } from "react-router-dom";
 
-import { useUpdateCode } from "../threadsapi/store";
-
 const OAuthCallback: FC = () => {
 	const location = useLocation();
 
@@ -15,14 +13,14 @@ const OAuthCallback: FC = () => {
 		throw new Error("Token not found in the URL query parameters");
 	}
 
-	void useUpdateCode(code)
-		.then(() => {
-			console.log("Token updated");
-			// window.location.href = "/";
-		})
-		.catch((err: unknown) => {
-			console.error(err);
-		});
+	// void useUpdateCode(code)
+	// 	.then(() => {
+	// 		console.log("Token updated");
+	// 		// window.location.href = "/";
+	// 	})
+	// 	.catch((err: unknown) => {
+	// 		console.error(err);
+	// 	});
 
 	// Redirect to the home page
 

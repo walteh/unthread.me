@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import { Route, HashRouter, Routes } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
@@ -6,9 +6,43 @@ import LayoutHeader from "./components/LayoutHeader";
 import LayoutFooter from "./components/LayoutFooter";
 import NotFound from "@src/pages/NotFound";
 import Home from "@src/pages/Home";
-import OAuthCallback from "@src/pages/OAuthCallback";
+import useStore from "./threadsapi/store";
+
+const useAccessTokenUpdater = () => {
+	const location = window.location;
+	const updateAccessToken = useStore((state) => state.updateCode); // Replace with your Zustand store update function
+
+	React.useEffect(() => {
+		const queryParams = new URLSearchParams(location.search);
+		const code = queryParams.get("code");
+
+		async function fetchAccessToken(code: string) {
+			try {
+				await updateAccessToken(code);
+			} catch (error) {
+				console.error("Error updating access token:", error);
+			}
+		}
+
+		if (code && code !== "") {
+			// Call your async function to update access token
+
+			fetchAccessToken(code)
+				.then(() => {
+					console.log("Token updated");
+					window.location.search = "";
+					// Redirect to the home page
+					// window.location.href = "/";
+				})
+				.catch((err: unknown) => {
+					console.error(err);
+				});
+		}
+	}, [location.search, updateAccessToken]);
+};
 
 const App: FC = () => {
+	useAccessTokenUpdater();
 	return (
 		<>
 			<HashRouter>
@@ -16,7 +50,6 @@ const App: FC = () => {
 					<Route path="/" element={<Layout />}>
 						<Route index element={<Home />} />
 						<Route path="*" element={<NotFound />} />
-						<Route path="oauth/callback" element={<OAuthCallback />} />
 					</Route>
 				</Routes>
 			</HashRouter>

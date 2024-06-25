@@ -3,7 +3,6 @@ import ky, { KyInstance } from "ky";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { AccessTokenResponse, exchangeCodeForAccessToken } from "./api";
-import { useCallback } from "react";
 
 interface ThreadsAPIStore {
 	access_token: AccessTokenResponse | null;
@@ -36,6 +35,6 @@ const useStore = create(
 	),
 );
 
-export const useUpdateCode = (token: string) => useStore(useCallback((state) => state.updateCode(token), [token]));
+// export const useUpdateCode = (token: string) => useStore(useCallback((state) => state.updateCode(token), [token]));
 
 export default useStore;
