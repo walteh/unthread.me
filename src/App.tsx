@@ -35,7 +35,7 @@ const useAccessTokenUpdater = () => {
 			fetchAccessToken(code)
 				.then(() => {
 					console.log("Token updated");
-					setSearchParams({ code: "" });
+					setSearchParams({});
 					// Redirect to the home page
 					// window.location.href = "/";
 				})
