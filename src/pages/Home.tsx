@@ -14,8 +14,8 @@ const Home: FC = () => {
 					<button
 						onClick={() => {
 							const authUrl = getAuthorizationStartURL();
-							// open new tab
-							window.open(authUrl.toString(), "_blank");
+							// redirect to the auth URL
+							window.location.href = authUrl.toString();
 						}}
 						className="btn-primary btn"
 					>
