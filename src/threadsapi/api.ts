@@ -48,5 +48,9 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 			},
 			mode: "no-cors",
 		})
-		.json<AccessTokenResponse>();
+		.json<AccessTokenResponse>()
+		.then((data) => {
+			console.log({ data });
+			return data;
+		});
 };
