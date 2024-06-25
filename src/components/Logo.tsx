@@ -1,5 +1,8 @@
 import { FC } from "react";
-import { Logo as HeaderLogo } from "@/widgets/LayoutHeader/model/types";
+
+export interface HeaderLogo {
+	logoName: string;
+}
 
 const Logo: FC<HeaderLogo> = ({ logoName }: HeaderLogo) => {
 	return (

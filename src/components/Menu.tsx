@@ -1,8 +1,11 @@
 import { FC } from "react";
-import { Menu as MenuType } from "../../model/types";
 import { Link } from "react-router-dom";
 
-const Menu: FC<MenuType> = ({ links }: MenuType) => {
+export interface HeaderMenu {
+	links: { name: string; href: string }[];
+}
+
+const Menu: FC<HeaderMenu> = ({ links }: HeaderMenu) => {
 	return (
 		<>
 			<div className="navbar-start">

@@ -1,9 +1,9 @@
 {
-	"name": "threadsole",
+	"name": "unthread.me",
 	"private": false,
 	"version": "0.0.0",
 	"type": "module",
-	"homepage": "https://threadsole.net/",
+	"homepage": "https://unthread.me/",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc -b && vite build",
@@ -26,6 +26,7 @@
 		"@types/tape": "^5.6.4",
 		"@typescript-eslint/eslint-plugin": "^7.13.1",
 		"@typescript-eslint/parser": "^7.13.1",
+		"@vitejs/plugin-basic-ssl": "^1.1.0",
 		"@vitejs/plugin-react-swc": "^3.5.0",
 		"autoprefixer": "^10.4.19",
 		"ava": "^6.1.3",

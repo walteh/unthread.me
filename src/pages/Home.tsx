@@ -1,9 +1,31 @@
 import { FC } from "react";
 
-import useStore from "../../../../threadsapi/store";
+import useStore from "../threadsapi/store";
+
+import { getAuthorizationStartURL } from "../threadsapi/api";
 
 const Home: FC = () => {
-	const [token] = useStore((state) => [state.token]);
+	const [token] = useStore((state) => [state.access_token] as const);
+
+	if (token === null) {
+		return (
+			<>
+				<section>
+					<button
+						onClick={() => {
+							// open popup
+							const authUrl = getAuthorizationStartURL();
+							window.open(authUrl.toString(), "Threads OAuth", "width");
+						}}
+						className="btn-primary btn"
+					>
+						Login
+					</button>
+				</section>
+			</>
+		);
+	}
+
 	return (
 		<>
 			<section>
@@ -16,7 +38,7 @@ const Home: FC = () => {
 								Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quia minima laboriosam maxime sed dignissimos
 								harum provident itaque fugiat. A repellat aliquid inventore dolor tempora, omnis perferendis aspernatur quo
 								nisi excepturi. Ex, ullam odio iusto esse necessitatibus doloremque repudiandae!
-								{token}
+								{token.user_id}
 							</p>
 							<button className="btn-primary btn">Get Started</button>
 						</div>

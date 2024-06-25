@@ -2,38 +2,29 @@ import ky, { KyInstance } from "ky";
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-
-import { fetchAccessToken, refreshAccessToken } from "./api";
+import { AccessTokenResponse, exchangeCodeForAccessToken } from "./api";
 import { useCallback } from "react";
 
 interface ThreadsAPIStore {
-	secret: string;
-	base: string;
-	token: string;
+	access_token: AccessTokenResponse | null;
 	ky: () => KyInstance;
-
-	refreshToken: () => Promise<void>;
-	getToken: () => Promise<void>;
+	updateCode: (code: string) => Promise<void>;
 }
 
 const useStore = create(
 	persist<ThreadsAPIStore>(
 		(set, get) => ({
-			secret: "",
-			base: "https://graph.threads.net",
-			token: "",
-			ky: () => ky.create({ prefixUrl: get().base, headers: { "content-type": "application/json" } }),
+			access_token: null,
+			ky: () => ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} }),
 
-			refreshToken: async () => {
-				const { token } = get();
-				const newToken = await refreshAccessToken(get().ky(), token);
-				set({ token: newToken });
-			},
+			updateCode: async (code: string) => {
+				if (!code) {
+					throw new Error("Code is not available");
+				}
 
-			getToken: async () => {
-				const { secret, token } = get();
-				const newToken = await fetchAccessToken(get().ky(), secret, token);
-				set({ token: newToken });
+				const newToken = await exchangeCodeForAccessToken(get().ky(), code);
+
+				set({ access_token: newToken });
 			},
 		}),
 		{
@@ -43,6 +34,6 @@ const useStore = create(
 	),
 );
 
-export const useUpdateToken = (token: string) => useStore(useCallback((state) => (state.token = token), [token]));
+export const useUpdateCode = (token: string) => useStore(useCallback((state) => state.updateCode(token), [token]));
 
 export default useStore;

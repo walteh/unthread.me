@@ -1,7 +1,24 @@
 import { FC } from "react";
 import { Link } from "react-router-dom";
+import { useUpdateCode } from "../threadsapi/store";
 
-const NoMatch: FC = () => {
+const NotFound: FC = () => {
+	const urlParams = new URLSearchParams(location.search);
+	const code = urlParams.get("code");
+
+	if (!code) {
+		throw new Error("Token not found in the URL query parameters");
+	}
+
+	void useUpdateCode(code)
+		.then(() => {
+			console.log("Token updated");
+			window.location.href = "/";
+		})
+		.catch((err: unknown) => {
+			console.error(err);
+		});
+
 	return (
 		<section>
 			<div className="flex min-h-screen w-screen flex-col items-center justify-center gap-y-5">
@@ -17,4 +34,4 @@ const NoMatch: FC = () => {
 	);
 };
 
-export default NoMatch;
+export default NotFound;
