@@ -52,5 +52,9 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 		.then((data) => {
 			console.log({ data });
 			return data;
+		})
+		.catch((error: unknown) => {
+			console.error("Error fetching access token:", error);
+			throw error;
 		});
 };
