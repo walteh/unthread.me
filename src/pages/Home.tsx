@@ -13,9 +13,9 @@ const Home: FC = () => {
 				<section>
 					<button
 						onClick={() => {
-							// open popup
 							const authUrl = getAuthorizationStartURL();
-							window.open(authUrl.toString(), "Threads OAuth", "width");
+							// open new tab
+							window.open(authUrl.toString(), "_blank");
 						}}
 						className="btn-primary btn"
 					>
