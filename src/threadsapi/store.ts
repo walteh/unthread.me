@@ -2,31 +2,22 @@ import ky, { KyInstance } from "ky";
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { AccessTokenResponse, exchangeCodeForAccessToken } from "./api";
+import { AccessTokenResponse } from "./api";
 
 interface ThreadsAPIStore {
 	access_token: AccessTokenResponse | null;
 	ky: () => KyInstance;
-	updateCode: (code: string) => Promise<void>;
+	updateAccessToken: (access_token: AccessTokenResponse) => void;
 }
 
 const useStore = create(
 	persist<ThreadsAPIStore>(
-		(set, get) => ({
+		(set) => ({
 			access_token: null,
 			ky: () => ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} }),
 
-			updateCode: async (code: string) => {
-				try {
-					console.log({ code });
-					const newToken = await exchangeCodeForAccessToken(get().ky(), code);
-
-					console.log({ newToken });
-
-					set({ access_token: newToken });
-				} catch (error) {
-					console.error(error);
-				}
+			updateAccessToken: (access_token: AccessTokenResponse) => {
+				set({ access_token });
 			},
 		}),
 		{
@@ -35,7 +26,5 @@ const useStore = create(
 		},
 	),
 );
-
-// export const useUpdateCode = (token: string) => useStore(useCallback((state) => state.updateCode(token), [token]));
 
 export default useStore;

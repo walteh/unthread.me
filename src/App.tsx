@@ -2,15 +2,17 @@ import React, { FC } from "react";
 import { Route, Routes, useSearchParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
+import ky from "ky";
 import LayoutHeader from "./components/LayoutHeader";
 import LayoutFooter from "./components/LayoutFooter";
 import NotFound from "@src/pages/NotFound";
 import Home from "@src/pages/Home";
 import useStore from "./threadsapi/store";
+import { exchangeCodeForAccessToken } from "./threadsapi/api";
 
 const useAccessTokenUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const updateAccessToken = useStore((state) => state.updateCode); // Replace with your Zustand store update function
+	const updateAccessToken = useStore((state) => state.updateAccessToken);
 
 	React.useEffect(() => {
 		console.log({ searchParams });
@@ -19,7 +21,9 @@ const useAccessTokenUpdater = () => {
 		async function fetchAccessToken(code: string) {
 			try {
 				console.log({ code });
-				await updateAccessToken(code);
+				const kyd = ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} });
+				const res = await exchangeCodeForAccessToken(kyd, code);
+				updateAccessToken(res);
 			} catch (error) {
 				console.error("Error updating access token:", error);
 			}
