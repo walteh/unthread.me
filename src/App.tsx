@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Route, HashRouter, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useSearchParams } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
 import LayoutHeader from "./components/LayoutHeader";
@@ -9,12 +9,11 @@ import Home from "@src/pages/Home";
 import useStore from "./threadsapi/store";
 
 const useAccessTokenUpdater = () => {
-	const location = useLocation();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const updateAccessToken = useStore((state) => state.updateCode); // Replace with your Zustand store update function
 
 	React.useEffect(() => {
-		const queryParams = new URLSearchParams(location.search);
-		const code = queryParams.get("code");
+		const code = searchParams.get("code");
 
 		async function fetchAccessToken(code: string) {
 			try {
@@ -30,7 +29,7 @@ const useAccessTokenUpdater = () => {
 			fetchAccessToken(code)
 				.then(() => {
 					console.log("Token updated");
-					location.search = "";
+					setSearchParams({ code: "" });
 					// Redirect to the home page
 					// window.location.href = "/";
 				})
@@ -38,21 +37,19 @@ const useAccessTokenUpdater = () => {
 					console.error(err);
 				});
 		}
-	}, [location, location.search, updateAccessToken]);
+	}, [searchParams, setSearchParams, updateAccessToken]);
 };
 
 const App: FC = () => {
 	useAccessTokenUpdater();
 	return (
 		<>
-			<HashRouter>
-				<Routes>
-					<Route path="/" element={<Layout />}>
-						<Route index element={<Home />} />
-						<Route path="*" element={<NotFound />} />
-					</Route>
-				</Routes>
-			</HashRouter>
+			<Routes>
+				<Route path="/" element={<Layout />}>
+					<Route index element={<Home />} />
+					<Route path="*" element={<NotFound />} />
+				</Route>
+			</Routes>
 		</>
 	);
 };
