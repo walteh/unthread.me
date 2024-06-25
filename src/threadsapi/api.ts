@@ -1,15 +1,5 @@
 import { KyInstance } from "ky";
 
-// interface ErrorResponse {
-// 	error_type: string;
-// 	code: number;
-// 	error_message: string;
-// }
-
-// interface AuthorizationCodeResponse {
-// 	code: string;
-// }
-
 export interface AccessTokenResponse {
 	access_token: string;
 	user_id: number;
@@ -46,12 +36,14 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 			headers: {
 				"Content-Type": "application/json",
 			},
+
 			mode: "no-cors",
+			timeout: 10000,
 		})
-		.json<AccessTokenResponse>()
+
 		.then((data) => {
 			console.log({ data });
-			return data;
+			return data.json<AccessTokenResponse>();
 		})
 		.catch((error: unknown) => {
 			console.error("Error fetching access token:", error);
