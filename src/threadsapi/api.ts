@@ -37,7 +37,7 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 				"Content-Type": "application/json",
 			},
 
-			mode: "no-cors",
+			// mode: "no-cors",
 			timeout: 10000,
 		})
 

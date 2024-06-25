@@ -21,7 +21,7 @@ const useAccessTokenUpdater = () => {
 		async function fetchAccessToken(code: string) {
 			try {
 				console.log({ code });
-				const kyd = ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} });
+				const kyd = ky.create({ prefixUrl: "https://api.unthread.me/" });
 				const res = await exchangeCodeForAccessToken(kyd, code);
 				updateAccessToken(res);
 			} catch (error) {

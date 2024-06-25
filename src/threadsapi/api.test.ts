@@ -15,6 +15,9 @@ test("should return the access token", async () => {
 			throw new TypeError("Expected to have input as request");
 		}
 
+		// sleep for 1 second
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		expect(input.url.includes(code)).toBe(true);
 
 		return await Promise.resolve(new Response(JSON.stringify({ access_token: token, user_id: 1 })));
