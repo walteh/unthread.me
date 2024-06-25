@@ -18,6 +18,7 @@ const useStore = create(
 
 			updateCode: async (code: string) => {
 				try {
+					console.log({ code });
 					const newToken = await exchangeCodeForAccessToken(get().ky(), code);
 
 					console.log({ newToken });

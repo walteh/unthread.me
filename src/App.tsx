@@ -13,10 +13,12 @@ const useAccessTokenUpdater = () => {
 	const updateAccessToken = useStore((state) => state.updateCode); // Replace with your Zustand store update function
 
 	React.useEffect(() => {
+		console.log({ searchParams });
 		const code = searchParams.get("code");
 
 		async function fetchAccessToken(code: string) {
 			try {
+				console.log({ code });
 				await updateAccessToken(code);
 			} catch (error) {
 				console.error("Error updating access token:", error);
