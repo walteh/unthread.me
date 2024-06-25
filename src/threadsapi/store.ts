@@ -18,11 +18,9 @@ const useStore = create(
 			ky: () => ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} }),
 
 			updateCode: async (code: string) => {
-				if (!code) {
-					throw new Error("Code is not available");
-				}
-
 				const newToken = await exchangeCodeForAccessToken(get().ky(), code);
+
+				console.log({ newToken });
 
 				set({ access_token: newToken });
 			},
