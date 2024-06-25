@@ -18,7 +18,7 @@ const OAuthCallback: FC = () => {
 	void useUpdateCode(code)
 		.then(() => {
 			console.log("Token updated");
-			window.location.href = "/";
+			// window.location.href = "/";
 		})
 		.catch((err: unknown) => {
 			console.error(err);
