@@ -26,7 +26,7 @@ export const getAuthorizationStartURL = (state?: string): URL => {
 
 	const authUrl = new URL("https://threads.net/oauth/authorize");
 	authUrl.searchParams.append("client_id", client_id);
-	authUrl.searchParams.append("redirect_uri", `${current_host}/oauth/callback`);
+	authUrl.searchParams.append("redirect_uri", current_host);
 	authUrl.searchParams.append("scope", "threads_basic");
 	authUrl.searchParams.append("response_type", "code");
 
