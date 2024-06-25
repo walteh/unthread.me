@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Route, HashRouter, Routes } from "react-router-dom";
+import { Route, HashRouter, Routes, useLocation } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
 import LayoutHeader from "./components/LayoutHeader";
@@ -9,7 +9,7 @@ import Home from "@src/pages/Home";
 import useStore from "./threadsapi/store";
 
 const useAccessTokenUpdater = () => {
-	const location = window.location;
+	const location = useLocation();
 	const updateAccessToken = useStore((state) => state.updateCode); // Replace with your Zustand store update function
 
 	React.useEffect(() => {
@@ -30,7 +30,7 @@ const useAccessTokenUpdater = () => {
 			fetchAccessToken(code)
 				.then(() => {
 					console.log("Token updated");
-					window.location.search = "";
+					location.search = "";
 					// Redirect to the home page
 					// window.location.href = "/";
 				})
@@ -38,7 +38,7 @@ const useAccessTokenUpdater = () => {
 					console.error(err);
 				});
 		}
-	}, [location.search, updateAccessToken]);
+	}, [location, location.search, updateAccessToken]);
 };
 
 const App: FC = () => {
