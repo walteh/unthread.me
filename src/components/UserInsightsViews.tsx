@@ -1,7 +1,7 @@
 import useUserInsights from "@src/hooks/useUserInsights";
 
-const UserInsightsComponent = () => {
-	const [insights, isLoading, error] = useUserInsights();
+const UserInsightsViews = () => {
+	const [insights, isLoading, error] = useUserInsights("views", { all_time: true });
 
 	if (isLoading) return <div>Loading...</div>;
 	if (error) return <div>Error: {error}</div>;
@@ -21,7 +21,6 @@ const UserInsightsComponent = () => {
 										{value.value}
 									</li>
 								))}
-								{metric.total_value && <li>Total: {metric.total_value.value}</li>}
 							</ul>
 						</div>
 					))}
@@ -33,4 +32,4 @@ const UserInsightsComponent = () => {
 	);
 };
 
-export default UserInsightsComponent;
+export default UserInsightsViews;

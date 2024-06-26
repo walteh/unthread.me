@@ -80,35 +80,72 @@ export const getUserProfile = async (inst: KyInstance, accessToken: AccessTokenR
 		});
 };
 
-export interface UserInsightsResponse {
-	data: InsightMetric[];
+export interface UserInsightsResponse<T extends InsightMetric = InsightMetric> {
+	data: T[];
 }
 
-export interface InsightMetric {
+export type InsightMetric = TotalValueMetric | TimeSeriesMetric;
+
+export interface TotalValueMetric {
 	name: string;
 	period: string;
-	values: { value: number; end_time?: string }[];
-	total_value?: { value: number };
+	total_value: { value: number };
 	title: string;
 	description: string;
 	id: string;
 }
 
-export const getUserInsights = async (
+export interface TimeSeriesMetric {
+	name: string;
+	period: string;
+	values: { value: number; end_time: string }[];
+	title: string;
+	description: string;
+	id: string;
+}
+
+// country, city, age, or gender.
+type Breakdown = "country" | "city" | "age" | "gender";
+
+export interface GetUserInsightsParams {
+	since?: number;
+	until?: number;
+	breakdown?: Breakdown;
+	all_time?: boolean;
+}
+
+export interface MetricTypeMap {
+	views: TimeSeriesMetric;
+	likes: TotalValueMetric;
+	replies: TotalValueMetric;
+	reposts: TotalValueMetric;
+	quotes: TotalValueMetric;
+	followers_count: TotalValueMetric;
+	follower_demographics: TotalValueMetric;
+}
+
+export type Metric = keyof MetricTypeMap;
+
+export const getUserInsights = async <M extends Metric>(
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
-	metrics: string,
-	since?: number,
-	until?: number,
-): Promise<UserInsightsResponse> => {
+	metric: M,
+	{ since, until, breakdown, all_time }: GetUserInsightsParams = {},
+): Promise<UserInsightsResponse<MetricTypeMap[M]>> => {
 	const searchParams: Record<string, string | number> = {
-		metric: metrics,
+		metric: metric,
 		access_token: accessToken.access_token,
-		breakdown: "city",
 	};
 
-	if (since) searchParams.since = since;
-	if (until) searchParams.until = until;
+	if (all_time) {
+		searchParams.since = 1712991600; // from the docs
+		searchParams.until = Math.floor(Date.now() / 1000);
+	} else {
+		if (since) searchParams.since = since;
+		if (until) searchParams.until = until;
+	}
+
+	if (metric === "follower_demographics") searchParams.breakdown = breakdown ?? "city";
 
 	return await inst
 		.get(`v1.0/${accessToken.user_id}/threads_insights`, {
@@ -118,9 +155,38 @@ export const getUserInsights = async (
 			},
 			timeout: 10000,
 		})
-		.then((response) => response.json<UserInsightsResponse>())
+		.then((response) => response.json<UserInsightsResponse<MetricTypeMap[M]>>())
 		.catch((error: unknown) => {
 			console.error("Error fetching user insights:", error);
 			throw error;
 		});
+};
+
+// Wrapper functions
+export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "views", { all_time: true });
+};
+
+export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
+};
+
+export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
+};
+
+export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
+};
+
+export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
+};
+
+export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "followers_count");
+};
+
+export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
+	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
 };

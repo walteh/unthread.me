@@ -2,10 +2,10 @@ import { FC } from "react";
 
 import useStore from "../threadsapi/store";
 
-import { getAuthorizationStartURL } from "../threadsapi/api";
+import { getAuthorizationStartURL } from "@src/threadsapi/api";
 import useUserProfile from "@src/hooks/useUserProfile";
-import useUserInsights from "@src/hooks/useUserInsights";
 import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
+import UserInsightsViews from "@src/components/UserInsightsViews";
 
 const Home: FC = () => {
 	const [token] = useStore((state) => [state.access_token] as const);
@@ -13,8 +13,6 @@ const Home: FC = () => {
 
 	const [userProfile] = useUserProfile();
 	const access_token_expires_in = useAccessTokenExpiresIn();
-
-	const [insights, , insights_error] = useUserInsights();
 
 	if (is_logging_in) {
 		return (
@@ -62,18 +60,7 @@ const Home: FC = () => {
 							<p className="py-5">username: {userProfile?.username} </p>
 							<p className="py-5">bio: {userProfile?.threads_biography} </p>
 
-							{insights && (
-								<>
-									{insights.data.map((insight) => (
-										<p key={insight.id}>
-											{insight.name}: {insight.total_value?.value ?? 0}
-										</p>
-									))}
-								</>
-							)}
-
-							{insights_error && <p>{insights_error}</p>}
-							<button className="btn-primary btn">Get Started</button>
+							<UserInsightsViews />
 						</div>
 					</div>
 				</div>
