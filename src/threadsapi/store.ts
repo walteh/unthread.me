@@ -4,7 +4,7 @@ import { AccessTokenResponse } from "./api";
 
 interface ThreadsAPIStore {
 	access_token: AccessTokenResponse | null;
-	access_token_expires_at: Date | null;
+	access_token_expires_at: number | null;
 	is_logging_in: boolean;
 	updateAccessToken: (access_token: AccessTokenResponse) => void;
 	updateIsLoggingIn: (is_logging_in: boolean) => void;
@@ -19,7 +19,7 @@ const useStore = create(
 			access_token_expires_at: null,
 
 			updateAccessToken: (access_token: AccessTokenResponse) => {
-				set({ access_token, access_token_expires_at: new Date(Date.now() + 60 * 1000) });
+				set({ access_token, access_token_expires_at: Date.now() * 60 * 60 }); // 1 hour
 			},
 
 			updateIsLoggingIn: (is_logging_in: boolean) => {
