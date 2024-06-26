@@ -5,14 +5,13 @@ import ky from "ky";
 
 import useStore from "@src/threadsapi/store";
 import { exchangeCodeForAccessToken } from "@src/threadsapi/api";
-import useAccessTokenExpiresIn from "./useAccessTokenExpiresIn";
+// import useAccessTokenExpiresIn from "./useAccessTokenExpiresIn";
 
 const useAccessTokenUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const updateAccessToken = useStore((state) => state.updateAccessToken);
 	const updateIsLoggingIn = useStore((state) => state.updateIsLoggingIn);
-	const clearAccessToken = useStore((state) => state.clearAccessToken);
-	const access_token_expires_in = useAccessTokenExpiresIn();
+	// const clearAccessToken = useStore((state) => state.clearAccessToken);
 
 	// update the access token if a code is present in the URL
 	React.useEffect(() => {
@@ -44,11 +43,11 @@ const useAccessTokenUpdater = () => {
 	}, [searchParams, setSearchParams, updateAccessToken, updateIsLoggingIn]);
 
 	// delete the access token if it has expired
-	React.useEffect(() => {
-		if (access_token_expires_in <= 0) {
-			clearAccessToken();
-		}
-	}, [access_token_expires_in, clearAccessToken]);
+	// React.useEffect(() => {
+	// 	if (access_token_expires_in <= 0) {
+	// 		clearAccessToken();
+	// 	}
+	// }, [access_token_expires_in, clearAccessToken]);
 };
 
 export default useAccessTokenUpdater;

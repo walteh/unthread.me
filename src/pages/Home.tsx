@@ -5,12 +5,14 @@ import useStore from "../threadsapi/store";
 import { getAuthorizationStartURL } from "../threadsapi/api";
 import useUserProfile from "@src/hooks/useUserProfile";
 import useUserInsights from "@src/hooks/useUserInsights";
+import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
 
 const Home: FC = () => {
 	const [token] = useStore((state) => [state.access_token] as const);
 	const [is_logging_in] = useStore((state) => [state.is_logging_in] as const);
 
 	const [userProfile] = useUserProfile();
+	const access_token_expires_in = useAccessTokenExpiresIn();
 
 	const [insights, , insights_error] = useUserInsights();
 
@@ -30,7 +32,7 @@ const Home: FC = () => {
 		);
 	}
 
-	if (token === null) {
+	if (token === null || access_token_expires_in <= 0) {
 		return (
 			<>
 				<section>
