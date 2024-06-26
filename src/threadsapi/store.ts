@@ -1,23 +1,25 @@
-import ky, { KyInstance } from "ky";
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { AccessTokenResponse } from "./api";
 
 interface ThreadsAPIStore {
 	access_token: AccessTokenResponse | null;
-	ky: () => KyInstance;
+	is_logging_in: boolean;
 	updateAccessToken: (access_token: AccessTokenResponse) => void;
+	updateIsLoggingIn: (is_logging_in: boolean) => void;
 }
 
 const useStore = create(
 	persist<ThreadsAPIStore>(
 		(set) => ({
 			access_token: null,
-			ky: () => ky.create({ prefixUrl: "https://api.unthread.me/", headers: {} }),
+			is_logging_in: false,
 
 			updateAccessToken: (access_token: AccessTokenResponse) => {
 				set({ access_token });
+			},
+			updateIsLoggingIn: (is_logging_in: boolean) => {
+				set({ is_logging_in });
 			},
 		}),
 		{
