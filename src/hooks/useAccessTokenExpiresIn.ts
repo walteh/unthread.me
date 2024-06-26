@@ -10,7 +10,9 @@ const useAccessTokenExpiresIn = (): number => {
 
 	useInterval(() => {
 		if (!expirationTime) {
-			setExpiresIn(0);
+			if (expiresIn !== 0) {
+				setExpiresIn(0);
+			}
 			return;
 		}
 		setExpiresIn(expirationTime.getMilliseconds() - Date.now());
