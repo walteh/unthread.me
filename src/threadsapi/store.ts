@@ -19,7 +19,7 @@ const useStore = create(
 			access_token_expires_at: null,
 
 			updateAccessToken: (access_token: AccessTokenResponse) => {
-				set({ access_token, access_token_expires_at: Date.now() * 60 * 60 }); // 1 hour
+				set({ access_token, access_token_expires_at: Date.now() + 60 * 60 * 1000 }); // 1 hour
 			},
 
 			updateIsLoggingIn: (is_logging_in: boolean) => {
