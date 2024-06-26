@@ -79,3 +79,48 @@ export const getUserProfile = async (inst: KyInstance, accessToken: AccessTokenR
 			throw error;
 		});
 };
+
+export interface UserInsightsResponse {
+	data: InsightMetric[];
+}
+
+export interface InsightMetric {
+	name: string;
+	period: string;
+	values: { value: number; end_time?: string }[];
+	total_value?: { value: number };
+	title: string;
+	description: string;
+	id: string;
+}
+
+export const getUserInsights = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	metrics: string,
+	since?: number,
+	until?: number,
+): Promise<UserInsightsResponse> => {
+	const searchParams: Record<string, string | number> = {
+		metric: metrics,
+		access_token: accessToken.access_token,
+		breakdown: "city",
+	};
+
+	if (since) searchParams.since = since;
+	if (until) searchParams.until = until;
+
+	return await inst
+		.get(`v1.0/${accessToken.user_id}/threads_insights`, {
+			searchParams,
+			headers: {
+				"Content-Type": "application/json",
+			},
+			timeout: 10000,
+		})
+		.then((response) => response.json<UserInsightsResponse>())
+		.catch((error: unknown) => {
+			console.error("Error fetching user insights:", error);
+			throw error;
+		});
+};
