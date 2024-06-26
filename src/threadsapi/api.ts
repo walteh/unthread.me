@@ -163,30 +163,114 @@ export const getUserInsights = async <M extends Metric>(
 };
 
 // Wrapper functions
-export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "views", { all_time: true });
-};
+// export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "views", { all_time: true });
+// };
 
-export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
-};
+// export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
+// };
 
-export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
-};
+// export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
+// };
 
-export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
-};
+// export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
+// };
 
-export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
-};
+// export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
+// };
 
-export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "followers_count");
-};
+// export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+// 	return await getUserInsights(inst, accessToken, "followers_count");
+// };
 
-export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
-	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
+// export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
+// 	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
+// };
+
+export interface ThreadMedia {
+	id: string;
+	media_product_type: string;
+	media_type: string;
+	media_url?: string;
+	permalink?: string;
+	owner: { id: string };
+	username: string;
+	text?: string;
+	timestamp: string;
+	shortcode: string;
+	thumbnail_url?: string;
+	children?: ThreadMedia[];
+	is_quote_post: boolean;
+}
+
+export interface UserThreadsResponse {
+	data: ThreadMedia[];
+	paging?: {
+		cursors: {
+			before: string;
+			after: string;
+		};
+	};
+}
+
+export interface GetUserThreadsParams {
+	since?: string;
+	until?: string;
+	limit?: number;
+	all_time?: boolean;
+}
+
+export const getUserThreads = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	params?: GetUserThreadsParams,
+): Promise<UserThreadsResponse> => {
+	const searchParams: Record<string, string | number | boolean> = {
+		fields: "id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post",
+		access_token: accessToken.access_token,
+	};
+
+	if (params?.all_time) {
+		searchParams.since = 1712991600; // from the docs
+		searchParams.until = Math.floor(Date.now() / 1000);
+	} else {
+		if (params?.since) searchParams.since = params.since;
+		if (params?.until) searchParams.until = params.until;
+	}
+
+	searchParams.limit = params?.limit ?? Number.MAX_SAFE_INTEGER;
+
+	const resp = await inst
+		.get(`v1.0/${accessToken.user_id}/threads`, {
+			searchParams,
+			headers: {
+				"Content-Type": "application/json",
+			},
+			timeout: 10000,
+		})
+		.then((response) => response.json<UserThreadsResponse>())
+		.catch((error: unknown) => {
+			console.error("Error fetching user threads:", error);
+			throw error;
+		});
+
+	// if (params?.all_time && resp.paging?.cursors.after) {
+	// 	const next = resp.paging.cursors.after;
+	// 	const more = await getUserThreads(
+	// 		inst,
+	// 		{
+	// 			access_token: next,
+	// 			user_id: accessToken.user_id,
+	// 		},
+	// 		{ ...params, since: next },
+	// 	);
+	// 	resp.data.push(...more.data);
+	// 	resp.paging = more.paging;
+	// }
+
+	return resp;
 };

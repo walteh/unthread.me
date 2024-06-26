@@ -1,5 +1,5 @@
-import { FC } from "react";
 import Logo from "@src/components/Logo.tsx";
+import { FC } from "react";
 import Menu from "./Menu";
 
 const LayoutHeader: FC = () => {

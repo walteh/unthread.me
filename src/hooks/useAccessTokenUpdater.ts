@@ -1,17 +1,14 @@
+import { exchangeCodeForAccessToken } from "@src/threadsapi/api";
+import { useInMemoryStore, usePersistantStore } from "@src/threadsapi/store";
+import ky from "ky";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-import ky from "ky";
-
-import useStore from "@src/threadsapi/store";
-import { exchangeCodeForAccessToken } from "@src/threadsapi/api";
-// import useAccessTokenExpiresIn from "./useAccessTokenExpiresIn";
-
 const useAccessTokenUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const updateAccessToken = useStore((state) => state.updateAccessToken);
-	const updateIsLoggingIn = useStore((state) => state.updateIsLoggingIn);
-	// const clearAccessToken = useStore((state) => state.clearAccessToken);
+	const updateAccessToken = usePersistantStore((state) => state.updateAccessToken);
+	const updateIsLoggingIn = useInMemoryStore((state) => state.updateIsLoggingIn);
+	// const clearAccessToken = usePersistantStore((state) => state.clearAccessToken);
 
 	// update the access token if a code is present in the URL
 	React.useEffect(() => {

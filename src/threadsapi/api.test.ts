@@ -1,8 +1,6 @@
-import { exchangeCodeForAccessToken } from "./api";
-
-import ky from "ky";
-
 import { expect, test } from "bun:test";
+import ky from "ky";
+import { exchangeCodeForAccessToken } from "./api";
 
 test("should return the access token", async () => {
 	// Arrange

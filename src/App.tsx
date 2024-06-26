@@ -1,7 +1,6 @@
+import Home from "@src/pages/Home";
 import { FC } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-
-import Home from "@src/pages/Home";
 
 import useAccessTokenUpdater from "./hooks/useAccessTokenUpdater";
 

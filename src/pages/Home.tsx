@@ -1,15 +1,14 @@
+import UserInsightsViews from "@src/components/UserInsightsViews";
+import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
+import useUserProfile from "@src/hooks/useUserProfile";
+import { getAuthorizationStartURL } from "@src/threadsapi/api";
 import { FC } from "react";
 
-import useStore from "../threadsapi/store";
-
-import { getAuthorizationStartURL } from "@src/threadsapi/api";
-import useUserProfile from "@src/hooks/useUserProfile";
-import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
-import UserInsightsViews from "@src/components/UserInsightsViews";
+import { useInMemoryStore, usePersistantStore } from "../threadsapi/store";
 
 const Home: FC = () => {
-	const [token] = useStore((state) => [state.access_token] as const);
-	const [is_logging_in] = useStore((state) => [state.is_logging_in] as const);
+	const [token] = usePersistantStore((state) => [state.access_token] as const);
+	const [is_logging_in] = useInMemoryStore((state) => [state.is_logging_in] as const);
 
 	const [userProfile] = useUserProfile();
 	const access_token_expires_in = useAccessTokenExpiresIn();

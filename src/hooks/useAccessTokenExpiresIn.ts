@@ -1,10 +1,10 @@
-import useStore from "@src/threadsapi/store";
+import { usePersistantStore } from "@src/threadsapi/store";
 import { useState } from "react";
 
 import { useInterval } from "usehooks-ts";
 
 const useAccessTokenExpiresIn = (): number => {
-	const expirationTime = useStore((state) => state.access_token_expires_at);
+	const expirationTime = usePersistantStore((state) => state.access_token_expires_at);
 
 	const [expiresIn, setExpiresIn] = useState(expirationTime ? expirationTime - Date.now() : 0);
 

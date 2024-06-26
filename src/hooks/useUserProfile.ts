@@ -1,13 +1,14 @@
-import React from "react";
-import ky from "ky";
 import { AccessTokenResponse, getUserProfile, UserProfileResponse } from "@src/threadsapi/api";
-import useStore from "@src/threadsapi/store";
+import { usePersistantStore } from "@src/threadsapi/store";
+
+import ky from "ky";
+import React from "react";
 
 const useUserProfile = () => {
 	const [profile, setProfile] = React.useState<UserProfileResponse | null>(null);
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
-	const accessToken = useStore((state) => state.access_token);
+	const accessToken = usePersistantStore((state) => state.access_token);
 
 	React.useEffect(() => {
 		async function fetchAccessTokenAndProfile(token: AccessTokenResponse) {
