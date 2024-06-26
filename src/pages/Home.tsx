@@ -1,8 +1,9 @@
+import { FC } from "react";
+
 import UserInsightsViews from "@src/components/UserInsightsViews";
 import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
 import useUserProfile from "@src/hooks/useUserProfile";
 import { getAuthorizationStartURL } from "@src/threadsapi/api";
-import { FC } from "react";
 
 import { useInMemoryStore, usePersistantStore } from "../threadsapi/store";
 

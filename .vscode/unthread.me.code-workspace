@@ -10,7 +10,7 @@
 		"editor.formatOnSaveMode": "file",
 		"editor.codeActionsOnSave": {
 			"source.fixAll.eslint": "always",
-			"source.organizeImports": "always",
+			// "source.organizeImports": "always",
 			"source.fixAll": "always"
 		},
 		"files.associations": {

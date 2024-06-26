@@ -1,3 +1,6 @@
+import ky from "ky";
+import React from "react";
+
 import {
 	AccessTokenResponse,
 	getUserInsights,
@@ -7,8 +10,6 @@ import {
 	UserInsightsResponse,
 } from "@src/threadsapi/api";
 import { usePersistantStore } from "@src/threadsapi/store";
-import ky from "ky";
-import React from "react";
 
 const useUserInsights = <M extends Metric>(metric: M, params?: GetUserInsightsParams) => {
 	const [insights, setInsights] = React.useState<UserInsightsResponse<MetricTypeMap[M]> | null>(null);

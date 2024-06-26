@@ -1,8 +1,8 @@
-import { AccessTokenResponse, getUserProfile, UserProfileResponse } from "@src/threadsapi/api";
-import { usePersistantStore } from "@src/threadsapi/store";
-
 import ky from "ky";
 import React from "react";
+
+import { AccessTokenResponse, getUserProfile, UserProfileResponse } from "@src/threadsapi/api";
+import { usePersistantStore } from "@src/threadsapi/store";
 
 const useUserProfile = () => {
 	const [profile, setProfile] = React.useState<UserProfileResponse | null>(null);
