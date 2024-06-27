@@ -2,7 +2,6 @@ import { FC } from "react";
 
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import useConversation from "@src/hooks/useConversation";
 import { Reply, ThreadMedia } from "@src/threadsapi/api";
 import { useUserDataStore } from "@src/threadsapi/store";
 
@@ -55,14 +54,15 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => (
 );
 
 const UserThreadReplies: FC<{ thread_id: string }> = ({ thread_id }) => {
-	const [replies, isLoading, error] = useConversation(thread_id);
-
-	if (isLoading) return <Loader />;
-	if (error) return <ErrorMessage message={error} />;
+	const replies = useUserDataStore((state) => state.user_threads_replies[thread_id]);
 
 	return (
 		<div>
-			{replies ? <UserThreadRepliesDisplay replies={replies} pad={0} /> : <div className="text-gray-500">No replies available</div>}
+			{replies?.data?.data ? (
+				<UserThreadRepliesDisplay replies={replies.data.data} pad={0} />
+			) : (
+				<div className="text-gray-500">No replies available</div>
+			)}
 		</div>
 	);
 };

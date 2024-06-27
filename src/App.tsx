@@ -4,14 +4,24 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "@src/pages/Home";
 
 import useAccessTokenUpdater from "./hooks/useAccessTokenUpdater";
-import { getUserProfile, getUserThreads, getViewsInsights } from "./threadsapi/api";
-import { useDataFetcher } from "./threadsapi/store";
+import {
+	getAllUserInsightsWithDefaultParams,
+	getDefaultConversation,
+	getFollowerDemographicsInsights,
+	getMediaInsightsWithDefaultParams,
+	getUserProfile,
+	getUserThreads,
+} from "./threadsapi/api";
+import { useDataFetcher, useNestedDataFetcher } from "./threadsapi/store";
 
 const App: FC = () => {
 	useAccessTokenUpdater();
 	useDataFetcher("user_profile", getUserProfile);
 	useDataFetcher("user_threads", getUserThreads);
-	useDataFetcher("user_insights_profile_views", getViewsInsights);
+	useDataFetcher("user_insights", getAllUserInsightsWithDefaultParams);
+	useDataFetcher("user_follower_demographics", getFollowerDemographicsInsights);
+	useNestedDataFetcher("user_threads_replies", getDefaultConversation);
+	useNestedDataFetcher("user_threads_insights", getMediaInsightsWithDefaultParams);
 	return (
 		<>
 			<Routes>

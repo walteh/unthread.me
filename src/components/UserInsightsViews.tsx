@@ -3,33 +3,33 @@ import ReactApexChart from "react-apexcharts";
 
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import { MetricTypeMap } from "@src/threadsapi/api";
+import { MetricTypeMap, ThreadMedia } from "@src/threadsapi/api";
 import { useUserDataStore } from "@src/threadsapi/store";
 
 const UserInsightsViews: FC = () => {
-	const data = useUserDataStore((state) => state.user_insights_profile_views);
+	const data = useUserDataStore((state) => state.user_insights);
+	const threads = useUserDataStore((state) => state.user_threads);
 
-	if (!data) return null;
+	if (!data || !threads) return null;
 
-	if (data.is_loading) return <Loader />;
+	if (data.is_loading || threads.is_loading) return <Loader />;
 	if (data.error) return <ErrorMessage message={data.error} />;
-
-	if (!data.data) return <ErrorMessage message="No insights data available" />;
+	if (!data.data || !threads.data) return <ErrorMessage message="No insights data available" />;
 
 	return (
 		<div className="container mx-auto p-6">
 			<h1 className="text-3xl font-bold text-center mb-8">Profile Views</h1>
-			<ObservedChart data={data.data.data} />
+			<ObservedChart data={data.data.views} threads={threads.data.data} />
 		</div>
 	);
 };
 
-const ObservedChart: FC<{ data: MetricTypeMap["views"][] }> = ({ data }) => {
+const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }> = ({ data, threads }) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const [chartWidth, setChartWidth] = useState<number>(0);
 	const [timePeriod, setTimePeriod] = useState<string>("last30days");
 
-	const allValues = data[0].values;
+	const allValues = data.values;
 
 	// Helper function to filter data based on the selected time period
 	function getFilteredData(values: MetricTypeMap["views"]["values"]) {
@@ -47,6 +47,53 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"][] }> = ({ data }) => {
 
 	const currentValues = getFilteredData(allValues);
 
+	// Filter threads based on the selected time period
+	function getFilteredThreads(threads: ThreadMedia[]) {
+		if (timePeriod === "last7days") {
+			const last7Days = new Date();
+			last7Days.setDate(last7Days.getDate() - 7);
+			return threads.filter((thread) => new Date(thread.timestamp) > last7Days);
+		} else if (timePeriod === "last30days") {
+			const last30Days = new Date();
+			last30Days.setDate(last30Days.getDate() - 30);
+			return threads.filter((thread) => new Date(thread.timestamp) > last30Days);
+		} else {
+			const month = timePeriod;
+			return threads.filter((thread) => new Date(thread.timestamp).toISOString().slice(0, 7) === month);
+		}
+	}
+
+	function getThreadCountPerDay(threads: ThreadMedia[], startDate: Date, endDate: Date) {
+		const threadCountPerDay: { end_date: string; count: number }[] = [];
+
+		// Initialize an object to hold the counts per day
+		const countMap: Record<string, number> = {};
+
+		// Populate the countMap with thread counts
+		threads.forEach((thread) => {
+			const date = new Date(thread.timestamp).toLocaleDateString();
+			if (!countMap[date]) {
+				countMap[date] = 1;
+			} else {
+				countMap[date] += 1;
+			}
+		});
+
+		// Fill in the threadCountPerDay array with all dates in the range
+		for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+			const dateStr = d.toLocaleDateString();
+			threadCountPerDay.push({ end_date: dateStr, count: countMap[dateStr] || 0 });
+		}
+
+		return threadCountPerDay;
+	}
+
+	const currentThreads = getThreadCountPerDay(
+		getFilteredThreads(threads),
+		new Date(currentValues[0].end_time),
+		new Date(currentValues[currentValues.length - 1].end_time),
+	);
+
 	const chartOptions: ApexCharts.ApexOptions = {
 		chart: {
 			type: "area",
@@ -62,17 +109,36 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"][] }> = ({ data }) => {
 			x: {
 				format: "dd MMM yyyy",
 			},
-			y: {
-				formatter: (val) => `${val.toLocaleString()} views`,
-			},
+			y: [
+				{
+					formatter: (val) => `${val.toLocaleString()} views`,
+				},
+				{
+					formatter: (val) => `${val.toLocaleString()} posts`,
+				},
+			],
 		},
-		yaxis: {
-			labels: {
-				formatter: (val) => val.toLocaleString(),
+		yaxis: [
+			{
+				labels: {
+					formatter: (val) => {
+						const formatter = Intl.NumberFormat("en", { notation: "compact" });
+						return formatter.format(val);
+					},
+				},
 			},
-		},
+			{
+				opposite: true,
+				labels: {
+					formatter: (val) => {
+						const formatter = Intl.NumberFormat("en", { notation: "compact" });
+						return formatter.format(val);
+					},
+				},
+			},
+		],
 		xaxis: {
-			categories: currentValues.map((value) => new Date(value.end_time).getDate()),
+			categories: currentValues.map((value) => new Date(value.end_time).toLocaleDateString()),
 			labels: {
 				show: true,
 				rotate: -45,
@@ -113,7 +179,7 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"][] }> = ({ data }) => {
 				shade: "#1C64F2",
 				gradientToColors: ["#1C64F2"],
 			},
-			colors: ["#1C64F2"],
+			colors: ["#1C64F2", "#F39C12"],
 		},
 		dataLabels: {
 			enabled: false,
@@ -125,6 +191,11 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"][] }> = ({ data }) => {
 			name: "Views",
 			data: currentValues.map((value) => value.value),
 			color: "#1C64F2",
+		},
+		{
+			name: "Posts",
+			data: currentThreads.map((value) => value.count),
+			color: "#F39C12",
 		},
 	];
 

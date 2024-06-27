@@ -80,19 +80,18 @@ export const getUserProfile = async (inst: KyInstance, accessToken: AccessTokenR
 		});
 };
 
-export interface UserInsightsResponse<T extends InsightMetric = InsightMetric> {
-	data: T[];
+type Breakdown = "country" | "city" | "age" | "gender";
+
+export interface GetUserInsightsParams {
+	since?: number;
+	until?: number;
+	breakdown?: Breakdown;
+	all_time?: boolean;
 }
 
-export type InsightMetric = TotalValueMetric | TimeSeriesMetric;
-
-export interface TotalValueMetric {
-	name: string;
-	period: string;
-	total_value: { value: number };
-	title: string;
-	description: string;
-	id: string;
+export interface GetMediaInsightsParams {
+	since?: number;
+	until?: number;
 }
 
 export interface TimeSeriesMetric {
@@ -104,14 +103,37 @@ export interface TimeSeriesMetric {
 	id: string;
 }
 
-// country, city, age, or gender.
-type Breakdown = "country" | "city" | "age" | "gender";
+export interface BreakdownMetric {
+	dimension_keys: string[];
+	results: { dimension_values: string[]; value: number }[];
+}
 
-export interface GetUserInsightsParams {
-	since?: number;
-	until?: number;
-	breakdown?: Breakdown;
-	all_time?: boolean;
+export interface DemographicMetricPayload {
+	name: string;
+	period: string;
+	total_value: { breakdowns: BreakdownMetric[] };
+	title: string;
+	description: string;
+	id: string;
+}
+
+export interface DemographicMetric extends DemographicMetricPayload {
+	simplified_values: { value: number; label: string }[];
+}
+
+export interface TotalValueMetric {
+	name: string;
+	period: string;
+	total_value: { value: number };
+	title: string;
+	description: string;
+	id: string;
+}
+
+export type InsightMetric = TotalValueMetric | TimeSeriesMetric;
+
+export interface InsightsResponse<T> {
+	data: T[];
 }
 
 export interface MetricTypeMap {
@@ -124,28 +146,43 @@ export interface MetricTypeMap {
 	follower_demographics: TotalValueMetric;
 }
 
-export type Metric = keyof MetricTypeMap;
+export interface MediaMetricTypeMap {
+	views: TimeSeriesMetric;
+	likes: TotalValueMetric;
+	replies: TotalValueMetric;
+	reposts: TotalValueMetric;
+	quotes: TotalValueMetric;
+}
 
-export const getUserInsights = async <M extends Metric>(
+export type Metric = keyof MetricTypeMap;
+export type MediaMetric = keyof MediaMetricTypeMap;
+
+export const getAllUserInsightsWithDefaultParams = async (inst: KyInstance, accessToken: AccessTokenResponse): Promise<MetricTypeMap> => {
+	return await getAllUserInsights(inst, accessToken, { all_time: true });
+};
+
+// Media Insights
+
+// User Insights
+const allUserMetrics: Metric[] = ["views", "likes", "replies", "reposts", "quotes", "followers_count"];
+
+export const getAllUserInsights = async (
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
-	metric: M,
-	{ since, until, breakdown, all_time }: GetUserInsightsParams = {},
-): Promise<UserInsightsResponse<MetricTypeMap[M]>> => {
+	params: GetUserInsightsParams = {},
+): Promise<MetricTypeMap> => {
 	const searchParams: Record<string, string | number> = {
-		metric: metric,
+		metric: allUserMetrics.join(","),
 		access_token: accessToken.access_token,
 	};
 
-	if (all_time) {
+	if (params.all_time) {
 		searchParams.since = 1712991600; // from the docs
 		searchParams.until = Math.floor(Date.now() / 1000);
 	} else {
-		if (since) searchParams.since = since;
-		if (until) searchParams.until = until;
+		if (params.since) searchParams.since = params.since;
+		if (params.until) searchParams.until = params.until;
 	}
-
-	if (metric === "follower_demographics") searchParams.breakdown = breakdown ?? "city";
 
 	return await inst
 		.get(`v1.0/${accessToken.user_id}/threads_insights`, {
@@ -155,39 +192,169 @@ export const getUserInsights = async <M extends Metric>(
 			},
 			timeout: 10000,
 		})
-		.then((response) => response.json<UserInsightsResponse<MetricTypeMap[M]>>())
+		.then((response) => response.json<InsightsResponse<MetricTypeMap[Metric]>>())
+		.then((data) => {
+			const mapper: MetricTypeMap = {} as MetricTypeMap;
+			for (const metric of data.data) {
+				switch (metric.name) {
+					case "views":
+						mapper.views = metric as TimeSeriesMetric;
+						break;
+					case "likes":
+						mapper.likes = metric as TotalValueMetric;
+						break;
+					case "replies":
+						mapper.replies = metric as TotalValueMetric;
+						break;
+					case "reposts":
+						mapper.reposts = metric as TotalValueMetric;
+						break;
+					case "quotes":
+						mapper.quotes = metric as TotalValueMetric;
+						break;
+					case "followers_count":
+						mapper.followers_count = metric as TotalValueMetric;
+						break;
+				}
+			}
+			return mapper;
+		})
 		.catch((error: unknown) => {
 			console.error("Error fetching user insights:", error);
 			throw error;
 		});
 };
 
-export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "views", { all_time: true });
+const breakdownTypes: Breakdown[] = ["country", "city", "age", "gender"];
+
+export interface BreakdownMetricTypeMap {
+	country: DemographicMetric;
+	city: DemographicMetric;
+	age: DemographicMetric;
+	gender: DemographicMetric;
+}
+
+export const getFollowerDemographicsInsights = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+): Promise<BreakdownMetricTypeMap> => {
+	const fetchDemographic = async (breakdown: Breakdown) => {
+		const searchParams: Record<string, string> = {
+			metric: "follower_demographics",
+			access_token: accessToken.access_token,
+			breakdown: breakdown,
+		};
+
+		return await inst
+			.get(`v1.0/${accessToken.user_id}/threads_insights`, {
+				searchParams,
+				headers: {
+					"Content-Type": "application/json",
+				},
+				timeout: 10000,
+			})
+			.then((response) => response.json<InsightsResponse<DemographicMetricPayload>>())
+			.then((data) => {
+				// cionvert the payload to the correct type
+				const breakdown = data.data[0].total_value.breakdowns[0];
+
+				const items: { label: string; value: number }[] = [];
+
+				for (const item of breakdown.results) {
+					console.log(item);
+					items.push({
+						label: item.dimension_values.join(", "),
+						value: item.value,
+					});
+				}
+
+				const demographic: DemographicMetric = {
+					...data.data[0],
+					simplified_values: items,
+				};
+
+				return demographic;
+			})
+			.catch((error: unknown) => {
+				console.error("Error fetching follower demographics insights:", error);
+				throw error;
+			});
+	};
+
+	const results = await Promise.all(breakdownTypes.map(fetchDemographic));
+
+	const demographics: BreakdownMetricTypeMap = {
+		country: results[0],
+		city: results[1],
+		age: results[2],
+		gender: results[3],
+	};
+
+	return demographics;
 };
 
-export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
+// Media Insights
+
+const allMediaMetrics: MediaMetric[] = ["views", "likes", "replies", "reposts", "quotes"];
+
+export const getAllMediaInsights = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	mediaId: string,
+	params: GetMediaInsightsParams = {},
+): Promise<MediaMetricTypeMap> => {
+	const searchParams: Record<string, string | number> = {
+		metric: allMediaMetrics.join(","),
+		access_token: accessToken.access_token,
+	};
+
+	if (params.since) searchParams.since = params.since;
+	if (params.until) searchParams.until = params.until;
+
+	return await inst
+		.get(`v1.0/${mediaId}/insights`, {
+			searchParams,
+			headers: {
+				"Content-Type": "application/json",
+			},
+			timeout: 10000,
+		})
+		.then((response) => response.json<InsightsResponse<MediaMetricTypeMap[MediaMetric]>>())
+		.then((data) => {
+			const mapper: MediaMetricTypeMap = {} as MediaMetricTypeMap;
+			for (const metric of data.data) {
+				switch (metric.name) {
+					case "views":
+						mapper.views = metric as TimeSeriesMetric;
+						break;
+					case "likes":
+						mapper.likes = metric as TotalValueMetric;
+						break;
+					case "replies":
+						mapper.replies = metric as TotalValueMetric;
+						break;
+					case "reposts":
+						mapper.reposts = metric as TotalValueMetric;
+						break;
+					case "quotes":
+						mapper.quotes = metric as TotalValueMetric;
+						break;
+				}
+			}
+			return mapper;
+		})
+		.catch((error: unknown) => {
+			console.error("Error fetching media insights:", error);
+			throw error;
+		});
 };
 
-export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
-};
-
-export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
-};
-
-export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
-};
-
-export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-	return await getUserInsights(inst, accessToken, "followers_count");
-};
-
-export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
-	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
+export const getMediaInsightsWithDefaultParams = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	mediaId: string,
+): Promise<MediaMetricTypeMap> => {
+	return await getAllMediaInsights(inst, accessToken, mediaId, {});
 };
 
 export interface ThreadMedia {
@@ -244,7 +411,7 @@ export const getUserThreads = async (
 	searchParams.limit = params?.limit ?? Number.MAX_SAFE_INTEGER;
 
 	const resp = await inst
-		.get(`v1.0/${accessToken.user_id}/threads`, {
+		.get(`v1.0/me/threads`, {
 			searchParams,
 			headers: {
 				"Content-Type": "application/json",
@@ -256,20 +423,6 @@ export const getUserThreads = async (
 			console.error("Error fetching user threads:", error);
 			throw error;
 		});
-
-	// if (params?.all_time && resp.paging?.cursors.after) {
-	// 	const next = resp.paging.cursors.after;
-	// 	const more = await getUserThreads(
-	// 		inst,
-	// 		{
-	// 			access_token: next,
-	// 			user_id: accessToken.user_id,
-	// 		},
-	// 		{ ...params, since: next },
-	// 	);
-	// 	resp.data.push(...more.data);
-	// 	resp.paging = more.paging;
-	// }
 
 	return resp;
 };
@@ -332,4 +485,12 @@ export const getConversation = async (
 			console.error("Error fetching conversation:", error);
 			throw error;
 		});
+};
+
+export const getDefaultConversation = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	mediaId: string,
+): Promise<ConversationResponse> => {
+	return await getConversation(inst, accessToken, mediaId, {});
 };

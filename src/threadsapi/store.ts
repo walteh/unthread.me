@@ -1,9 +1,17 @@
 import ky, { KyInstance } from "ky";
 import { useEffect } from "react";
 import { create } from "zustand";
-import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
-import { AccessTokenResponse, MetricTypeMap, UserInsightsResponse, UserProfileResponse, UserThreadsResponse } from "./api";
+import {
+	AccessTokenResponse,
+	BreakdownMetricTypeMap,
+	ConversationResponse,
+	MediaMetricTypeMap,
+	MetricTypeMap,
+	UserProfileResponse,
+	UserThreadsResponse,
+} from "./api";
 
 interface PersistantStore {
 	access_token: AccessTokenResponse | null;
@@ -33,8 +41,11 @@ export const usePersistantStore = create<PersistantStore>()(
 
 interface UserDataTypes {
 	user_profile: UserProfileResponse;
-	user_insights_profile_views: UserInsightsResponse<MetricTypeMap["views"]>;
+	user_insights: MetricTypeMap;
 	user_threads: UserThreadsResponse;
+	user_follower_demographics: BreakdownMetricTypeMap;
+	user_threads_replies: ConversationResponse;
+	user_threads_insights: MediaMetricTypeMap;
 }
 
 interface DataResponse<T extends keyof UserDataTypes> {
@@ -46,50 +57,72 @@ interface DataResponse<T extends keyof UserDataTypes> {
 
 interface UserDataStoreData {
 	user_profile: DataResponse<"user_profile"> | null;
-	user_insights_profile_views: DataResponse<"user_insights_profile_views"> | null;
+	user_insights: DataResponse<"user_insights"> | null;
 	user_threads: DataResponse<"user_threads"> | null;
+	user_threads_replies: Record<string, DataResponse<"user_threads_replies"> | null>;
+	user_threads_insights: Record<string, DataResponse<"user_threads_insights"> | null>;
+	user_follower_demographics: DataResponse<"user_follower_demographics"> | null;
 }
 
-interface UserDataStore extends UserDataStoreData {
-	updateData: <G extends keyof UserDataTypes, T extends UserDataTypes[G]>(key: G, data: T) => void;
-	updateIsLoading: (key: keyof UserDataStoreData, is_loading: boolean) => void;
-	updateError: (key: keyof UserDataStoreData, error: string) => void;
-}
+export const useUserDataStore = create(
+	devtools(
+		combine(
+			{
+				user_profile: null,
+				user_insights: null,
+				user_threads: null,
+				user_follower_demographics: null,
+				user_threads_replies: {},
+				user_threads_insights: {},
+			} as UserDataStoreData,
+			(set) => {
+				return {
+					updateNestedData: <G extends keyof UserDataTypes, T extends UserDataTypes[G]>(key: G, data: Record<string, T>) => {
+						const obj: Record<string, DataResponse<G>> = {};
+						for (const [k, v] of Object.entries(data)) {
+							obj[k] = {
+								data: v,
+								is_loading: false,
+								updated_at: Date.now(),
+								error: null,
+							};
+						}
+						set(() => ({
+							[key]: obj,
+						}));
+					},
 
-export const useUserDataStore = create<UserDataStore>()(
-	devtools<UserDataStore>((set) => ({
-		user_profile: null,
-		user_insights_profile_views: null,
-		user_threads: null,
+					updateData: <G extends keyof UserDataTypes, T extends UserDataTypes[G]>(key: G, data: T) => {
+						set((state) => ({
+							[key]: {
+								...state[key],
+								data,
+								updated_at: Date.now(),
+							},
+						}));
+					},
 
-		updateData: <G extends keyof UserDataTypes, T extends UserDataTypes[G]>(key: G, data: T) => {
-			set((state) => ({
-				[key]: {
-					...state[key],
-					data,
-					updated_at: Date.now(),
-				},
-			}));
-		},
+					updateIsLoading: (key: keyof UserDataTypes, is_loading: boolean) => {
+						set((state) => ({
+							[key]: {
+								...state[key],
+								is_loading,
+							},
+						}));
+					},
 
-		updateIsLoading: (key: keyof UserDataTypes, is_loading: boolean) => {
-			set((state) => ({
-				[key]: {
-					...state[key],
-					is_loading,
-				},
-			}));
-		},
-
-		updateError: (key: keyof UserDataTypes, error: string) => {
-			set((state) => ({
-				[key]: {
-					...state[key],
-					error,
-				},
-			}));
-		},
-	})),
+					updateError: (key: keyof UserDataTypes, error: string) => {
+						set((state) => ({
+							[key]: {
+								...state[key],
+								error,
+							},
+						}));
+					},
+				};
+			},
+		),
+	),
 );
 
 export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDataStoreData>(
@@ -122,6 +155,51 @@ export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDat
 			void fetchData(accessToken);
 		}
 	}, [accessToken, storeKey, func, setData, setLoading, setError, data]);
+
+	return null;
+};
+
+export const useNestedDataFetcher = <G extends keyof UserDataStoreData = keyof UserDataStoreData>(
+	storeKey: G,
+	func: (kyd: KyInstance, ktoken: AccessTokenResponse, id: string) => Promise<UserDataTypes[G]>,
+) => {
+	const data = useUserDataStore((state) => state.user_threads);
+	// const nested_data = useUserDataStore((state) => state[storeKey]);
+	const setData = useUserDataStore((state) => state.updateNestedData);
+
+	const accessToken = usePersistantStore((state) => state.access_token);
+
+	useEffect(() => {
+		async function fetchData(token: AccessTokenResponse) {
+			try {
+				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
+
+				const requests: Promise<{ id: string; req: UserDataTypes[G] }>[] = [];
+				for (const i of data?.data?.data ?? []) {
+					requests.push(
+						func(kyd, token, i.id).then((req) => {
+							return { id: i.id, req };
+						}),
+					);
+				}
+
+				const response = await Promise.all(requests);
+
+				const map: Record<string, UserDataTypes[G]> = {};
+				for (const i of response) {
+					map[i.id] = i.req;
+				}
+
+				setData(storeKey, map);
+			} catch (error) {
+				console.error(`Error fetching data for ${storeKey}:`, error);
+			}
+		}
+
+		if (accessToken && data) {
+			void fetchData(accessToken);
+		}
+	}, [accessToken, storeKey, func, setData, data]);
 
 	return null;
 };
