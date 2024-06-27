@@ -162,34 +162,33 @@ export const getUserInsights = async <M extends Metric>(
 		});
 };
 
-// Wrapper functions
-// export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "views", { all_time: true });
-// };
+export const getViewsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "views", { all_time: true });
+};
 
-// export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
-// };
+export const getLikesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "likes", { all_time: true });
+};
 
-// export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
-// };
+export const getRepliesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "replies", { all_time: true });
+};
 
-// export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
-// };
+export const getRepostsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "reposts", { all_time: true });
+};
 
-// export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
-// };
+export const getQuotesInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "quotes", { all_time: true });
+};
 
-// export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
-// 	return await getUserInsights(inst, accessToken, "followers_count");
-// };
+export const getFollowersCountInsights = async (inst: KyInstance, accessToken: AccessTokenResponse) => {
+	return await getUserInsights(inst, accessToken, "followers_count");
+};
 
-// export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
-// 	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
-// };
+export const getFollowerDemographicsInsights = async (inst: KyInstance, accessToken: AccessTokenResponse, breakdown: Breakdown) => {
+	return await getUserInsights(inst, accessToken, "follower_demographics", { breakdown });
+};
 
 export interface ThreadMedia {
 	id: string;

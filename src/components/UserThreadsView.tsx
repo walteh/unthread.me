@@ -3,22 +3,24 @@ import { FC } from "react";
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
 import useConversation from "@src/hooks/useConversation";
-import useUserThreads from "@src/hooks/useUserThreads";
 import { Reply, ThreadMedia } from "@src/threadsapi/api";
+import { useUserDataStore } from "@src/threadsapi/store";
 
 const UserThreadsView = () => {
-	const [threads, isLoading, error] = useUserThreads();
+	const threads = useUserDataStore((state) => state.user_threads);
 
-	if (isLoading) return <Loader />;
-	if (error) return <ErrorMessage message={error} />;
+	if (!threads) return null;
+
+	if (threads.is_loading) return <Loader />;
+	if (threads.error) return <ErrorMessage message={threads.error} />;
 
 	return (
 		<div className="container mx-auto p-6">
-			{threads ? (
+			{threads.data ? (
 				<div>
 					<h1 className="text-3xl font-bold text-center mb-8">User Threads</h1>
 					<div className="space-y-6">
-						{threads.map((thread) => (
+						{threads.data.data.map((thread) => (
 							<div key={thread.id} className="bg-white p-6 rounded-lg shadow-lg">
 								<ThreadCard thread={thread} />
 							</div>
@@ -35,7 +37,7 @@ const UserThreadsView = () => {
 const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => (
 	<div>
 		<div className="mb-4">
-			<h2 className="text-xl font-semibold">{thread.username}</h2>
+			<h2 className="text-xl font-semibold">@{thread.username}</h2>
 			<p className="text-sm text-gray-500">{new Date(thread.timestamp).toLocaleString()}</p>
 		</div>
 		<p className="mb-4">{thread.text}</p>
@@ -72,7 +74,7 @@ const UserThreadRepliesDisplay: FC<{ replies: Reply[]; pad: number }> = ({ repli
 				{replies.map((reply) => (
 					<div key={reply.id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
 						<div className="flex items-center mb-2">
-							<p className="text-sm font-semibold">{reply.username}</p>
+							<p className="text-sm font-semibold">@{reply.username}</p>
 							<p className="text-xs text-gray-500 ml-2">{new Date(reply.timestamp).toLocaleString()}</p>
 						</div>
 						<p className="text-sm">{reply.text}</p>

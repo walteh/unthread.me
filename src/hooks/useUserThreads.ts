@@ -1,7 +1,8 @@
-import { AccessTokenResponse, getUserThreads, GetUserThreadsParams, ThreadMedia, UserThreadsResponse } from "@src/threadsapi/api"; // Update with your actual API import
-import { usePersistantStore } from "@src/threadsapi/store"; // Update with your actual store import
 import ky from "ky";
 import React from "react";
+
+import { AccessTokenResponse, getUserThreads, GetUserThreadsParams, ThreadMedia, UserThreadsResponse } from "@src/threadsapi/api"; // Update with your actual API import
+import { usePersistantStore } from "@src/threadsapi/store"; // Update with your actual store import
 
 const useUserThreads = (params?: GetUserThreadsParams) => {
 	const [threads, setThreads] = React.useState<ThreadMedia[] | null>(null);

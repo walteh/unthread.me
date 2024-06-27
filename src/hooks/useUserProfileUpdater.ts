@@ -2,36 +2,36 @@ import ky from "ky";
 import React from "react";
 
 import { AccessTokenResponse, getUserProfile, UserProfileResponse } from "@src/threadsapi/api";
-import { usePersistantStore } from "@src/threadsapi/store";
+import { usePersistantStore, useUserDataStore } from "@src/threadsapi/store";
 
-const useUserProfile = () => {
-	const [profile, setProfile] = React.useState<UserProfileResponse | null>(null);
-	const [isLoading, setIsLoading] = React.useState<boolean>(false);
-	const [error, setError] = React.useState<string | null>(null);
+const useUserProfileUpdater = () => {
+	const setData = useUserDataStore((state) => state.updateData);
+	const setLoading = useUserDataStore((state) => state.updateIsLoading);
+	const setError = useUserDataStore((state) => state.updateError);
+
 	const accessToken = usePersistantStore((state) => state.access_token);
 
 	React.useEffect(() => {
 		async function fetchAccessTokenAndProfile(token: AccessTokenResponse) {
-			setIsLoading(true);
+			setLoading("user_profile", true);
 			try {
 				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
 				const userProfile: UserProfileResponse = await getUserProfile(kyd, token);
-				setProfile(userProfile);
-				setError(null);
+				setData("user_profile", userProfile);
 			} catch (error) {
 				console.error("Error updating access token or fetching user profile:", error);
-				setError("Failed to fetch user profile");
+				setError("user_profile", "Failed to fetch user profile");
 			} finally {
-				setIsLoading(false);
+				setLoading("user_profile", false);
 			}
 		}
 
 		if (accessToken) {
 			void fetchAccessTokenAndProfile(accessToken);
 		}
-	}, [accessToken]);
+	}, [accessToken, setLoading, setError, setData]);
 
-	return [profile, isLoading, error] as const;
+	return null;
 };
 
-export default useUserProfile;
+export default useUserProfileUpdater;

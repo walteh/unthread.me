@@ -1,16 +1,23 @@
-import useUserInsights from "@src/hooks/useUserInsights";
+import { FC } from "react";
 
-const UserInsightsViews = () => {
-	const [insights, isLoading, error] = useUserInsights("views", { all_time: true });
+import ErrorMessage from "@src/components/ErrorMessage";
+import Loader from "@src/components/Loader";
+// Update with the correct path
+import { useUserDataStore } from "@src/threadsapi/store";
 
-	if (isLoading) return <div>Loading...</div>;
-	if (error) return <div>Error: {error}</div>;
+const UserInsightsViews: FC = () => {
+	const data = useUserDataStore((state) => state.user_insights_profile_views);
+
+	if (!data) return null;
+
+	if (data.is_loading) return <Loader />;
+	if (data.error) return <ErrorMessage message={data.error} />;
 
 	return (
 		<div>
-			{insights ? (
+			{data.data ? (
 				<div>
-					{insights.data.map((metric) => (
+					{data.data.data.map((metric) => (
 						<div key={metric.id}>
 							<h2>{metric.title}</h2>
 							<p>{metric.description}</p>

@@ -1,9 +1,9 @@
 import { FC } from "react";
 
 import UserInsightsViews from "@src/components/UserInsightsViews";
+import UserProfileView from "@src/components/UserProfileView";
 import UserThreadsView from "@src/components/UserThreadsView";
 import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
-import useUserProfile from "@src/hooks/useUserProfile";
 import { getAuthorizationStartURL } from "@src/threadsapi/api";
 
 import { useInMemoryStore, usePersistantStore } from "../threadsapi/store";
@@ -12,7 +12,6 @@ const Home: FC = () => {
 	const [token] = usePersistantStore((state) => [state.access_token] as const);
 	const [is_logging_in] = useInMemoryStore((state) => [state.is_logging_in] as const);
 
-	const [userProfile] = useUserProfile();
 	const access_token_expires_in = useAccessTokenExpiresIn();
 
 	if (is_logging_in) {
@@ -51,24 +50,17 @@ const Home: FC = () => {
 	}
 
 	return (
-		<>
-			<section>
-				<div className="hero min-h-[calc(100vh-64px)] bg-base-200">
-					<div className="hero-content flex-col lg:flex-row">
-						<div>
-							<h1 className="text-5xl font-bold">Welcome</h1>
-							<p className="py-5">id: {token.user_id} </p>
-							<p className="py-5">username: {userProfile?.username} </p>
-							<p className="py-5">bio: {userProfile?.threads_biography} </p>
-
-							<UserInsightsViews />
-
-							<UserThreadsView />
-						</div>
+		<section>
+			<div className="hero bg-base-200">
+				<div className="flex-col lg:flex-row items-start">
+					<div className="w-full lg:w-auto max-w-[300px] mx-auto">
+						<UserProfileView />
+						<UserInsightsViews />
+						<UserThreadsView />
 					</div>
 				</div>
-			</section>
-		</>
+			</div>
+		</section>
 	);
 };
 
