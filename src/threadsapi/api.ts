@@ -274,3 +274,63 @@ export const getUserThreads = async (
 
 	return resp;
 };
+
+export interface Reply {
+	id: string;
+	text: string;
+	timestamp: string;
+	media_product_type: string;
+	media_type: string;
+	media_url?: string;
+	permalink?: string;
+	username: string;
+	shortcode: string;
+	thumbnail_url?: string;
+	children?: Reply[];
+	has_replies: boolean;
+	root_post: { id: string };
+	replied_to: { id: string };
+	is_reply: boolean;
+	hide_status: string;
+}
+
+export interface ConversationResponse {
+	data: Reply[];
+	paging?: {
+		cursors: {
+			before: string;
+			after: string;
+		};
+	};
+}
+
+export interface GetConversationParams {
+	reverse?: boolean;
+}
+
+export const getConversation = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	mediaId: string,
+	params?: GetConversationParams,
+): Promise<ConversationResponse> => {
+	const searchParams: Record<string, string | boolean | number> = {
+		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status",
+		access_token: accessToken.access_token,
+		reverse: params?.reverse ?? true,
+	};
+
+	return await inst
+		.get(`v1.0/${mediaId}/conversation`, {
+			searchParams,
+			headers: {
+				"Content-Type": "application/json",
+			},
+			timeout: 10000,
+		})
+		.then((response) => response.json<ConversationResponse>())
+		.catch((error: unknown) => {
+			console.error("Error fetching conversation:", error);
+			throw error;
+		});
+};

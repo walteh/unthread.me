@@ -1,27 +1,98 @@
-import useUserThreads from "@src/hooks/useUserThreads";
+import { FC } from "react";
 
-const UserInsightsViews = () => {
+import ErrorMessage from "@src/components/ErrorMessage";
+import Loader from "@src/components/Loader";
+import useConversation from "@src/hooks/useConversation";
+import useUserThreads from "@src/hooks/useUserThreads";
+import { Reply, ThreadMedia } from "@src/threadsapi/api";
+
+const UserThreadsView = () => {
 	const [threads, isLoading, error] = useUserThreads();
 
-	if (isLoading) return <div>Loading...</div>;
-	if (error) return <div>Error: {error}</div>;
+	if (isLoading) return <Loader />;
+	if (error) return <ErrorMessage message={error} />;
 
 	return (
-		<div>
+		<div className="container mx-auto p-6">
 			{threads ? (
 				<div>
-					<h2>Threads</h2>
-					<ul>
+					<h1 className="text-3xl font-bold text-center mb-8">User Threads</h1>
+					<div className="space-y-6">
 						{threads.map((thread) => (
-							<li key={thread.id}>{thread.text}</li>
+							<div key={thread.id} className="bg-white p-6 rounded-lg shadow-lg">
+								<ThreadCard thread={thread} />
+							</div>
 						))}
-					</ul>
+					</div>
 				</div>
 			) : (
-				<div>No threads data available</div>
+				<div className="text-center text-gray-500">No threads data available</div>
 			)}
 		</div>
 	);
 };
 
-export default UserInsightsViews;
+const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => (
+	<div>
+		<div className="mb-4">
+			<h2 className="text-xl font-semibold">{thread.username}</h2>
+			<p className="text-sm text-gray-500">{new Date(thread.timestamp).toLocaleString()}</p>
+		</div>
+		<p className="mb-4">{thread.text}</p>
+		{thread.media_url && (
+			<div className="mb-4">
+				{thread.media_type === "IMAGE" && <img src={thread.media_url} alt="Media" className="rounded-lg" />}
+				{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg" />}
+			</div>
+		)}
+		<div>
+			<h3 className="text-lg font-semibold mb-2">Replies</h3>
+			<UserThreadReplies thread_id={thread.id} />
+		</div>
+	</div>
+);
+
+const UserThreadReplies: FC<{ thread_id: string }> = ({ thread_id }) => {
+	const [replies, isLoading, error] = useConversation(thread_id);
+
+	if (isLoading) return <Loader />;
+	if (error) return <ErrorMessage message={error} />;
+
+	return (
+		<div>
+			{replies ? <UserThreadRepliesDisplay replies={replies} pad={0} /> : <div className="text-gray-500">No replies available</div>}
+		</div>
+	);
+};
+
+const UserThreadRepliesDisplay: FC<{ replies: Reply[]; pad: number }> = ({ replies, pad }) => {
+	return (
+		<div>
+			<div className="space-y-4" style={{ paddingLeft: `${pad}rem` }}>
+				{replies.map((reply) => (
+					<div key={reply.id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
+						<div className="flex items-center mb-2">
+							<p className="text-sm font-semibold">{reply.username}</p>
+							<p className="text-xs text-gray-500 ml-2">{new Date(reply.timestamp).toLocaleString()}</p>
+						</div>
+						<p className="text-sm">{reply.text}</p>
+						{reply.media_url && (
+							<div className="mt-2">
+								{reply.media_type === "IMAGE" && <img src={reply.media_url} alt="Media" className="rounded-lg" />}
+								{reply.media_type === "VIDEO" && <video src={reply.media_url} controls className="rounded-lg" />}
+							</div>
+						)}
+						{reply.children && (
+							<div className="mt-4">
+								<h4 className="text-sm font-semibold">Replies</h4>
+								<UserThreadRepliesDisplay replies={reply.children} pad={pad + 5} />
+							</div>
+						)}
+					</div>
+				))}
+			</div>
+		</div>
+	);
+};
+
+export default UserThreadsView;

@@ -1,6 +1,7 @@
 import { FC } from "react";
 
 import UserInsightsViews from "@src/components/UserInsightsViews";
+import UserThreadsView from "@src/components/UserThreadsView";
 import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
 import useUserProfile from "@src/hooks/useUserProfile";
 import { getAuthorizationStartURL } from "@src/threadsapi/api";
@@ -61,6 +62,8 @@ const Home: FC = () => {
 							<p className="py-5">bio: {userProfile?.threads_biography} </p>
 
 							<UserInsightsViews />
+
+							<UserThreadsView />
 						</div>
 					</div>
 				</div>
