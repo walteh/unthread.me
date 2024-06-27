@@ -315,7 +315,7 @@ export const getConversation = async (
 	params?: GetConversationParams,
 ): Promise<ConversationResponse> => {
 	const searchParams: Record<string, string | boolean | number> = {
-		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status",
+		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status,username",
 		access_token: accessToken.access_token,
 		reverse: params?.reverse ?? true,
 	};
