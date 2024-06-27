@@ -1,5 +1,5 @@
 import ky, { KyInstance } from "ky";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
@@ -9,6 +9,7 @@ import {
 	ConversationResponse,
 	MediaMetricTypeMap,
 	MetricTypeMap,
+	ThreadMedia,
 	UserProfileResponse,
 	UserThreadsResponse,
 } from "./api";
@@ -202,6 +203,64 @@ export const useNestedDataFetcher = <G extends keyof UserDataStoreData = keyof U
 	}, [accessToken, storeKey, func, setData, data]);
 
 	return null;
+};
+
+export const useUserLikesByDay = (): { timestamp: string; total_value: number }[] => {
+	const userThreadsInsights = useUserDataStore((state) => state.user_threads_insights);
+	const userThreads = useUserDataStore((state) =>
+		state.user_threads?.data?.data.reduce((acc, val) => ({ ...acc, [val.id]: val }), {} as Record<string, ThreadMedia>),
+	);
+
+	return useMemo(() => {
+		if (!userThreads) return [];
+
+		const likesByDay: Record<string, number> = {};
+
+		Object.keys(userThreadsInsights).forEach((key) => {
+			const insightsData = userThreadsInsights[key]?.data;
+			if (!insightsData?.likes) return;
+			const day = new Date(userThreads[key].timestamp).toLocaleDateString();
+			if (!likesByDay[day]) likesByDay[day] = 0;
+			likesByDay[day] += insightsData.likes.values[0].value;
+		});
+
+		console.log(likesByDay);
+
+		return Object.keys(likesByDay)
+			.map((day) => ({
+				timestamp: day,
+				total_value: likesByDay[day],
+			}))
+			.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+	}, [userThreads, userThreadsInsights]);
+};
+
+export const useUserThreadViewsByDay = (): { timestamp: string; total_value: number }[] => {
+	const userThreadsInsights = useUserDataStore((state) => state.user_threads_insights);
+	const userThreads = useUserDataStore((state) =>
+		state.user_threads?.data?.data.reduce((acc, val) => ({ ...acc, [val.id]: val }), {} as Record<string, ThreadMedia>),
+	);
+
+	return useMemo(() => {
+		if (!userThreads) return [];
+
+		const viewsByDay: Record<string, number> = {};
+
+		Object.keys(userThreadsInsights).forEach((key) => {
+			const insightsData = userThreadsInsights[key]?.data;
+			if (!insightsData?.views) return;
+			const day = new Date(userThreads[key].timestamp).toLocaleDateString();
+			if (!viewsByDay[day]) viewsByDay[day] = 0;
+			viewsByDay[day] += insightsData.views.values[0].value;
+		});
+
+		return Object.keys(viewsByDay)
+			.map((day) => ({
+				timestamp: day,
+				total_value: viewsByDay[day],
+			}))
+			.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+	}, [userThreads, userThreadsInsights]);
 };
 
 interface InMemoryStore {

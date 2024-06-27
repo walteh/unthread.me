@@ -3,7 +3,7 @@ import ReactApexChart from "react-apexcharts";
 
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import { MetricTypeMap, ThreadMedia } from "@src/threadsapi/api";
+import { ThreadMedia } from "@src/threadsapi/api";
 import { useUserDataStore } from "@src/threadsapi/store";
 
 const UserInsightsViews: FC = () => {
@@ -16,23 +16,28 @@ const UserInsightsViews: FC = () => {
 	if (data.error) return <ErrorMessage message={data.error} />;
 	if (!data.data || !threads.data) return <ErrorMessage message="No insights data available" />;
 
+	if (!data.data.views) return <ErrorMessage message="No views data available" />;
+
 	return (
 		<div className="container mx-auto p-6">
 			<h1 className="text-3xl font-bold text-center mb-8">Profile Views</h1>
-			<ObservedChart data={data.data.views} threads={threads.data.data} />
+			<ObservedChart data={data.data.views.values} threads={threads.data.data} />
 		</div>
 	);
 };
 
-const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }> = ({ data, threads }) => {
+const ObservedChart: FC<{ data: { end_time: string; value: number }[]; threads: ThreadMedia[] }> = ({ data, threads }) => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const [chartWidth, setChartWidth] = useState<number>(0);
 	const [timePeriod, setTimePeriod] = useState<string>("last30days");
 
-	const allValues = data.values;
+	// const likes = useUserLikesByDay();
+	// const threadViews = useUserThreadViewsByDay();
+
+	const allValues = data;
 
 	// Helper function to filter data based on the selected time period
-	function getFilteredData(values: MetricTypeMap["views"]["values"]) {
+	function getFilteredData(values: { end_time: string; value: number }[]) {
 		if (timePeriod === "last7days") {
 			return values.slice(-7);
 		} else if (timePeriod === "last30days") {
@@ -48,7 +53,7 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 	const currentValues = getFilteredData(allValues);
 
 	// Filter threads based on the selected time period
-	function getFilteredThreads(threads: ThreadMedia[]) {
+	function getFilteredThreads<T extends { timestamp: string }>(threads: T[]) {
 		if (timePeriod === "last7days") {
 			const last7Days = new Date();
 			last7Days.setDate(last7Days.getDate() - 7);
@@ -63,7 +68,7 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 		}
 	}
 
-	function getThreadCountPerDay(threads: ThreadMedia[], startDate: Date, endDate: Date) {
+	function getCountPerDay(threads: { timestamp: string }[], startDate: Date, endDate: Date) {
 		const threadCountPerDay: { end_date: string; count: number }[] = [];
 
 		// Initialize an object to hold the counts per day
@@ -88,11 +93,50 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 		return threadCountPerDay;
 	}
 
-	const currentThreads = getThreadCountPerDay(
+	function getTotalPerDay(threads: { timestamp: string; total_value: number }[], startDate: Date, endDate: Date) {
+		const threadCountPerDay: { end_date: string; count: number }[] = [];
+
+		// Initialize an object to hold the counts per day
+		const countMap: Record<string, number> = {};
+
+		// Populate the countMap with thread counts
+		threads.forEach((thread) => {
+			const date = new Date(thread.timestamp).toLocaleDateString();
+			if (!countMap[date]) {
+				countMap[date] = thread.total_value;
+			} else {
+				countMap[date] += thread.total_value;
+			}
+		});
+
+		// Fill in the threadCountPerDay array with all dates in the range
+		for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+			const dateStr = d.toLocaleDateString();
+			threadCountPerDay.push({ end_date: dateStr, count: countMap[dateStr] || 0 });
+		}
+
+		return threadCountPerDay;
+	}
+
+	getTotalPerDay;
+
+	const currentThreads = getCountPerDay(
 		getFilteredThreads(threads),
 		new Date(currentValues[0].end_time),
 		new Date(currentValues[currentValues.length - 1].end_time),
 	);
+
+	// const currentLikes = getTotalPerDay(
+	// 	getFilteredThreads(likes),
+	// 	new Date(currentValues[0].end_time),
+	// 	new Date(currentValues[currentValues.length - 1].end_time),
+	// );
+
+	// const currentThreadViews = getTotalPerDay(
+	// 	getFilteredThreads(threadViews),
+	// 	new Date(currentValues[0].end_time),
+	// 	new Date(currentValues[currentValues.length - 1].end_time),
+	// );
 
 	const chartOptions: ApexCharts.ApexOptions = {
 		chart: {
@@ -116,6 +160,12 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 				{
 					formatter: (val) => `${val.toLocaleString()} posts`,
 				},
+				// {
+				// 	formatter: (val) => `${val.toLocaleString()} likes`,
+				// },
+				// {
+				// 	formatter: (val) => `${val.toLocaleString()} thread views`,
+				// },
 			],
 		},
 		yaxis: [
@@ -136,6 +186,24 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 					},
 				},
 			},
+			// {
+			// 	opposite: true,
+			// 	labels: {
+			// 		formatter: (val) => {
+			// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
+			// 			return formatter.format(val);
+			// 		},
+			// 	},
+			// },
+			// {
+			// 	opposite: true,
+			// 	labels: {
+			// 		formatter: (val) => {
+			// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
+			// 			return formatter.format(val);
+			// 		},
+			// 	},
+			// },
 		],
 		xaxis: {
 			categories: currentValues.map((value) => new Date(value.end_time).toLocaleDateString()),
@@ -195,8 +263,20 @@ const ObservedChart: FC<{ data: MetricTypeMap["views"]; threads: ThreadMedia[] }
 		{
 			name: "Posts",
 			data: currentThreads.map((value) => value.count),
-			color: "#F39C12",
+			color: "#10B981",
 		},
+		// {
+		// 	name: "Likes",
+		// 	data: currentLikes.map((value) => value.count),
+		// 	// green
+		// 	color: "#10B981",
+		// },
+		// {
+		// 	name: "Thread Views",
+		// 	data: currentThreadViews.map((value) => value.count),
+		// 	// red
+		// 	color: "#EF4444",
+		// },
 	];
 
 	const handleTimePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

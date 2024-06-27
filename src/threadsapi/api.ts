@@ -137,21 +137,21 @@ export interface InsightsResponse<T> {
 }
 
 export interface MetricTypeMap {
-	views: TimeSeriesMetric;
-	likes: TotalValueMetric;
-	replies: TotalValueMetric;
-	reposts: TotalValueMetric;
-	quotes: TotalValueMetric;
-	followers_count: TotalValueMetric;
-	follower_demographics: TotalValueMetric;
+	views: TimeSeriesMetric | null;
+	likes: TotalValueMetric | null;
+	replies: TotalValueMetric | null;
+	reposts: TotalValueMetric | null;
+	quotes: TotalValueMetric | null;
+	followers_count: TotalValueMetric | null;
+	follower_demographics: TotalValueMetric | null;
 }
 
 export interface MediaMetricTypeMap {
-	views: TimeSeriesMetric;
-	likes: TotalValueMetric;
-	replies: TotalValueMetric;
-	reposts: TotalValueMetric;
-	quotes: TotalValueMetric;
+	views: TimeSeriesMetric | null;
+	likes: TimeSeriesMetric | null;
+	replies: TotalValueMetric | null;
+	reposts: TotalValueMetric | null;
+	quotes: TotalValueMetric | null;
 }
 
 export type Metric = keyof MetricTypeMap;
@@ -196,7 +196,7 @@ export const getAllUserInsights = async (
 		.then((data) => {
 			const mapper: MetricTypeMap = {} as MetricTypeMap;
 			for (const metric of data.data) {
-				switch (metric.name) {
+				switch (metric?.name) {
 					case "views":
 						mapper.views = metric as TimeSeriesMetric;
 						break;
@@ -323,12 +323,12 @@ export const getAllMediaInsights = async (
 		.then((data) => {
 			const mapper: MediaMetricTypeMap = {} as MediaMetricTypeMap;
 			for (const metric of data.data) {
-				switch (metric.name) {
+				switch (metric?.name) {
 					case "views":
 						mapper.views = metric as TimeSeriesMetric;
 						break;
 					case "likes":
-						mapper.likes = metric as TotalValueMetric;
+						mapper.likes = metric as TimeSeriesMetric;
 						break;
 					case "replies":
 						mapper.replies = metric as TotalValueMetric;
