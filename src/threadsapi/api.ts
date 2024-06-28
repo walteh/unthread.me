@@ -27,6 +27,11 @@ export interface AccessTokenResponse {
 	user_id: number;
 }
 
+export interface LongTermAccessTokenResponse {
+	access_token: string;
+	expires_in: number;
+}
+
 export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string): Promise<AccessTokenResponse> => {
 	return await inst
 		.post("beta/threads-api-oauth-proxy", {
@@ -38,6 +43,31 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 			},
 
 			// mode: "no-cors",
+			timeout: 10000,
+		})
+
+		.then((data) => {
+			console.log({ data });
+			return data.json<AccessTokenResponse>();
+		})
+		.catch((error: unknown) => {
+			console.error("Error fetching access token:", error);
+			throw error;
+		});
+};
+
+export const exchangeAccessTokenForLongLivedCode = async (
+	inst: KyInstance,
+	access_token: AccessTokenResponse,
+): Promise<AccessTokenResponse> => {
+	return await inst
+		.post("beta/threads-api-oauth-proxy", {
+			searchParams: {
+				short_lived_token: access_token.access_token,
+			},
+			headers: {
+				"Content-Type": "application/json",
+			},
 			timeout: 10000,
 		})
 

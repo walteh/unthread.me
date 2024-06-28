@@ -1,37 +1,51 @@
 import ky, { KyInstance } from "ky";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
+
+import { WordSegment } from "@src/hooks/useWords";
 
 import {
 	AccessTokenResponse,
 	BreakdownMetricTypeMap,
 	ConversationResponse,
+	LongTermAccessTokenResponse,
 	MediaMetricTypeMap,
 	MetricTypeMap,
 	ThreadMedia,
 	UserProfileResponse,
 	UserThreadsResponse,
 } from "./api";
+import { TimePeriodLabel } from "./types";
 
 interface PersistantStore {
-	access_token: AccessTokenResponse | null;
+	access_token: AccessTokenResponse;
 	access_token_expires_at: number | null;
+	long_lived_token: LongTermAccessTokenResponse | null;
+	long_lived_token_expires_at: number | null;
 
 	updateAccessToken: (access_token: AccessTokenResponse) => void;
 }
 
-export const usePersistantStore = create<PersistantStore>()(
+export const usePersistantStore = create(
 	devtools(
 		persist(
-			(set) => ({
-				access_token: null,
-				access_token_expires_at: null,
-
-				updateAccessToken: (access_token: AccessTokenResponse) => {
-					set({ access_token, access_token_expires_at: Date.now() + 60 * 60 * 1000 }); // 1 hour
-				},
-			}),
+			combine(
+				{
+					access_token: {} as AccessTokenResponse,
+					access_token_expires_at: null,
+					long_lived_token: null,
+					long_lived_token_expires_at: null,
+				} as PersistantStore,
+				(set) => ({
+					updateAccessToken: (access_token: AccessTokenResponse) => {
+						set({ access_token, access_token_expires_at: Date.now() + 60 * 60 * 1000 }); // 1 hour
+					},
+					updateLongLivedToken: (long_lived_token: LongTermAccessTokenResponse) => {
+						set({ long_lived_token, long_lived_token_expires_at: Date.now() + long_lived_token.expires_in * 1000 });
+					},
+				}),
+			),
 			{
 				name: "threadsole/threads-api",
 				storage: createJSONStorage(() => localStorage),
@@ -126,6 +140,46 @@ export const useUserDataStore = create(
 	),
 );
 
+export const useIsLoggedIn = () => {
+	const expiry = usePersistantStore((state) => state.access_token_expires_at);
+
+	return useMemo(() => {
+		return expiry !== null && expiry > Date.now();
+	}, [expiry]);
+};
+
+export const useActiveAccessToken = () => {
+	const accessToken = usePersistantStore((state) => state.access_token);
+	const longLivedToken = usePersistantStore((state) => state.long_lived_token);
+	const longLivedTokenExpiresAt = usePersistantStore((state) => state.long_lived_token_expires_at);
+	const accessTokenExpiresAt = usePersistantStore((state) => state.access_token_expires_at);
+
+	return useMemo(() => {
+		// make sure we have an access token, it holds the users id
+		if (!accessToken.access_token) {
+			return [false, {} as AccessTokenResponse] as const;
+		}
+		// use the login token if it's still valid
+
+		// use the long-lived token if it's still valid
+		if (longLivedToken && longLivedTokenExpiresAt && longLivedTokenExpiresAt > Date.now()) {
+			return [
+				true,
+				{
+					access_token: longLivedToken.access_token,
+					user_id: accessToken.user_id,
+				},
+			] as const;
+		}
+
+		if (accessToken.access_token && accessTokenExpiresAt && accessTokenExpiresAt > Date.now()) {
+			return [true, accessToken] as const;
+		}
+
+		return [false, {} as AccessTokenResponse] as const;
+	}, [accessToken, longLivedToken, longLivedTokenExpiresAt, accessTokenExpiresAt]);
+};
+
 export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDataStoreData>(
 	storeKey: G,
 	func: (kyd: KyInstance, ktoken: AccessTokenResponse) => Promise<UserDataTypes[G]>,
@@ -135,7 +189,7 @@ export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDat
 	const setLoading = useUserDataStore((state) => state.updateIsLoading);
 	const setError = useUserDataStore((state) => state.updateError);
 
-	const accessToken = usePersistantStore((state) => state.access_token);
+	const [isLoggedIn, accessToken] = useActiveAccessToken();
 
 	useEffect(() => {
 		async function fetchData(token: AccessTokenResponse) {
@@ -152,10 +206,10 @@ export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDat
 			}
 		}
 
-		if (accessToken && !data) {
+		if (isLoggedIn && !data) {
 			void fetchData(accessToken);
 		}
-	}, [accessToken, storeKey, func, setData, setLoading, setError, data]);
+	}, [isLoggedIn, accessToken, storeKey, func, setData, setLoading, setError, data]);
 
 	return null;
 };
@@ -169,6 +223,8 @@ export const useNestedDataFetcher = <G extends keyof UserDataStoreData = keyof U
 	const setData = useUserDataStore((state) => state.updateNestedData);
 
 	const accessToken = usePersistantStore((state) => state.access_token);
+
+	const isLoggedIn = useIsLoggedIn();
 
 	useEffect(() => {
 		async function fetchData(token: AccessTokenResponse) {
@@ -197,10 +253,10 @@ export const useNestedDataFetcher = <G extends keyof UserDataStoreData = keyof U
 			}
 		}
 
-		if (accessToken && data) {
+		if (isLoggedIn && data?.data) {
 			void fetchData(accessToken);
 		}
-	}, [accessToken, storeKey, func, setData, data]);
+	}, [isLoggedIn, accessToken, storeKey, func, setData, data]);
 
 	return null;
 };
@@ -263,18 +319,69 @@ export const useUserThreadViewsByDay = (): { timestamp: string; total_value: num
 	}, [userThreads, userThreadsInsights]);
 };
 
+export const useUserThreadsByDateRange = (start_date: string, end_date: string): ThreadMedia[] => {
+	const userThreads = useUserDataStore((state) => state.user_threads?.data?.data);
+
+	return useMemo(() => {
+		if (!userThreads) return [];
+
+		return userThreads.filter((thread) => {
+			const threadDate = new Date(thread.timestamp).toISOString().slice(0, 10);
+			return threadDate >= start_date && threadDate <= end_date;
+		});
+	}, [userThreads, start_date, end_date]);
+};
+
+export const useViewsByThread = (thread: ThreadMedia) =>
+	useUserDataStore(
+		useCallback(
+			(store) => {
+				return store.user_threads_insights[thread.id]?.data?.views?.values[0].value ?? 0;
+			},
+			[thread],
+		),
+	);
+
+export const useLikesByThread = (thread: ThreadMedia) =>
+	useUserDataStore(
+		useCallback(
+			(store) => {
+				return store.user_threads_insights[thread.id]?.data?.likes?.values[0].value ?? 0;
+			},
+			[thread],
+		),
+	);
+
 interface InMemoryStore {
 	is_logging_in: boolean;
-
-	updateIsLoggingIn: (is_logging_in: boolean) => void;
+	time_period_label: TimePeriodLabel;
+	user_threads_text_segments: Record<string, WordSegment | null>;
 }
 
 export const useInMemoryStore = create(
-	devtools<InMemoryStore>((set) => ({
-		is_logging_in: false,
-
-		updateIsLoggingIn: (is_logging_in: boolean) => {
-			set({ is_logging_in });
-		},
-	})),
+	devtools(
+		combine(
+			{
+				is_logging_in: false,
+				time_period_label: "last7days" as TimePeriodLabel,
+				user_threads_text_segments: {},
+			} as InMemoryStore,
+			(set) => ({
+				updateIsLoggingIn: (is_logging_in: boolean) => {
+					set({ is_logging_in });
+				},
+				updateTimePeriodLabel: (time_period_label: TimePeriodLabel) => {
+					set({ time_period_label });
+				},
+				// updateUserThreadsTextSegments: (thread_id: string, segments: WordSegment | null) => {
+				// 	set((state) => ({
+				// 		user_threads_text_segments: {
+				// 			...state.user_threads_text_segments,
+				// 			[thread_id]: segments,
+				// 		},
+				// 	}));
+				// },
+			}),
+		),
+	),
 );

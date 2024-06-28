@@ -1,18 +1,19 @@
 import { FC } from "react";
 
-import UserInsightsViews from "@src/components/UserInsightsViews";
+import UserInsightsChartView from "@src/components/UserInsightsChartView";
 import UserProfileView from "@src/components/UserProfileView";
-import UserThreadsView from "@src/components/UserThreadsView";
+import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
 import useAccessTokenExpiresIn from "@src/hooks/useAccessTokenExpiresIn";
 import { getAuthorizationStartURL } from "@src/threadsapi/api";
 
-import { useInMemoryStore, usePersistantStore } from "../threadsapi/store";
+import { useActiveAccessToken, useInMemoryStore } from "../threadsapi/store";
 
 const Home: FC = () => {
-	const [token] = usePersistantStore((state) => [state.access_token] as const);
 	const [is_logging_in] = useInMemoryStore((state) => [state.is_logging_in] as const);
 
 	const access_token_expires_in = useAccessTokenExpiresIn();
+
+	const [isLoggedIn] = useActiveAccessToken();
 
 	if (is_logging_in) {
 		return (
@@ -30,7 +31,7 @@ const Home: FC = () => {
 		);
 	}
 
-	if (token === null || access_token_expires_in <= 0) {
+	if (!isLoggedIn) {
 		return (
 			<>
 				<section>
@@ -79,8 +80,9 @@ const Home: FC = () => {
 						</div>
 					</div>
 					<UserProfileView />
-					<UserInsightsViews />
-					<UserThreadsView />
+					<UserInsightsChartView />
+					{/* <UserThreadsView /> */}
+					<WordSegmentLineChart />
 				</div>
 			</div>
 		</section>
