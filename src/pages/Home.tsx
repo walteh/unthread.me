@@ -52,8 +52,8 @@ const Home: FC = () => {
 
 	return (
 		<section>
-			<div className="hero bg-base-200">
-				<div className="flex-col lg:flex-row items-start">
+			<div className=" bg-base-200">
+				<div className="flex-col lg:flex-col items-start ">
 					<div className="w-full lg:w-auto  mx-auto">
 						<div className="flex flex-row justify-around items-center">
 							<h1 className="bg-gradient-to-l from-primary-content via-secondary to-primary bg-clip-text text-3xl font-bold text-transparent">

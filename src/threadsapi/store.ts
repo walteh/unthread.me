@@ -3,8 +3,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
-import { WordSegment } from "@src/hooks/useWords";
-
 import {
 	AccessTokenResponse,
 	BreakdownMetricTypeMap,
@@ -355,7 +353,6 @@ export const useLikesByThread = (thread: ThreadMedia) =>
 interface InMemoryStore {
 	is_logging_in: boolean;
 	time_period_label: TimePeriodLabel;
-	user_threads_text_segments: Record<string, WordSegment | null>;
 }
 
 export const useInMemoryStore = create(
@@ -364,7 +361,6 @@ export const useInMemoryStore = create(
 			{
 				is_logging_in: false,
 				time_period_label: "last7days" as TimePeriodLabel,
-				user_threads_text_segments: {},
 			} as InMemoryStore,
 			(set) => ({
 				updateIsLoggingIn: (is_logging_in: boolean) => {

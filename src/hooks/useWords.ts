@@ -70,48 +70,48 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 	);
 
 	return useMemo(() => {
-		const resp = data.reduce<Record<string, WordInsight | undefined>>((acc, thread) => {
+		const resp = data.reduce<Record<WordSegment, WordInsight | undefined>>((acc, thread) => {
 			const views = vbt(thread);
 			const likes = lbt(thread);
 			if (!thread.text) {
-				if (acc[EMPTY_THREAD]) {
-					// @ts-expect-error - we know this is defined
-					acc[EMPTY_THREAD].total_likes += likes;
-					// @ts-expect-error - we know this is defined
-					acc[EMPTY_THREAD].total_views += views;
-					// @ts-expect-error - we know this is defined
-					acc[EMPTY_THREAD].threads.push(thread);
-					// @ts-expect-error - we know this is defined
-					acc[EMPTY_THREAD].total_count += 1;
-				} else {
-					acc[EMPTY_THREAD] = {
-						word: EMPTY_THREAD,
-						total_likes: likes,
-						total_views: views,
-						type: "empty",
-						threads: [thread],
-						total_count: 1,
-					};
-				}
+				// if (acc[EMPTY_THREAD]) {
+				// 	// @ts-expect-error - we know this is defined
+				// 	acc[EMPTY_THREAD].total_likes += likes;
+				// 	// @ts-expect-error - we know this is defined
+				// 	acc[EMPTY_THREAD].total_views += views;
+				// 	// @ts-expect-error - we know this is defined
+				// 	acc[EMPTY_THREAD].threads.push(thread);
+				// 	// @ts-expect-error - we know this is defined
+				// 	acc[EMPTY_THREAD].total_count += 1;
+				// } else {
+				// 	acc[EMPTY_THREAD] = {
+				// 		word: EMPTY_THREAD,
+				// 		total_likes: likes,
+				// 		total_views: views,
+				// 		type: "empty",
+				// 		threads: [thread],
+				// 		total_count: 1,
+				// 	};
+				// }
 			} else {
 				// const segmenter = new Intl.Segmenter([], { granularity: "word" });
 				// const segmentedText = segmenter.segment(thread.text);
 				// const list = [...segmentedText].map((s) => s.segment);
 				const list = segmentText(thread.text);
 				list.forEach((wordobj) => {
-					const word = wordobj.word;
+					const word = wordFromSegment(wordobj);
 					if (word === " " || word === "") return;
-					if (acc[word]) {
-						acc[word].total_likes += likes;
-						acc[word].total_views += views;
-						acc[word].threads.push({ ...thread, text: `[${likes} - ${views}] ${thread.text}` });
-						acc[word].total_count += 1;
+					if (acc[wordobj]) {
+						acc[wordobj].total_likes += likes;
+						acc[wordobj].total_views += views;
+						acc[wordobj].threads.push({ ...thread, text: `[${likes} - ${views}] ${thread.text}` });
+						acc[wordobj].total_count += 1;
 					} else {
-						acc[word] = {
+						acc[wordobj] = {
 							word,
 							total_likes: likes,
 							total_views: views,
-							type: wordobj.type,
+							type: typeFromSegment(wordobj),
 							threads: [{ ...thread, text: `[${likes} - ${views}] ${thread.text}` }],
 							total_count: 1,
 						};
@@ -121,6 +121,8 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 			return acc;
 		}, {});
+
+		// console.log({ ren: Object.values(resp).length });
 
 		return Object.values(resp).filter((v) => !!v) as unknown as WordInsight[];
 	}, [data, lbt, vbt]);
@@ -161,21 +163,24 @@ const methodMap = {
 
 export const wordTypes = Object.keys(methodMap) as WordType[];
 
-export interface WordSegment {
-	word: string;
-	type: WordType;
-}
+type WordSegment = `${string}_________:___________${WordType}`;
+
+const wordFromSegment = (segment: WordSegment): string => {
+	return segment.split("_________:___________")[0];
+};
+
+const typeFromSegment = (segment: WordSegment): WordType => {
+	return segment.split("_________:___________")[1] as WordType;
+};
 
 interface exporter {
 	out: (format?: outMethods | undefined) => object;
 }
 
 const forEveryMethod = (fn: (arg: { method: (value: Three) => exporter; type: WordType }) => WordSegment[]) => {
-	let segments: WordSegment[] = [];
-	Object.entries(methodMap).forEach(([type, method]) => {
-		segments = segments.concat(fn({ method, type: type as WordType }));
+	return Object.entries(methodMap).flatMap(([type, method]) => {
+		return fn({ method, type: type as WordType });
 	});
-	return segments;
 };
 
 export const segmentText = (text: string): WordSegment[] => {
@@ -184,23 +189,8 @@ export const segmentText = (text: string): WordSegment[] => {
 
 	// Extract segments dynamically
 	const segments = forEveryMethod(({ method, type }) => {
-		return (method(doc).out("array") as string[]).map((w) => ({ word: w, type })) as WordSegment[];
+		return (method(doc).out("array") as string[]).map((w) => `${w}_________:___________${type}`) as WordSegment[];
 	});
-
-	// Add punctuation separately
-	// const punctuation = (doc.match("[.,\\/#!$%\\^&\\*;:{}=\\-_`~()]").out("array") as string[]).map((w) => ({
-	// 	word: w,
-	// 	type: "punctuation",
-	// })) as WordSegment[];
-
-	// // Combine all segments
-	// const entities = [...segments, ...punctuation];
-
-	// Set of predefined entities (dynamically extracted ones)
-	// const predefinedEntities = new Set(segments.map((e) => JSON.stringify({ word: e.word.toLowerCase(), type: e.type })));
-
-	// Convert the set back to an array of objects
-	// const result = Array.from(predefinedEntities).map((e) => JSON.parse(e));
 
 	return segments;
 };
