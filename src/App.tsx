@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "@src/pages/Home";
 
 import useAccessTokenUpdater from "./hooks/useAccessTokenUpdater";
+import { useThreadsAPIMediaDataUpdater, useThreadsAPIUserDataUpdater } from "./hooks/useThreadsAPI";
 import {
 	getAllUserInsightsWithDefaultParams,
 	getDefaultConversation,
@@ -12,16 +13,15 @@ import {
 	getUserProfile,
 	getUserThreads,
 } from "./threadsapi/api";
-import { useDataFetcher, useNestedDataFetcher } from "./threadsapi/store";
 
 const App: FC = () => {
 	useAccessTokenUpdater();
-	useDataFetcher("user_profile", getUserProfile);
-	useDataFetcher("user_threads", getUserThreads);
-	useDataFetcher("user_insights", getAllUserInsightsWithDefaultParams);
-	useDataFetcher("user_follower_demographics", getFollowerDemographicsInsights);
-	useNestedDataFetcher("user_threads_replies", getDefaultConversation);
-	useNestedDataFetcher("user_threads_insights", getMediaInsightsWithDefaultParams);
+	useThreadsAPIUserDataUpdater("user_profile", getUserProfile);
+	useThreadsAPIUserDataUpdater("user_threads", getUserThreads);
+	useThreadsAPIUserDataUpdater("user_insights", getAllUserInsightsWithDefaultParams);
+	useThreadsAPIUserDataUpdater("user_follower_demographics", getFollowerDemographicsInsights);
+	useThreadsAPIMediaDataUpdater("user_threads_replies", getDefaultConversation);
+	useThreadsAPIMediaDataUpdater("user_threads_insights", getMediaInsightsWithDefaultParams);
 	return (
 		<>
 			<Routes>

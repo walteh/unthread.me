@@ -286,7 +286,7 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 	}, []);
 
 	return (
-		<div ref={chartContainerRef} className="bg-white p-6 rounded-xl shadow-xl flex flex-col items-center w-full">
+		<div ref={chartContainerRef} className="flex flex-col items-center w-full">
 			{Chart}
 		</div>
 	);

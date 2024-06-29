@@ -30,7 +30,7 @@ const WordSegmentLineChart: FC = () => {
 
 const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [timePeriod] = useTimePeriod();
-	const [wordSegmentType, setWordSegmentType] = useState<WordType>("abbreviations");
+	const [wordSegmentType, setWordSegmentType] = useState<WordType>("nouns");
 	const [metric, setMetric] = useState<"total_likes" | "total_views" | "total_count">("total_likes");
 
 	const threadsByTimePeriod = useTimePeriodFilteredData(threads, (thread) => thread.timestamp, timePeriod);
@@ -40,7 +40,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [chartWidth, setChartWidth] = useState<number>(0);
 
 	const [currentPage, setCurrentPage] = useState(0);
-	const itemsPerPage = 50;
+	const itemsPerPage = 1000;
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -69,16 +69,19 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		setMetric(event.target.value as "total_likes" | "total_views" | "total_count");
 	};
 
+	const [threashold, setThreashold] = useState(1);
+
 	const paginatedWords = useMemo(() => {
 		const start = currentPage * itemsPerPage;
 		const end = start + itemsPerPage;
 		return words
+			.filter((v) => v.total_count > threashold)
 			.filter((x) => x.type === wordSegmentType)
 			.sort((a, b) => b[metric] - a[metric])
 			.slice(start, end);
-	}, [words, wordSegmentType, metric, currentPage]);
+	}, [words, wordSegmentType, metric, currentPage, threashold]);
 
-	const totalPages = Math.ceil(words.filter((x) => x.type === wordSegmentType).length / itemsPerPage);
+	// const totalPages = Math.ceil(words.filter((x) => x.type === wordSegmentType).length / itemsPerPage);
 
 	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
@@ -281,7 +284,6 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 				words.reduce<Record<string, { key: WordType; value: number }>>(
 					(acc, type) => {
 						acc[type.type].value += 1;
-
 						return acc;
 					},
 					wordTypes.reduce<Record<string, { key: WordType; value: number }>>((acc, type) => {
@@ -300,9 +302,9 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		<div className=" flex flex-col items-center w-full">
 			<div className="mb-4 flex justify-between w-full ">
 				<div className="mb-4">
-					<label htmlFor="wordSegmentType" className="mr-2">
+					{/* <label htmlFor="wordSegmentType" className="mr-2">
 						group:
-					</label>
+					</label> */}
 					<select
 						id="wordSegmentType"
 						value={wordSegmentType}
@@ -312,6 +314,25 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 						{wordTypez.map((type) => (
 							<option key={type.key} value={type.key} disabled={type.value === 0}>
 								{type.key}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="mb-4">
+					<label htmlFor="threashold" className="mr-2">
+						min post threashold:
+					</label>
+					<select
+						id="threashold"
+						value={threashold}
+						onChange={(e) => {
+							setThreashold(parseInt(e.target.value));
+						}}
+						className="p-2 border rounded"
+					>
+						{[0, 1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
+							<option key={value} value={value}>
+								{value}
 							</option>
 						))}
 					</select>
@@ -327,7 +348,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
 				{Chart}
 			</div>
-			<div className="mt-4 flex justify-between space-x-2  w-full">
+			{/* <div className="mt-4 flex justify-between space-x-2  w-full">
 				<button
 					onClick={() => {
 						setCurrentPage((prev) => Math.max(prev - 1, 0));
@@ -346,7 +367,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 				>
 					next
 				</button>
-			</div>
+			</div> */}
 		</div>
 	);
 };

@@ -23,14 +23,14 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 	const lbt = useCallback(
 		(thread: ThreadMedia) => {
-			return userThreadsInsights[thread.id]?.data?.likes?.values[0].value ?? 0;
+			return userThreadsInsights?.data[thread.id]?.likes?.values[0].value ?? 0;
 		},
 		[userThreadsInsights],
 	);
 
 	const vbt = useCallback(
 		(thread: ThreadMedia) => {
-			return userThreadsInsights[thread.id]?.data?.views?.values[0].value ?? 0;
+			return userThreadsInsights?.data[thread.id]?.views?.values[0].value ?? 0;
 		},
 		[userThreadsInsights],
 	);
@@ -67,22 +67,22 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 		// console.log({ ren: Object.values(resp).length });
 
-		return Object.values(resp).filter((v) => v && v.total_count > 1) as unknown as WordInsight[];
+		return Object.values(resp) as unknown as WordInsight[];
 	}, [data, lbt, vbt]);
 };
 
-export type WordType = keyof typeof methodMap;
+export type WordType = Lowercase<keyof typeof methodMap>;
 
 // Define the method map with direct method references
 
 const methodMap = {
-	organizations: [(doc: Three) => doc.organizations(), (doc: Three) => doc.nouns().if("apple")],
+	organizations: [(doc: Three) => doc.organizations()],
 	places: (doc: Three) => doc.places(),
 	people: (doc: Three) => doc.people(),
-	phoneNumbers: (doc: Three) => doc.phoneNumbers(),
+	phonenumbers: (doc: Three) => doc.phoneNumbers(),
 	honorifics: (doc: Three) => doc.honorifics(),
-	hashTags: (doc: Three) => doc.hashTags(),
-	atMentions: (doc: Three) => doc.atMentions(),
+	hashtags: (doc: Three) => doc.hashTags(),
+	mentions: (doc: Three) => doc.atMentions(),
 	urls: (doc: Three) => doc.urls(),
 	emoji: (doc: Three) => doc.emoji(),
 	numbers: (doc: Three) => doc.numbers(),
@@ -90,13 +90,20 @@ const methodMap = {
 	contractions: (doc: Three) => doc.contractions(),
 	acronyms: (doc: Three) => doc.acronyms(),
 	adjectives: (doc: Three) => doc.adjectives(),
+	emoticons: (doc: Three) => doc.emoticons(),
+	money: (doc: Three) => doc.money(),
+	hyphenated: (doc: Three) => doc.hyphenated(),
+	emails: (doc: Three) => doc.emails(),
+	fractions: (doc: Three) => doc.fractions(),
+	quotations: (doc: Three) => doc.quotations(),
+	possessives: (doc: Three) => doc.possessives(),
 	adverbs: (doc: Three) => doc.adverbs(),
 	nouns: (doc: Three) => doc.nouns(),
 	verbs: (doc: Three) => doc.verbs(),
 	conjunctions: (doc: Three) => doc.conjunctions(),
 	prepositions: (doc: Three) => doc.prepositions(),
 	pronouns: (doc: Three) => doc.pronouns(),
-	clauses: (doc: Three) => doc.clauses(),
+	// clauses: (doc: Three) => doc.clauses(),
 	// sentences: (doc: Three) => doc.sentences(),
 
 	// normalize: (doc: Three) => doc.normalize(),
@@ -127,11 +134,17 @@ const forEveryMethod = (fn: (arg: ((value: Three) => exporter)[], type: WordType
 
 export const segmentText = (text: string): WordSegment[] => {
 	// Use Compromise to process the text
-	const doc = nlp(text);
+
+	let texttrimmedpunc = nlp(text).normalize().out("text") as string;
+
+	// remove quotes
+	texttrimmedpunc = texttrimmedpunc.replace(/[‟‟″"˝´‟″„”“]+/g, "");
+
+	const doc = nlp(texttrimmedpunc);
 
 	// Extract segments dynamically
 	const segments = forEveryMethod((methods, type) => {
-		const items = methods.flatMap((m) => m(doc).out("array") as string[]).map((w) => `${w}_________:___________${type}`);
+		const items = methods.flatMap((m) => m(doc).out("array") as string[]).map((w) => `${w}_________:___________${type}`.toLowerCase());
 
 		return items as WordSegment[];
 	});

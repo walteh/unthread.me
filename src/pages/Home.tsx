@@ -57,7 +57,7 @@ const Home: FC = () => {
 			<div className=" bg-base-200">
 				<div className="flex-col lg:flex-col items-start ">
 					<UserProfileView />
-					<div className="mb-4">
+					<div className="mb-4 flex justify-center">
 						<label htmlFor="timePeriod" className="mr-2">
 							Select Time Period:
 						</label>

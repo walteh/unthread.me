@@ -1,0 +1,98 @@
+import ky, { KyInstance } from "ky";
+import { useEffect } from "react";
+
+import { AccessTokenResponse } from "@src/threadsapi/api";
+import { NestedUserDataTypes, useIsLoggedIn, usePersistantStore, UserDataTypes, useUserDataStore } from "@src/threadsapi/store";
+
+export const useThreadsAPIExirationUpdater = () => {
+	const mark = useUserDataStore((state) => state.markAsExpired);
+
+	useEffect(() => {
+		const intervalId = setInterval(mark, 1000 * 60 * 10);
+
+		return () => {
+			clearInterval(intervalId);
+		};
+	}, [mark]);
+};
+
+export const useThreadsAPIUserDataUpdater = <G extends keyof UserDataTypes = keyof UserDataTypes>(
+	storeKey: G,
+	func: (kyd: KyInstance, ktoken: AccessTokenResponse) => Promise<UserDataTypes[G]>,
+) => {
+	const data = useUserDataStore((state) => state[storeKey]);
+	const setData = useUserDataStore((state) => state.updateData);
+	const setLoading = useUserDataStore((state) => state.updateIsLoading);
+	const setError = useUserDataStore((state) => state.updateError);
+
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
+
+	useEffect(() => {
+		async function fetchData(token: AccessTokenResponse) {
+			setLoading(storeKey, true);
+			try {
+				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
+				const response = await func(kyd, token);
+				setData(storeKey, response);
+			} catch (error) {
+				console.error(`Error fetching data for ${storeKey}:`, error);
+				setError(storeKey, `Failed to fetch data for ${storeKey}`);
+			} finally {
+				setLoading(storeKey, false);
+			}
+		}
+
+		if (isLoggedIn && (!data || data.expired)) {
+			void fetchData(accessToken);
+		}
+	}, [isLoggedIn, accessToken, storeKey, func, setData, setLoading, setError, data]);
+
+	return null;
+};
+
+export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataTypes = keyof NestedUserDataTypes>(
+	storeKey: G,
+	func: (kyd: KyInstance, ktoken: AccessTokenResponse, id: string) => Promise<NestedUserDataTypes[G]>,
+) => {
+	const data = useUserDataStore((state) => state.user_threads);
+	// const nested_data = useUserDataStore((state) => state[storeKey]);
+	const setData = useUserDataStore((state) => state.updateNestedData);
+
+	const accessToken = usePersistantStore((state) => state.access_token);
+
+	const [isLoggedIn] = useIsLoggedIn();
+
+	useEffect(() => {
+		async function fetchData(token: AccessTokenResponse) {
+			try {
+				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
+
+				const requests: Promise<{ id: string; req: NestedUserDataTypes[G] }>[] = [];
+				for (const i of data?.data?.data ?? []) {
+					requests.push(
+						func(kyd, token, i.id).then((req) => {
+							return { id: i.id, req };
+						}),
+					);
+				}
+
+				const response = await Promise.all(requests);
+
+				const map: Record<string, NestedUserDataTypes[G]> = {};
+				for (const i of response) {
+					map[i.id] = i.req;
+				}
+
+				setData(storeKey, map);
+			} catch (error) {
+				console.error(`Error fetching data for ${storeKey}:`, error);
+			}
+		}
+
+		if (isLoggedIn && (data?.data ?? data?.expired)) {
+			void fetchData(accessToken);
+		}
+	}, [isLoggedIn, accessToken, storeKey, func, setData, data]);
+
+	return null;
+};
