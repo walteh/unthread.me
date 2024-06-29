@@ -40,7 +40,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [chartWidth, setChartWidth] = useState<number>(0);
 
 	const [currentPage, setCurrentPage] = useState(0);
-	const itemsPerPage = 10;
+	const itemsPerPage = 1000;
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -83,7 +83,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [chartOptions, chartSeries] = useMemo(() => {
 		const opts: ApexOptions = {
 			chart: {
-				type: "bar",
+				type: "treemap",
 				fontFamily: "Inter, sans-serif",
 				toolbar: {
 					show: false,
@@ -115,7 +115,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			},
 			plotOptions: {
 				bar: {
-					horizontal: true,
+					horizontal: false,
 					borderRadiusApplication: "end",
 					hideZeroBarsWhenGrouped: true,
 					borderRadius: 50,
@@ -129,14 +129,19 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			tooltip: {
 				shared: true,
 				intersect: false,
-
+				theme: "dark",
+				fixed: {
+					enabled: false,
+					position: "top-right",
+				},
 				x: {
 					show: true,
 					formatter: (val) => `${val}`,
 				},
 				y: [
 					{
-						formatter: (val) => `${val.toLocaleString()} views`,
+						formatter: (val) =>
+							`${val.toLocaleString()} ${metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts"}`,
 					},
 					{
 						formatter: (val) => `${val.toLocaleString()} likes`,
@@ -155,22 +160,22 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 						},
 					},
 				},
-				{
-					labels: {
-						formatter: (val) => {
-							const formatter = Intl.NumberFormat("en", { notation: "compact" });
-							return formatter.format(val);
-						},
-					},
-				},
-				{
-					labels: {
-						formatter: (val) => {
-							const formatter = Intl.NumberFormat("en", { notation: "compact" });
-							return formatter.format(val);
-						},
-					},
-				},
+				// {
+				// 	labels: {
+				// 		formatter: (val) => {
+				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
+				// 			return formatter.format(val);
+				// 		},
+				// 	},
+				// },
+				// {
+				// 	labels: {
+				// 		formatter: (val) => {
+				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
+				// 			return formatter.format(val);
+				// 		},
+				// 	},
+				// },
 			],
 			xaxis: {
 				categories: paginatedWords.map((segment) => segment.word),
@@ -212,7 +217,10 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 				colors: ["#1C64F2", "#10B981", "#F39C12"],
 			},
 			dataLabels: {
-				enabled: false,
+				enabled: true,
+				distributed: true,
+				// textAnchor: "start",
+				// offsetX: 0,
 			},
 		};
 
@@ -221,33 +229,38 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 				name: "views",
 				data: paginatedWords.map((segment) => ({
 					x: segment.word,
-					y: segment.total_views,
+					y:
+						metric === "total_views"
+							? segment.total_views
+							: metric === "total_likes"
+								? segment.total_likes
+								: segment.total_count,
 				})),
 				color: "#1C64F2",
 			},
-			{
-				name: "likes",
-				data: paginatedWords.map((segment) => ({
-					x: segment.word,
-					y: segment.total_likes,
-				})),
-				color: "#10B981",
-			},
-			{
-				name: "posts",
-				data: paginatedWords.map((segment) => ({
-					x: segment.word,
-					y: segment.total_count,
-				})),
-				color: "#F39C12",
-			},
+			// {
+			// 	name: "likes",
+			// 	data: paginatedWords.map((segment) => ({
+			// 		x: segment.word,
+			// 		y: segment.total_likes,
+			// 	})),
+			// 	color: "#10B981",
+			// },
+			// {
+			// 	name: "posts",
+			// 	data: paginatedWords.map((segment) => ({
+			// 		x: segment.word,
+			// 		y: segment.total_count,
+			// 	})),
+			// 	color: "#F39C12",
+			// },
 		];
 
 		return [opts, chartSeries] as const;
-	}, [paginatedWords]);
+	}, [paginatedWords, metric]);
 
 	return (
-		<div ref={setChartContainerRef} className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full">
+		<div ref={setChartContainerRef} className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full ">
 			{/* <div className="mb-4">
 				<label htmlFor="timePeriod" className="mr-2">
 					Select Time Period:
@@ -260,7 +273,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 					))}
 				</select>
 			</div> */}
-			<div className="mb-4 flex justify-between w-full">
+			<div className="mb-4 flex justify-between w-full ">
 				<div className="mb-4">
 					<label htmlFor="wordSegmentType" className="mr-2">
 						group:
@@ -289,7 +302,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 					</select>
 				</div>
 			</div>
-			<ReactApexChart options={chartOptions} series={chartSeries} width={chartWidth} height={300} type="bar" />
+			<ReactApexChart options={chartOptions} series={chartSeries} width={chartWidth} height={700} type="treemap" />
 			<div className="mt-4 flex justify-between space-x-2  w-full">
 				<button
 					onClick={() => {
