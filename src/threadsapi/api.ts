@@ -56,10 +56,7 @@ export const exchangeCodeForAccessToken = async (inst: KyInstance, code: string)
 		});
 };
 
-export const exchangeAccessTokenForLongLivedCode = async (
-	inst: KyInstance,
-	access_token: AccessTokenResponse,
-): Promise<AccessTokenResponse> => {
+export const exchangeAccessTokenForLongLivedCode = async (inst: KyInstance, access_token: AccessTokenResponse) => {
 	return await inst
 		.post("beta/threads-api-oauth-proxy", {
 			searchParams: {
@@ -73,10 +70,36 @@ export const exchangeAccessTokenForLongLivedCode = async (
 
 		.then((data) => {
 			console.log({ data });
-			return data.json<AccessTokenResponse>();
+			return data.json<LongTermAccessTokenResponse>();
 		})
 		.catch((error: unknown) => {
 			console.error("Error fetching access token:", error);
+			throw error;
+		});
+};
+
+// Refresh Long-Lived Token function
+export const refreshLongLivedToken = async (
+	inst: KyInstance,
+	longLivedToken: LongTermAccessTokenResponse,
+): Promise<LongTermAccessTokenResponse> => {
+	return await inst
+		.get("refresh_access_token", {
+			searchParams: {
+				grant_type: "th_refresh_token",
+				access_token: longLivedToken.access_token,
+			},
+			headers: {
+				"Content-Type": "application/json",
+			},
+			timeout: 10000,
+		})
+		.then((data) => {
+			console.log({ data });
+			return data.json<LongTermAccessTokenResponse>();
+		})
+		.catch((error: unknown) => {
+			console.error("Error refreshing long-lived access token:", error);
 			throw error;
 		});
 };

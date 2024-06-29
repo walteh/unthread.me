@@ -9,40 +9,6 @@ import { useUserDataStore } from "@src/threadsapi/store";
 
 export const EMPTY_THREAD = uuidv4();
 
-// const emojiRegex = /(?:[\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF]|[\uDC00-\uDFFF])/g;
-// const hashtagRegex = /^#[\w]+$/g;
-// const mentionRegex = /^@[\w]+$/g;
-// const urlRegex = /^(https?:\/\/[^\s]+)$/g;
-// const numberRegex = /^-?\d+(\.\d+)?$/g;
-// const punctuationRegex = /^[.,/#!$%^&*g;:{}=\-_`~()]+$/g;
-// const wordRegex = /^[a-zA-Z]+$/g;
-
-// const emojiRegex = er();
-
-// const getWordType = (word: string): WordType => {
-// 	if (word === EMPTY_THREAD) {
-// 		return "empty";
-// 	}
-
-// 	if (emojiRegex.test(word)) {
-// 		return "emoji";
-// 	} else if (hashtagRegex.test(word)) {
-// 		return "hashtag";
-// 	} else if (mentionRegex.test(word)) {
-// 		return "mention";
-// 	} else if (urlRegex.test(word)) {
-// 		return "url";
-// 	} else if (numberRegex.test(word)) {
-// 		return "number";
-// 	} else if (punctuationRegex.test(word)) {
-// 		return "punctuation";
-// 	} else if (wordRegex.test(word)) {
-// 		return "word";
-// 	} else {
-// 		return "other";
-// 	}
-// };
-
 interface WordInsight {
 	word: string;
 	total_likes: number;
@@ -71,32 +37,9 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 	return useMemo(() => {
 		const resp = data.reduce<Record<WordSegment, WordInsight | undefined>>((acc, thread) => {
-			const views = vbt(thread);
-			const likes = lbt(thread);
-			if (!thread.text) {
-				// if (acc[EMPTY_THREAD]) {
-				// 	// @ts-expect-error - we know this is defined
-				// 	acc[EMPTY_THREAD].total_likes += likes;
-				// 	// @ts-expect-error - we know this is defined
-				// 	acc[EMPTY_THREAD].total_views += views;
-				// 	// @ts-expect-error - we know this is defined
-				// 	acc[EMPTY_THREAD].threads.push(thread);
-				// 	// @ts-expect-error - we know this is defined
-				// 	acc[EMPTY_THREAD].total_count += 1;
-				// } else {
-				// 	acc[EMPTY_THREAD] = {
-				// 		word: EMPTY_THREAD,
-				// 		total_likes: likes,
-				// 		total_views: views,
-				// 		type: "empty",
-				// 		threads: [thread],
-				// 		total_count: 1,
-				// 	};
-				// }
-			} else {
-				// const segmenter = new Intl.Segmenter([], { granularity: "word" });
-				// const segmentedText = segmenter.segment(thread.text);
-				// const list = [...segmentedText].map((s) => s.segment);
+			if (thread.text) {
+				const views = vbt(thread);
+				const likes = lbt(thread);
 				const list = segmentText(thread.text);
 				list.forEach((wordobj) => {
 					const word = wordFromSegment(wordobj);
@@ -108,7 +51,7 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 						acc[wordobj].total_count += 1;
 					} else {
 						acc[wordobj] = {
-							word,
+							word: word.toLowerCase(),
 							total_likes: likes,
 							total_views: views,
 							type: typeFromSegment(wordobj),
@@ -124,7 +67,7 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 		// console.log({ ren: Object.values(resp).length });
 
-		return Object.values(resp).filter((v) => !!v) as unknown as WordInsight[];
+		return Object.values(resp).filter((v) => v && v.total_count > 1) as unknown as WordInsight[];
 	}, [data, lbt, vbt]);
 };
 
@@ -133,7 +76,7 @@ export type WordType = keyof typeof methodMap;
 // Define the method map with direct method references
 
 const methodMap = {
-	organizations: (doc: Three) => doc.organizations(),
+	organizations: [(doc: Three) => doc.organizations(), (doc: Three) => doc.nouns().if("apple")],
 	places: (doc: Three) => doc.places(),
 	people: (doc: Three) => doc.people(),
 	phoneNumbers: (doc: Three) => doc.phoneNumbers(),
@@ -154,9 +97,8 @@ const methodMap = {
 	prepositions: (doc: Three) => doc.prepositions(),
 	pronouns: (doc: Three) => doc.pronouns(),
 	clauses: (doc: Three) => doc.clauses(),
-	chunks: (doc: Three) => doc.chunks(),
-	sentences: (doc: Three) => doc.sentences(),
-	empty: () => ({ out: () => [] }),
+	// sentences: (doc: Three) => doc.sentences(),
+
 	// normalize: (doc: Three) => doc.normalize(),
 	// terms: (doc: Three) => doc.terms(),
 } as const;
@@ -177,9 +119,9 @@ interface exporter {
 	out: (format?: outMethods | undefined) => object;
 }
 
-const forEveryMethod = (fn: (arg: { method: (value: Three) => exporter; type: WordType }) => WordSegment[]) => {
+const forEveryMethod = (fn: (arg: ((value: Three) => exporter)[], type: WordType) => WordSegment[]) => {
 	return Object.entries(methodMap).flatMap(([type, method]) => {
-		return fn({ method, type: type as WordType });
+		return fn([method].flat(), type as WordType);
 	});
 };
 
@@ -188,8 +130,10 @@ export const segmentText = (text: string): WordSegment[] => {
 	const doc = nlp(text);
 
 	// Extract segments dynamically
-	const segments = forEveryMethod(({ method, type }) => {
-		return (method(doc).out("array") as string[]).map((w) => `${w}_________:___________${type}`) as WordSegment[];
+	const segments = forEveryMethod((methods, type) => {
+		const items = methods.flatMap((m) => m(doc).out("array") as string[]).map((w) => `${w}_________:___________${type}`);
+
+		return items as WordSegment[];
 	});
 
 	return segments;

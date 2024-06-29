@@ -40,7 +40,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [chartWidth, setChartWidth] = useState<number>(0);
 
 	const [currentPage, setCurrentPage] = useState(0);
-	const itemsPerPage = 1000;
+	const itemsPerPage = 50;
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -80,68 +80,71 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 
 	const totalPages = Math.ceil(words.filter((x) => x.type === wordSegmentType).length / itemsPerPage);
 
-	const [chartOptions, chartSeries] = useMemo(() => {
+	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "treemap",
-				fontFamily: "Inter, sans-serif",
+				// fontFamily: "Inter, sans-serif",
 				toolbar: {
 					show: false,
 				},
-
-				stacked: true,
-				animations: {
-					enabled: true,
-					easing: "easeinout",
-					speed: 800,
-					animateGradually: {
-						enabled: true,
-						delay: 150,
-					},
-					dynamicAnimation: {
-						enabled: true,
-						speed: 350,
-					},
-				},
-				sparkline: {
-					enabled: false,
-				},
 				dropShadow: {
-					enabled: true,
-				},
-				stackOnlyBar: true,
-
-				stackType: "normal",
-			},
-			plotOptions: {
-				bar: {
-					horizontal: false,
-					borderRadiusApplication: "end",
-					hideZeroBarsWhenGrouped: true,
-					borderRadius: 50,
-					distributed: false,
-					// rangeBarGroupRows: true,
-					// dataLabels: {
-					// 	position: "top",
-					// },
-				},
-			},
-			tooltip: {
-				shared: true,
-				intersect: false,
-				theme: "dark",
-				fixed: {
 					enabled: false,
-					position: "top-right",
 				},
-				x: {
-					show: true,
-					formatter: (val) => `${val}`,
-				},
+
+				// stacked: true,
+				// animations: {
+				// 	enabled: true,
+				// 	easing: "easeinout",
+				// 	speed: 800,
+				// 	animateGradually: {
+				// 		enabled: true,
+				// 		delay: 150,
+				// 	},
+				// 	dynamicAnimation: {
+				// 		enabled: true,
+				// 		speed: 350,
+				// 	},
+				// group: "word-segment",
+				// },
+				// sparkline: {
+				// 	enabled: false,
+				// },
+				// dropShadow: {
+				// 	enabled: true,
+				// },
+				// stackOnlyBar: true,
+
+				// stackType: "normal",
+			},
+			// plotOptions: {
+			// 	bar: {
+			// 		horizontal: false,
+			// 		borderRadiusApplication: "end",
+			// 		hideZeroBarsWhenGrouped: true,
+			// 		borderRadius: 50,
+			// 		distributed: false,
+			// 		// rangeBarGroupRows: true,
+			// 		// dataLabels: {
+			// 		// 	position: "top",
+			// 		// },
+			// 	},
+			// },
+			tooltip: {
+				// shared: true,
+				// intersect: false,
+				// theme: "dark",
+				// fixed: {
+				// 	enabled: false,
+				// 	position: "top-right",
+				// },
+				// x: {
+				// 	show: true,
+				// 	formatter: (val) => `${val}`,
+				// },
 				y: [
 					{
-						formatter: (val) =>
-							`${val.toLocaleString()} ${metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts"}`,
+						formatter: (val) => `${val.toLocaleString()} views`,
 					},
 					{
 						formatter: (val) => `${val.toLocaleString()} likes`,
@@ -159,6 +162,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 							return formatter.format(val);
 						},
 					},
+					show: true,
 				},
 				// {
 				// 	labels: {
@@ -179,32 +183,41 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			],
 			xaxis: {
 				categories: paginatedWords.map((segment) => segment.word),
-				labels: {
-					show: true,
-					rotate: -45,
-					style: {
-						fontSize: "12px",
-						fontFamily: "Inter, sans-serif",
-						colors: "#9aa0ac",
-					},
-				},
-				axisBorder: {
-					show: false,
-				},
-				axisTicks: {
-					show: false,
-				},
+				// labels: {
+				// 	show: true,
+				// 	rotate: -45,
+				// 	style: {
+				// 		fontSize: "12px",
+				// 		fontFamily: "Inter, sans-serif",
+				// 		colors: "#9aa0ac",
+				// 	},
+				// },
+				// axisBorder: {
+				// 	show: false,
+				// },
+				// axisTicks: {
+				// 	show: false,
+				// },
 			},
 			grid: {
 				show: true,
 				strokeDashArray: 4,
 				padding: {
-					left: 2,
-					right: 2,
+					left: 0,
+					right: 0,
 					top: 0,
 				},
 			},
-
+			// responsive: [
+			// 	{
+			// 		breakpoint: 1000,
+			// 		options: {
+			// 			chart: {
+			// 				height: 350,
+			// 			},
+			// 		},
+			// 	},
+			// ],
 			stroke: {
 				curve: "smooth",
 				width: 2,
@@ -214,11 +227,25 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			},
 			fill: {
 				type: "solid",
+				gradient: {
+					shadeIntensity: 1,
+					opacityFrom: 0.7,
+					opacityTo: 0.9,
+					stops: [0, 100],
+				},
 				colors: ["#1C64F2", "#10B981", "#F39C12"],
 			},
 			dataLabels: {
 				enabled: true,
-				distributed: true,
+				style: {
+					fontSize: "40px",
+
+					// fontFamily: "Inter, sans-serif",
+					// colors: ["#9aa0ac"],
+				},
+				// textAnchor: "start",
+
+				// distributed: true,
 				// textAnchor: "start",
 				// offsetX: 0,
 			},
@@ -227,52 +254,50 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		const chartSeries: ApexAxisChartSeries = [
 			{
 				name: "views",
-				data: paginatedWords.map((segment) => ({
-					x: segment.word,
-					y:
-						metric === "total_views"
-							? segment.total_views
-							: metric === "total_likes"
-								? segment.total_likes
-								: segment.total_count,
-				})),
-				color: "#1C64F2",
+				data: paginatedWords
+					.map((segment) => ({
+						x: segment.word,
+						y:
+							metric === "total_views"
+								? segment.total_views
+								: metric === "total_likes"
+									? segment.total_likes
+									: segment.total_count,
+					}))
+					.filter((x) => x.y > 0),
+				color: metric === "total_views" ? "#1C64F2" : metric === "total_likes" ? "#F39C12" : "#10B981",
+				type: "treemap",
 			},
-			// {
-			// 	name: "likes",
-			// 	data: paginatedWords.map((segment) => ({
-			// 		x: segment.word,
-			// 		y: segment.total_likes,
-			// 	})),
-			// 	color: "#10B981",
-			// },
-			// {
-			// 	name: "posts",
-			// 	data: paginatedWords.map((segment) => ({
-			// 		x: segment.word,
-			// 		y: segment.total_count,
-			// 	})),
-			// 	color: "#F39C12",
-			// },
 		];
 
-		return [opts, chartSeries] as const;
-	}, [paginatedWords, metric]);
+		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" />;
+	}, [paginatedWords, metric, chartWidth]);
+
+	const wordTypez = useMemo(() => {
+		// const start = wordTypes.map((type) => ({ key: type, value: 0 }));
+		// find all the word types that have more than one word
+		return (
+			Object.entries(
+				words.reduce<Record<string, { key: WordType; value: number }>>(
+					(acc, type) => {
+						acc[type.type].value += 1;
+
+						return acc;
+					},
+					wordTypes.reduce<Record<string, { key: WordType; value: number }>>((acc, type) => {
+						acc[type] = { key: type, value: 0 };
+						return acc;
+					}, {}),
+				),
+			)
+				.map(([, value]) => value)
+				// sort my key alphabetically
+				.sort((a, b) => a.key.localeCompare(b.key))
+		);
+	}, [words]);
 
 	return (
-		<div ref={setChartContainerRef} className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center w-full ">
-			{/* <div className="mb-4">
-				<label htmlFor="timePeriod" className="mr-2">
-					Select Time Period:
-				</label>
-				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded">
-					{Object.entries(timePeriods).map(([, tp]) => (
-						<option key={tp.label} value={tp.label}>
-							{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
-						</option>
-					))}
-				</select>
-			</div> */}
+		<div className=" flex flex-col items-center w-full">
 			<div className="mb-4 flex justify-between w-full ">
 				<div className="mb-4">
 					<label htmlFor="wordSegmentType" className="mr-2">
@@ -284,25 +309,24 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 						onChange={handleWordSegmentTypeChange}
 						className="p-2 border rounded"
 					>
-						{wordTypes.sort().map((type) => (
-							<option key={type} value={type}>
-								{type.charAt(0).toUpperCase() + type.slice(1)}
+						{wordTypez.map((type) => (
+							<option key={type.key} value={type.key} disabled={type.value === 0}>
+								{type.key}
 							</option>
 						))}
 					</select>
 				</div>
 				<div className="mb-4">
-					<label htmlFor="metric" className="mr-2">
-						sort by:
-					</label>
-					<select id="metric" value={metric} onChange={handleMetricChange} className="p-2 border rounded">
-						<option value="total_likes">most likes</option>
-						<option value="total_views">most views</option>
-						<option value="total_count">most posts</option>
+					<select id="metric" value={metric} onChange={handleMetricChange} className="p-2 border rounded" title="sort by">
+						<option value="total_likes">likes</option>
+						<option value="total_views">views</option>
+						<option value="total_count">posts</option>
 					</select>
 				</div>
 			</div>
-			<ReactApexChart options={chartOptions} series={chartSeries} width={chartWidth} height={700} type="treemap" />
+			<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
+				{Chart}
+			</div>
 			<div className="mt-4 flex justify-between space-x-2  w-full">
 				<button
 					onClick={() => {

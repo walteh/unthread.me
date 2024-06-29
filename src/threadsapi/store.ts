@@ -21,8 +21,7 @@ interface PersistantStore {
 	access_token_expires_at: number | null;
 	long_lived_token: LongTermAccessTokenResponse | null;
 	long_lived_token_expires_at: number | null;
-
-	updateAccessToken: (access_token: AccessTokenResponse) => void;
+	long_lived_token_refreshable_at: number | null;
 }
 
 export const usePersistantStore = create(
@@ -34,13 +33,18 @@ export const usePersistantStore = create(
 					access_token_expires_at: null,
 					long_lived_token: null,
 					long_lived_token_expires_at: null,
+					long_lived_token_refreshable_at: null,
 				} as PersistantStore,
 				(set) => ({
 					updateAccessToken: (access_token: AccessTokenResponse) => {
 						set({ access_token, access_token_expires_at: Date.now() + 60 * 60 * 1000 }); // 1 hour
 					},
 					updateLongLivedToken: (long_lived_token: LongTermAccessTokenResponse) => {
-						set({ long_lived_token, long_lived_token_expires_at: Date.now() + long_lived_token.expires_in * 1000 });
+						set({
+							long_lived_token,
+							long_lived_token_expires_at: Date.now() + long_lived_token.expires_in * 1000,
+							long_lived_token_refreshable_at: Date.now() + 24 * 60 * 60 * 1000, // 24 hours - from docs
+						});
 					},
 				}),
 			),
@@ -139,14 +143,6 @@ export const useUserDataStore = create(
 );
 
 export const useIsLoggedIn = () => {
-	const expiry = usePersistantStore((state) => state.access_token_expires_at);
-
-	return useMemo(() => {
-		return expiry !== null && expiry > Date.now();
-	}, [expiry]);
-};
-
-export const useActiveAccessToken = () => {
 	const accessToken = usePersistantStore((state) => state.access_token);
 	const longLivedToken = usePersistantStore((state) => state.long_lived_token);
 	const longLivedTokenExpiresAt = usePersistantStore((state) => state.long_lived_token_expires_at);
@@ -167,14 +163,15 @@ export const useActiveAccessToken = () => {
 					access_token: longLivedToken.access_token,
 					user_id: accessToken.user_id,
 				},
+				longLivedTokenExpiresAt,
 			] as const;
 		}
 
 		if (accessToken.access_token && accessTokenExpiresAt && accessTokenExpiresAt > Date.now()) {
-			return [true, accessToken] as const;
+			return [true, accessToken, accessTokenExpiresAt] as const;
 		}
 
-		return [false, {} as AccessTokenResponse] as const;
+		return [false, {} as AccessTokenResponse, 0] as const;
 	}, [accessToken, longLivedToken, longLivedTokenExpiresAt, accessTokenExpiresAt]);
 };
 
@@ -187,7 +184,7 @@ export const useDataFetcher = <G extends keyof UserDataStoreData = keyof UserDat
 	const setLoading = useUserDataStore((state) => state.updateIsLoading);
 	const setError = useUserDataStore((state) => state.updateError);
 
-	const [isLoggedIn, accessToken] = useActiveAccessToken();
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
 	useEffect(() => {
 		async function fetchData(token: AccessTokenResponse) {
@@ -222,7 +219,7 @@ export const useNestedDataFetcher = <G extends keyof UserDataStoreData = keyof U
 
 	const accessToken = usePersistantStore((state) => state.access_token);
 
-	const isLoggedIn = useIsLoggedIn();
+	const [isLoggedIn] = useIsLoggedIn();
 
 	useEffect(() => {
 		async function fetchData(token: AccessTokenResponse) {
