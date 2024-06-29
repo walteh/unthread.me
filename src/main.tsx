@@ -1,6 +1,6 @@
 import "./index.css";
+import "flowbite";
 
-// import "flowbite";
 // import "preline";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
