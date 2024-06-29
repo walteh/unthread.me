@@ -2,7 +2,7 @@ import ky, { KyInstance } from "ky";
 import { useEffect } from "react";
 
 import { AccessTokenResponse } from "@src/threadsapi/api";
-import { NestedUserDataTypes, useIsLoggedIn, usePersistantStore, UserDataTypes, useUserDataStore } from "@src/threadsapi/store";
+import { NestedUserDataTypes, useIsLoggedIn, UserDataTypes, useUserDataStore } from "@src/threadsapi/store";
 
 export const useThreadsAPIExirationUpdater = () => {
 	const mark = useUserDataStore((state) => state.markAsExpired);
@@ -58,9 +58,7 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 	// const nested_data = useUserDataStore((state) => state[storeKey]);
 	const setData = useUserDataStore((state) => state.updateNestedData);
 
-	const accessToken = usePersistantStore((state) => state.access_token);
-
-	const [isLoggedIn] = useIsLoggedIn();
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
 	useEffect(() => {
 		async function fetchData(token: AccessTokenResponse) {
@@ -89,7 +87,7 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 			}
 		}
 
-		if (isLoggedIn && (data?.data ?? data?.expired)) {
+		if (isLoggedIn && (!data?.data || data.expired)) {
 			void fetchData(accessToken);
 		}
 	}, [isLoggedIn, accessToken, storeKey, func, setData, data]);

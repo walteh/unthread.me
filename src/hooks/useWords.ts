@@ -23,14 +23,18 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 	const lbt = useCallback(
 		(thread: ThreadMedia) => {
-			return userThreadsInsights?.data[thread.id]?.likes?.values[0].value ?? 0;
+			const dat = userThreadsInsights?.data;
+			if (!dat) return 0;
+			return dat[thread.id]?.likes?.values[0].value ?? 0;
 		},
 		[userThreadsInsights],
 	);
 
 	const vbt = useCallback(
 		(thread: ThreadMedia) => {
-			return userThreadsInsights?.data[thread.id]?.views?.values[0].value ?? 0;
+			const dat = userThreadsInsights?.data;
+			if (!dat) return 0;
+			return dat[thread.id]?.views?.values[0].value ?? 0;
 		},
 		[userThreadsInsights],
 	);
