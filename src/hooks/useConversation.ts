@@ -3,13 +3,13 @@ import React from "react";
 
 // Update with your actual store import
 import { AccessTokenResponse, ConversationResponse, getConversation, GetConversationParams, Reply } from "@src/threadsapi/api"; // Update with your actual API import
-import { usePersistantStore } from "@src/threadsapi/store";
+import { useIsLoggedIn } from "@src/threadsapi/store";
 
 const useConversation = (mediaId: string, params?: GetConversationParams) => {
 	const [conversation, setConversation] = React.useState<Reply[] | null>(null);
 	const [isLoading, setIsLoading] = React.useState<boolean>(false);
 	const [error, setError] = React.useState<string | null>(null);
-	const accessToken = usePersistantStore((state) => state.access_token);
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
 	React.useEffect(() => {
 		async function fetchConversation(token: AccessTokenResponse) {
@@ -27,10 +27,10 @@ const useConversation = (mediaId: string, params?: GetConversationParams) => {
 			}
 		}
 
-		if (accessToken && mediaId) {
+		if (isLoggedIn && mediaId) {
 			void fetchConversation(accessToken);
 		}
-	}, [accessToken, mediaId, params]);
+	}, [accessToken, mediaId, params, isLoggedIn]);
 
 	return [conversation, isLoading, error] as const;
 };

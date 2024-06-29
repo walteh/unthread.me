@@ -54,12 +54,12 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => (
 );
 
 const UserThreadReplies: FC<{ thread_id: string }> = ({ thread_id }) => {
-	const replies = useUserDataStore((state) => state.user_threads_replies[thread_id]);
+	const replies = useUserDataStore((state) => state.user_threads_replies?.data[thread_id]);
 
 	return (
 		<div>
-			{replies?.data?.data ? (
-				<UserThreadRepliesDisplay replies={replies.data.data} pad={0} />
+			{replies?.data ? (
+				<UserThreadRepliesDisplay replies={replies.data} pad={0} />
 			) : (
 				<div className="text-gray-500">No replies available</div>
 			)}

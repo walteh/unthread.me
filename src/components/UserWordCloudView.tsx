@@ -75,7 +75,7 @@ const Cloud: FC<{
 				minSize={23}
 				maxSize={50}
 				tags={words
-					.filter((x) => x.type === "atMentions")
+					.filter((x) => x.type === "mentions")
 					.map((word) => ({ value: word.word, count: word.total_views, key: word.word }))}
 				onClick={(tag) => {
 					alert(`'${tag.value}' was selected!`);
@@ -85,7 +85,7 @@ const Cloud: FC<{
 				minSize={23}
 				maxSize={50}
 				tags={words
-					.filter((x) => x.type === "hashTags")
+					.filter((x) => x.type === "hashtags")
 					.map((word) => ({ value: word.word, count: word.total_views, key: word.word }))}
 				onClick={(tag) => {
 					alert(`'${tag.value}' was selected!`);

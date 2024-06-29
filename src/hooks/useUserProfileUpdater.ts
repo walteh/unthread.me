@@ -2,14 +2,14 @@ import ky from "ky";
 import React from "react";
 
 import { AccessTokenResponse, getUserProfile, UserProfileResponse } from "@src/threadsapi/api";
-import { usePersistantStore, useUserDataStore } from "@src/threadsapi/store";
+import { useIsLoggedIn, useUserDataStore } from "@src/threadsapi/store";
 
 const useUserProfileUpdater = () => {
 	const setData = useUserDataStore((state) => state.updateData);
 	const setLoading = useUserDataStore((state) => state.updateIsLoading);
 	const setError = useUserDataStore((state) => state.updateError);
 
-	const accessToken = usePersistantStore((state) => state.access_token);
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
 	React.useEffect(() => {
 		async function fetchAccessTokenAndProfile(token: AccessTokenResponse) {
@@ -26,10 +26,10 @@ const useUserProfileUpdater = () => {
 			}
 		}
 
-		if (accessToken) {
+		if (isLoggedIn) {
 			void fetchAccessTokenAndProfile(accessToken);
 		}
-	}, [accessToken, setLoading, setError, setData]);
+	}, [accessToken, setLoading, setError, setData, isLoggedIn]);
 
 	return null;
 };
