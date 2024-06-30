@@ -117,7 +117,35 @@ const Home: FC = () => {
 					</div>
 
 					<div className="flex flex-row justify-around mt-5 mb-5">
-						<div className="sm:block text-center  text-nowrap">
+						<div className="sm:hidden">
+							<label htmlFor="tabs" className="sr-only">
+								Select a tab
+							</label>
+							{/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+							<select
+								id="tabs"
+								name="tabs"
+								onChange={(e) => {
+									setCurrentTab(e.target.value);
+								}}
+								className="block w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 p-3"
+								defaultValue={items.find((tab) => tab.label === currentTab)?.label}
+							>
+								{items.map((tab) => (
+									<option
+										onClick={() => {
+											setCurrentTab(tab.label);
+										}}
+										key={tab.label}
+										className="font-medium text-lg text-gray-700 hover:text-gray-800"
+									>
+										{tab.label}
+									</option>
+								))}
+							</select>
+						</div>
+
+						<div className="hidden sm:block text-center  text-nowrap">
 							<nav
 								className="flex flex-wrap space-x-4 justify-center shadow-lg rounded-lg p-4 bg-slate-300"
 								aria-label="Tabs"
