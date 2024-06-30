@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "@src/pages/Home";
 
 import useAccessTokenUpdater from "./hooks/useAccessTokenUpdater";
-import { useThreadsAPIMediaDataUpdater, useThreadsAPIUserDataUpdater } from "./hooks/useThreadsAPI";
+import { useThreadsAPIExirationUpdater, useThreadsAPIMediaDataUpdater, useThreadsAPIUserDataUpdater } from "./hooks/useThreadsAPI";
 import {
 	getAllUserInsightsWithDefaultParams,
 	getDefaultConversation,
@@ -22,6 +22,7 @@ const App: FC = () => {
 	useThreadsAPIUserDataUpdater("user_follower_demographics", getFollowerDemographicsInsights);
 	useThreadsAPIMediaDataUpdater("user_threads_replies", getDefaultConversation);
 	useThreadsAPIMediaDataUpdater("user_threads_insights", getMediaInsightsWithDefaultParams);
+	useThreadsAPIExirationUpdater();
 	return (
 		<>
 			<Routes>
