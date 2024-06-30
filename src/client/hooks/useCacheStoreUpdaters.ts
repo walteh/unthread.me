@@ -57,7 +57,9 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 	storeKey: G,
 	func: (kyd: KyInstance, ktoken: AccessTokenResponse, id: string) => Promise<NestedUserDataTypes[G]>,
 ) => {
-	const data = useCacheStore((state) => state.user_threads);
+	const userThreadsData = useCacheStore((state) => state.user_threads);
+
+	const myData = useCacheStore((state) => state[storeKey]);
 	// const nested_data = useCacheStore((state) => state[storeKey]);
 	const setData = useCacheStore((state) => state.updateNestedData);
 
@@ -69,7 +71,7 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
 
 				const requests: Promise<{ id: string; req: NestedUserDataTypes[G] }>[] = [];
-				for (const i of data?.data?.data ?? []) {
+				for (const i of userThreadsData?.data?.data ?? []) {
 					requests.push(
 						func(kyd, token, i.id).then((req) => {
 							return { id: i.id, req };
@@ -90,10 +92,10 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 			}
 		}
 
-		if (isLoggedIn && (!data?.data || data.expired)) {
+		if (isLoggedIn && userThreadsData?.data && (!myData || myData.expired)) {
 			void fetchData(accessToken);
 		}
-	}, [isLoggedIn, accessToken, storeKey, func, setData, data]);
+	}, [isLoggedIn, accessToken, storeKey, func, setData, userThreadsData, myData]);
 
 	return null;
 };

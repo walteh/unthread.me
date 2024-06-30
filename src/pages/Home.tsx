@@ -82,6 +82,14 @@ const Home: FC = () => {
 			>
 				<div style={{ maxWidth: "1000px" }} className="mx-auto p-4">
 					<UserProfileView />
+
+					{/* <button
+						onClick={() => {
+							void refresh();
+						}}
+					>
+						refresh
+					</button> */}
 					<div
 						style={{
 							display: "flex",

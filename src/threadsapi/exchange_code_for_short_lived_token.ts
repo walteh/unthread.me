@@ -17,7 +17,6 @@ export const exchange_code_for_short_lived_token = async (inst: KyInstance, code
 		})
 
 		.then((data) => {
-			console.log({ data });
 			return data.json<AccessTokenResponse>();
 		})
 		.catch((error: unknown) => {

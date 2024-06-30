@@ -35,7 +35,6 @@ export const get_follower_demographics = async (inst: KyInstance, accessToken: A
 				const items: { label: string; value: number }[] = [];
 
 				for (const item of breakdown.results) {
-					console.log(item);
 					items.push({
 						label: item.dimension_values.join(", "),
 						value: item.value,

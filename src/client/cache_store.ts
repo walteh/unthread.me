@@ -56,8 +56,8 @@ export const cache_store = create(
 					user_insights: null,
 					user_threads: null,
 					user_follower_demographics: null,
-					user_threads_replies: {},
-					user_threads_insights: {},
+					user_threads_replies: null,
+					user_threads_insights: null,
 				} as UserDataStoreData,
 				(set) => {
 					return {
@@ -65,15 +65,6 @@ export const cache_store = create(
 							key: G,
 							data: Record<string, T>,
 						) => {
-							// const obj: Record<string, DataResponse<G>> = {};
-							// for (const [k, v] of Object.entries(data)) {
-							// 	obj[k] = {
-							// 		data: v,
-							// 		is_loading: false,
-							// 		updated_at: Date.now(),
-							// 		error: null,
-							// 	};
-							// }
 							set(() => ({
 								[key]: {
 									data,
@@ -91,6 +82,7 @@ export const cache_store = create(
 									...state[key],
 									data,
 									updated_at: Date.now(),
+									error: null,
 									expired: false,
 								},
 							}));
@@ -101,6 +93,7 @@ export const cache_store = create(
 								[key]: {
 									...state[key],
 									is_loading,
+									error: null,
 									expired: false,
 								},
 							}));
@@ -111,6 +104,7 @@ export const cache_store = create(
 								[key]: {
 									...state[key],
 									error,
+
 									expired: false,
 								},
 							}));
@@ -134,6 +128,7 @@ export const cache_store = create(
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
+				version: 1,
 			},
 		),
 	),
