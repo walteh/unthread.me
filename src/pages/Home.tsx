@@ -26,6 +26,10 @@ const Home: FC = () => {
 	const items = useMemo(() => {
 		return [
 			{
+				label: "Daily Reports",
+				comp: () => <div>Daily Reports</div>,
+			},
+			{
 				label: "Views Chart",
 				comp: () => <UserInsightsChartView />,
 			},
