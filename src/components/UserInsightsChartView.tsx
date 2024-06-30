@@ -25,7 +25,7 @@ const UserInsightChartView: FC = () => {
 	if (!data.data.views) return <ErrorMessage message="No views data available" />;
 
 	return (
-		<div className="container mx-auto p-6">
+		<div className="container mx-auto">
 			{/* <h1 className="text-3xl font-bold text-center mb-8">Profile Views</h1> */}
 			<ObservedChart views={data.data.views.values} threads={threads.data.data} />
 		</div>

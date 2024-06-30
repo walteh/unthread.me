@@ -20,7 +20,7 @@ const WordSegmentLineChart: FC = () => {
 	if (!threads.data) return <ErrorMessage message="No threads data available" />;
 
 	return (
-		<div className="container mx-auto p-6">
+		<div className="container mx-auto">
 			<div className="space-y-6">
 				<Cloud threads={threads.data.data} />
 			</div>
@@ -224,7 +224,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	}, [words]);
 
 	return (
-		<div className=" flex flex-col items-center w-full">
+		<div className="flex flex-col items-center w-full">
 			<div className="mb-4 flex justify-between w-full ">
 				<div>
 					<div className="mb-4">

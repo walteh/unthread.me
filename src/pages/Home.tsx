@@ -112,7 +112,7 @@ const Home: FC = () => {
 						</select>
 					</div>
 
-					<div className="flex flex-row justify-around mt-5">
+					<div className="flex flex-row justify-around mt-5 mb-5">
 						<div className="sm:hidden">
 							<label htmlFor="tabs" className="sr-only">
 								Select a tab
@@ -121,7 +121,7 @@ const Home: FC = () => {
 							<select
 								id="tabs"
 								name="tabs"
-								className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+								className="block w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 p-3"
 								defaultValue={items.find((tab) => tab.label === currentTab)?.label}
 							>
 								{items.map((tab) => (
