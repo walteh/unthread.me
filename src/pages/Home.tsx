@@ -146,10 +146,7 @@ const Home: FC = () => {
 						</div>
 
 						<div className="hidden sm:block text-center  text-nowrap">
-							<nav
-								className="flex flex-wrap space-x-4 justify-center shadow-lg rounded-lg p-4 bg-slate-300"
-								aria-label="Tabs"
-							>
+							<nav className="flex flex-wrap space-x-4 justify-center rounded-lg p-4" aria-label="Tabs">
 								{items.map((tab) => (
 									<a
 										key={tab.label}
@@ -159,9 +156,9 @@ const Home: FC = () => {
 										// href={tab.href}
 										className={classNames(
 											tab.label === currentTab
-												? "bg-gray-100 text-gray-700"
-												: "text-gray-300 hover:text-gray-100 bg-slate-600",
-											"rounded-md px-3 py-2 text-lg font-medium shadow-lg mt-1 mb-1 justify-self-center",
+												? "bg-blue-600 text-white shadow-xl "
+												: "text-gray-500 hover:text-gray-500 bg-gray-100 shadow-sm",
+											"rounded-md px-3 py-2 text-lg font-medium mt-1 mb-1 justify-self-center",
 										)}
 										aria-current={tab.label === currentTab ? "page" : undefined}
 									>
