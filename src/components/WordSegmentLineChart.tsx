@@ -74,12 +74,24 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const paginatedWords = useMemo(() => {
 		const start = currentPage * itemsPerPage;
 		const end = start + itemsPerPage;
-		return words
-			.filter((v) => v.total_count > threashold)
-			.filter((x) => x.type === wordSegmentType)
-			.sort((a, b) => b[metric] - a[metric])
-			.slice(start, end);
+		return (
+			words
+				.filter((v) => v.total_count > threashold)
+				.filter((x) => x.type === wordSegmentType)
+				.sort((a, b) => b[metric] - a[metric])
+				// .filter((x) => metric === x.type)
+				.slice(start, end)
+		);
 	}, [words, wordSegmentType, metric, currentPage, threashold]);
+
+	const dats = useMemo(() => {
+		return paginatedWords
+			.map((segment) => ({
+				x: segment.word,
+				y: metric === "total_views" ? segment.total_views : metric === "total_likes" ? segment.total_likes : segment.total_count,
+			}))
+			.filter((x) => x.y > 0);
+	}, [paginatedWords, metric]);
 
 	// const totalPages = Math.ceil(words.filter((x) => x.type === wordSegmentType).length / itemsPerPage);
 
@@ -87,6 +99,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "treemap",
+				height: 800,
 				// fontFamily: "Inter, sans-serif",
 				toolbar: {
 					show: false,
@@ -185,7 +198,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 				// },
 			],
 			xaxis: {
-				categories: paginatedWords.map((segment) => segment.word),
+				categories: dats.map((segment) => segment.x),
 				// labels: {
 				// 	show: true,
 				// 	rotate: -45,
@@ -257,24 +270,14 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		const chartSeries: ApexAxisChartSeries = [
 			{
 				name: "views",
-				data: paginatedWords
-					.map((segment) => ({
-						x: segment.word,
-						y:
-							metric === "total_views"
-								? segment.total_views
-								: metric === "total_likes"
-									? segment.total_likes
-									: segment.total_count,
-					}))
-					.filter((x) => x.y > 0),
+				data: dats,
 				color: metric === "total_views" ? "#1C64F2" : metric === "total_likes" ? "#F39C12" : "#10B981",
 				type: "treemap",
 			},
 		];
 
-		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" />;
-	}, [paginatedWords, metric, chartWidth]);
+		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" height={800} />;
+	}, [paginatedWords, metric, chartWidth, dats]);
 
 	const wordTypez = useMemo(() => {
 		// const start = wordTypes.map((type) => ({ key: type, value: 0 }));
@@ -301,73 +304,53 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	return (
 		<div className=" flex flex-col items-center w-full">
 			<div className="mb-4 flex justify-between w-full ">
-				<div className="mb-4">
-					{/* <label htmlFor="wordSegmentType" className="mr-2">
-						group:
-					</label> */}
-					<select
-						id="wordSegmentType"
-						value={wordSegmentType}
-						onChange={handleWordSegmentTypeChange}
-						className="p-2 border rounded"
-					>
-						{wordTypez.map((type) => (
-							<option key={type.key} value={type.key} disabled={type.value === 0}>
-								{type.key}
-							</option>
-						))}
-					</select>
-				</div>
-				<div className="mb-4">
-					<label htmlFor="threashold" className="mr-2">
-						min post threashold:
-					</label>
-					<select
-						id="threashold"
-						value={threashold}
-						onChange={(e) => {
-							setThreashold(parseInt(e.target.value));
-						}}
-						className="p-2 border rounded"
-					>
-						{[0, 1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
-							<option key={value} value={value}>
-								{value}
-							</option>
-						))}
-					</select>
-				</div>
-				<div className="mb-4">
-					<select id="metric" value={metric} onChange={handleMetricChange} className="p-2 border rounded" title="sort by">
-						<option value="total_likes">likes</option>
-						<option value="total_views">views</option>
-						<option value="total_count">posts</option>
-					</select>
+				<div>
+					<div className="mb-4">
+						<select
+							id="wordSegmentType"
+							value={wordSegmentType}
+							onChange={handleWordSegmentTypeChange}
+							className="p-2 border rounded"
+						>
+							{wordTypez.map((type) => (
+								<option key={type.key} value={type.key} disabled={type.value === 0}>
+									{type.key}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className="mb-4">
+						<select id="metric" value={metric} onChange={handleMetricChange} className="p-2 border rounded" title="sort by">
+							<option value="total_likes">likes</option>
+							<option value="total_views">views</option>
+							<option value="total_count">posts</option>
+						</select>
+					</div>
+					<div className="mb-4">
+						<label htmlFor="threashold" className="mr-2">
+							min post threashold:
+						</label>
+						<select
+							id="threashold"
+							value={threashold}
+							onChange={(e) => {
+								setThreashold(parseInt(e.target.value));
+							}}
+							className="p-2 border rounded"
+						>
+							{[0, 1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
+								<option key={value} value={value}>
+									{value}
+								</option>
+							))}
+						</select>
+					</div>
 				</div>
 			</div>
 			<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
-				{Chart}
+				{dats.length === 0 ? <ErrorMessage message="No data available" /> : Chart}
 			</div>
-			{/* <div className="mt-4 flex justify-between space-x-2  w-full">
-				<button
-					onClick={() => {
-						setCurrentPage((prev) => Math.max(prev - 1, 0));
-					}}
-					className="p-2 border rounded"
-					disabled={currentPage === 0}
-				>
-					previous
-				</button>
-				<button
-					onClick={() => {
-						setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
-					}}
-					className="p-2 border rounded"
-					disabled={currentPage === totalPages - 1}
-				>
-					next
-				</button>
-			</div> */}
 		</div>
 	);
 };

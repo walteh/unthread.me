@@ -22,7 +22,7 @@ const UserInsightChartView: FC = () => {
 
 	return (
 		<div className="container mx-auto p-6">
-			<h1 className="text-3xl font-bold text-center mb-8">Profile Views</h1>
+			{/* <h1 className="text-3xl font-bold text-center mb-8">Profile Views</h1> */}
 			<ObservedChart views={data.data.views.values} threads={threads.data.data} />
 		</div>
 	);
@@ -153,6 +153,7 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 							return formatter.format(val);
 						},
 					},
+					show: false,
 				},
 				{
 					opposite: true,
@@ -162,36 +163,31 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 							return formatter.format(val);
 						},
 					},
+					show: false,
 				},
-				// {
-				// 	opposite: true,
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 	},
-				// },
-				// {
-				// 	opposite: true,
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 	},
-				// },
 			],
 			xaxis: {
-				categories: currentDays.map((value) => new Date(value).toLocaleDateString()),
+				categories: currentDays,
+				type: "datetime",
 				labels: {
-					show: true,
-					rotate: -45,
-					style: {
-						fontSize: "12px",
-						fontFamily: "Inter, sans-serif",
-						colors: "#9aa0ac",
+					// formatter(value, timestamp, opts) {
+					// 	return new Date(value).toLocaleDateString();
+					// },
+					format: "dd MMM yyyy",
+					// datetimeUTC
+					datetimeFormatter: {
+						year: "",
+						// month: "MMM 'yy",
+						day: "MMM dd",
+						// hour: "HH:mm",
 					},
+					// show: true,
+					// rotate: -45,
+					// style: {
+					// 	fontSize: "12px",
+					// 	// fontFamily: "Inter, sans-serif",
+					// 	colors: "#9aa0ac",
+					// },
 				},
 				axisBorder: {
 					show: false,
@@ -262,7 +258,7 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 			// },
 		];
 
-		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} height={300} type="area" />;
+		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="area" />;
 	}, [viewCountPerDay, threadCountPerDay, currentDays, chartWidth]);
 
 	useEffect(() => {
