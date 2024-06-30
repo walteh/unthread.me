@@ -100,73 +100,19 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			chart: {
 				type: "treemap",
 				height: 800,
-				// fontFamily: "Inter, sans-serif",
 				toolbar: {
 					show: false,
 				},
 				dropShadow: {
 					enabled: false,
 				},
-
-				// stacked: true,
-				// animations: {
-				// 	enabled: true,
-				// 	easing: "easeinout",
-				// 	speed: 800,
-				// 	animateGradually: {
-				// 		enabled: true,
-				// 		delay: 150,
-				// 	},
-				// 	dynamicAnimation: {
-				// 		enabled: true,
-				// 		speed: 350,
-				// 	},
-				// group: "word-segment",
-				// },
-				// sparkline: {
-				// 	enabled: false,
-				// },
-				// dropShadow: {
-				// 	enabled: true,
-				// },
-				// stackOnlyBar: true,
-
-				// stackType: "normal",
 			},
-			// plotOptions: {
-			// 	bar: {
-			// 		horizontal: false,
-			// 		borderRadiusApplication: "end",
-			// 		hideZeroBarsWhenGrouped: true,
-			// 		borderRadius: 50,
-			// 		distributed: false,
-			// 		// rangeBarGroupRows: true,
-			// 		// dataLabels: {
-			// 		// 	position: "top",
-			// 		// },
-			// 	},
-			// },
+
 			tooltip: {
-				// shared: true,
-				// intersect: false,
-				// theme: "dark",
-				// fixed: {
-				// 	enabled: false,
-				// 	position: "top-right",
-				// },
-				// x: {
-				// 	show: true,
-				// 	formatter: (val) => `${val}`,
-				// },
 				y: [
 					{
-						formatter: (val) => `${val.toLocaleString()} views`,
-					},
-					{
-						formatter: (val) => `${val.toLocaleString()} likes`,
-					},
-					{
-						formatter: (val) => `${val.toLocaleString()} posts`,
+						formatter: (val) =>
+							`${val.toLocaleString()} ${metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts"}`,
 					},
 				],
 			},
@@ -178,7 +124,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 							return formatter.format(val);
 						},
 					},
-					show: true,
+					// show: true,
 				},
 				// {
 				// 	labels: {
@@ -199,21 +145,6 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			],
 			xaxis: {
 				categories: dats.map((segment) => segment.x),
-				// labels: {
-				// 	show: true,
-				// 	rotate: -45,
-				// 	style: {
-				// 		fontSize: "12px",
-				// 		fontFamily: "Inter, sans-serif",
-				// 		colors: "#9aa0ac",
-				// 	},
-				// },
-				// axisBorder: {
-				// 	show: false,
-				// },
-				// axisTicks: {
-				// 	show: false,
-				// },
 			},
 			grid: {
 				show: true,
@@ -224,16 +155,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 					top: 0,
 				},
 			},
-			// responsive: [
-			// 	{
-			// 		breakpoint: 1000,
-			// 		options: {
-			// 			chart: {
-			// 				height: 350,
-			// 			},
-			// 		},
-			// 	},
-			// ],
+
 			stroke: {
 				curve: "smooth",
 				width: 2,
@@ -269,7 +191,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 
 		const chartSeries: ApexAxisChartSeries = [
 			{
-				name: "views",
+				name: metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts",
 				data: dats,
 				color: metric === "total_views" ? "#1C64F2" : metric === "total_likes" ? "#F39C12" : "#10B981",
 				type: "treemap",
@@ -277,7 +199,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		];
 
 		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" height={800} />;
-	}, [paginatedWords, metric, chartWidth, dats]);
+	}, [metric, chartWidth, dats]);
 
 	const wordTypez = useMemo(() => {
 		// const start = wordTypes.map((type) => ({ key: type, value: 0 }));

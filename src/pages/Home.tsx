@@ -6,7 +6,6 @@ import useTimePeriod from "@src/client/hooks/useTimePeriod";
 import UserInsightsChartView from "@src/components/UserInsightsChartView";
 import UserProfileView from "@src/components/UserProfileView";
 import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
-import lib from "@src/lib";
 import threadsapi from "@src/threadsapi";
 
 function classNames(...classes: (string | boolean | undefined)[]) {
@@ -22,17 +21,17 @@ const Home: FC = () => {
 
 	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
 
-	const [currentTab, setCurrentTab] = useState("Insights");
+	const [currentTab, setCurrentTab] = useState("Views Chart");
 
 	const items = useMemo(() => {
 		return [
 			{
-				label: "Insights",
+				label: "Views Chart",
 				comp: () => <UserInsightsChartView />,
 			},
 
 			{
-				label: "Words",
+				label: "Word Frequency",
 				comp: () => <WordSegmentLineChart />,
 			},
 		];
@@ -66,7 +65,7 @@ const Home: FC = () => {
 						}}
 						className="btn-primary btn"
 					>
-						Login
+						Login with
 					</button>
 				</section>
 			</>
@@ -77,7 +76,6 @@ const Home: FC = () => {
 		<section>
 			<div
 				style={{
-					background: lib.colors.shadowLightGrey,
 					minHeight: "calc(100vh - 64px)",
 					padding: "2rem 0",
 				}}
@@ -105,21 +103,8 @@ const Home: FC = () => {
 							))}
 						</select>
 					</div>
-					{/* <HappyTabber
-						defaultActiveIndex={0}
-						items={items}
-						headerContainerStyle={{
-							marginTop: "1.5rem",
-							padding: "0rem 1rem",
-							borderRadius: 0,
-						}}
-						wrapperStyle={{
-							justifySelf: "center",
-							background: lib.colors.red,
-						}}
-					/> */}
 
-					<div>
+					<div className="flex flex-row justify-around mt-5">
 						<div className="sm:hidden">
 							<label htmlFor="tabs" className="sr-only">
 								Select a tab
@@ -147,7 +132,7 @@ const Home: FC = () => {
 										// href={tab.href}
 										className={classNames(
 											tab.label === currentTab ? "bg-gray-100 text-gray-700" : "text-gray-500 hover:text-gray-700",
-											"rounded-md px-3 py-2 text-sm font-medium",
+											"rounded-md px-3 py-2 text-lg font-medium shadow-lg",
 										)}
 										aria-current={tab.label === currentTab ? "page" : undefined}
 									>

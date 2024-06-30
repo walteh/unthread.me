@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "@src/pages/Home";
 
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
+import useBackgroundUpdater from "./client/hooks/useBackgroundUpdater";
 import {
 	useThreadsAPIExirationUpdater,
 	useThreadsAPIMediaDataUpdater,
@@ -13,6 +14,7 @@ import threadsapi from "./threadsapi";
 
 const App: FC = () => {
 	useAccessTokenUpdater();
+	useBackgroundUpdater();
 	useThreadsAPIUserDataUpdater("user_profile", threadsapi.get_user_profile);
 	useThreadsAPIUserDataUpdater("user_threads", threadsapi.get_user_threads);
 	useThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
