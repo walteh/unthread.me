@@ -125,7 +125,14 @@ const Home: FC = () => {
 								defaultValue={items.find((tab) => tab.label === currentTab)?.label}
 							>
 								{items.map((tab) => (
-									<option key={tab.label}>{tab.label}</option>
+									<option
+										onClick={() => {
+											setCurrentTab(tab.label);
+										}}
+										key={tab.label}
+									>
+										{tab.label}
+									</option>
 								))}
 							</select>
 						</div>
