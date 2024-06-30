@@ -117,31 +117,11 @@ const Home: FC = () => {
 					</div>
 
 					<div className="flex flex-row justify-around mt-5 mb-5">
-						<div className="sm:hidden">
-							<label htmlFor="tabs" className="sr-only">
-								Select a tab
-							</label>
-							{/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
-							<select
-								id="tabs"
-								name="tabs"
-								className="block w-full rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 p-3"
-								defaultValue={items.find((tab) => tab.label === currentTab)?.label}
+						<div className="sm:block text-center  text-nowrap">
+							<nav
+								className="flex flex-wrap space-x-4 justify-center shadow-lg rounded-lg p-4 bg-slate-300"
+								aria-label="Tabs"
 							>
-								{items.map((tab) => (
-									<option
-										onClick={() => {
-											setCurrentTab(tab.label);
-										}}
-										key={tab.label}
-									>
-										{tab.label}
-									</option>
-								))}
-							</select>
-						</div>
-						<div className="hidden sm:block">
-							<nav className="flex space-x-4" aria-label="Tabs">
 								{items.map((tab) => (
 									<a
 										key={tab.label}
@@ -150,8 +130,10 @@ const Home: FC = () => {
 										}}
 										// href={tab.href}
 										className={classNames(
-											tab.label === currentTab ? "bg-gray-100 text-gray-700" : "text-gray-500 hover:text-gray-700",
-											"rounded-md px-3 py-2 text-lg font-medium shadow-lg",
+											tab.label === currentTab
+												? "bg-gray-100 text-gray-700"
+												: "text-gray-300 hover:text-gray-100 bg-slate-600",
+											"rounded-md px-3 py-2 text-lg font-medium shadow-lg mt-1 mb-1 justify-self-center",
 										)}
 										aria-current={tab.label === currentTab ? "page" : undefined}
 									>
