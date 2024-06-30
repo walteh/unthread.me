@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { useInMemoryStore } from "@src/threadsapi/store";
+import useSessionStore from "@src/client/hooks/useSessionStore";
 import { TimePeriod, TimePeriodLabel } from "@src/threadsapi/types";
 
 // const timePeriods: TimePeriod[] = ["last7days", "last30days", "last90days"];
@@ -118,7 +118,7 @@ export const useTimePeriodFilteredData = <T>(values: T[], date_func: (value: T) 
 };
 
 const useTimePeriod = () => {
-	const [rawTimePeriod, setRawTimePeriod] = useInMemoryStore((state) => [state.time_period_label, state.updateTimePeriodLabel]);
+	const [rawTimePeriod, setRawTimePeriod] = useSessionStore((state) => [state.time_period_label, state.updateTimePeriodLabel]);
 
 	// grab all the months from the start date to the current date
 	const periods = useMemo(() => {

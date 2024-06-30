@@ -194,7 +194,7 @@ const Layout = {
 	},
 } as const;
 
-const NLStyleSheetCreator = <T extends NLStyleSheet>(arg: T): T => {
+export const NLStyleSheetCreator = <T extends NLStyleSheet>(arg: T): T => {
 	return arg;
 };
 

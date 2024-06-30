@@ -2,12 +2,10 @@ import nlp from "compromise";
 import { outMethods } from "node_modules/compromise/types/misc";
 import Three from "node_modules/compromise/types/view/three";
 import { useCallback, useMemo } from "react";
-import { v4 as uuidv4 } from "uuid";
 
-import { ThreadMedia } from "@src/threadsapi/api";
-import { useUserDataStore } from "@src/threadsapi/store";
+import { ThreadMedia } from "@src/threadsapi/types";
 
-export const EMPTY_THREAD = uuidv4();
+import useCacheStore from "./useCacheStore";
 
 interface WordInsight {
 	word: string;
@@ -19,7 +17,7 @@ interface WordInsight {
 }
 
 export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
-	const userThreadsInsights = useUserDataStore((state) => state.user_threads_insights);
+	const userThreadsInsights = useCacheStore((state) => state.user_threads_insights);
 
 	const lbt = useCallback(
 		(thread: ThreadMedia) => {

@@ -2,19 +2,21 @@ import ky from "ky";
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { exchangeAccessTokenForLongLivedCode, exchangeCodeForAccessToken, refreshLongLivedToken } from "@src/threadsapi/api";
-import { useInMemoryStore, useIsLoggedIn, usePersistantStore } from "@src/threadsapi/store";
+import client from "@src/client";
+import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
+import useTokenStore from "@src/client/hooks/useTokenStore";
+import threadsapi from "@src/threadsapi";
 
 const useAccessTokenUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const updateAccessToken = usePersistantStore((state) => state.updateAccessToken);
-	const updateIsLoggingIn = useInMemoryStore((state) => state.updateIsLoggingIn);
-	const longLivedAccessToken = usePersistantStore((state) => state.long_lived_token);
-	const longLivedTokenRefreshableAt = usePersistantStore((state) => state.long_lived_token_refreshable_at);
-	const updateLongLivedAccessToken = usePersistantStore((state) => state.updateLongLivedToken);
-	const accessToken = usePersistantStore((state) => state.access_token);
+	const updateAccessToken = useTokenStore((state) => state.updateAccessToken);
+	const updateIsLoggingIn = client.session_store((state) => state.updateIsLoggingIn);
+	const longLivedAccessToken = client.token_store((state) => state.long_lived_token);
+	const longLivedTokenRefreshableAt = client.token_store((state) => state.long_lived_token_refreshable_at);
+	const updateLongLivedAccessToken = client.token_store((state) => state.updateLongLivedToken);
+	const accessToken = client.token_store((state) => state.access_token);
 	const [isLoggedIn] = useIsLoggedIn();
-	// const clearAccessToken = usePersistantStore((state) => state.clearAccessToken);
+	// const clearAccessToken = client.token_store((state) => state.clearAccessToken);
 
 	// update the access token if a code is present in the URL
 	React.useEffect(() => {
@@ -24,7 +26,7 @@ const useAccessTokenUpdater = () => {
 			updateIsLoggingIn(true);
 			try {
 				const kyd = ky.create({ prefixUrl: "https://api.unthread.me/" });
-				const res = await exchangeCodeForAccessToken(kyd, code);
+				const res = await threadsapi.exchange_code_for_short_lived_token(kyd, code);
 				updateAccessToken(res);
 			} catch (error) {
 				console.error("Error updating access token:", error);
@@ -55,7 +57,7 @@ const useAccessTokenUpdater = () => {
 					console.log("Generating long-lived access token");
 					try {
 						const kyd = ky.create({ prefixUrl: "https://api.unthread.me" });
-						const newLongLivedToken = await exchangeAccessTokenForLongLivedCode(kyd, accessToken);
+						const newLongLivedToken = await threadsapi.exchange_short_lived_for_long_lived_token(kyd, accessToken);
 						updateLongLivedAccessToken(newLongLivedToken);
 					} catch (error) {
 						console.error("Error generating long-lived access token:", error);
@@ -63,7 +65,7 @@ const useAccessTokenUpdater = () => {
 				} else if (longLivedTokenRefreshableAt && new Date(longLivedTokenRefreshableAt) < new Date()) {
 					try {
 						const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
-						const refreshedToken = await refreshLongLivedToken(kyd, longLivedAccessToken);
+						const refreshedToken = await threadsapi.refresh_long_lived_token(kyd, longLivedAccessToken);
 						updateLongLivedAccessToken(refreshedToken);
 					} catch (error) {
 						console.error("Error refreshing long-lived access token:", error);

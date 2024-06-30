@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 
 import ky from "ky";
 
-import { exchangeCodeForAccessToken } from "./api";
+import exchange_code_for_short_lived_token from "./exchange_code_for_short_lived_token";
 
 test("should return the access token", async () => {
 	// Arrange
@@ -28,7 +28,7 @@ test("should return the access token", async () => {
 		fetch: customFetch,
 	});
 
-	const result = await exchangeCodeForAccessToken(inst, "your-code");
+	const result = await exchange_code_for_short_lived_token(inst, "your-code");
 
 	expect(result.access_token).toBe(token);
 });
@@ -48,5 +48,5 @@ test("should throw an error when fetching access token fails", () => {
 	});
 
 	// Act and Assert
-	expect(exchangeCodeForAccessToken(inst, "yo")).rejects.toThrow(errorMessage);
+	expect(exchange_code_for_short_lived_token(inst, "yo")).rejects.toThrow(errorMessage);
 });

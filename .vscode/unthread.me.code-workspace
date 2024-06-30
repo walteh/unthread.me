@@ -1,8 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "../"
-		}
+			"path": "../",
+		},
 	],
 	"settings": {
 		"editor.formatOnSave": true,
@@ -11,11 +11,24 @@
 		"editor.codeActionsOnSave": {
 			"source.fixAll.eslint": "always",
 			// "source.organizeImports": "always",
-			"source.fixAll": "always"
+			"source.fixAll": "always",
 		},
 		"files.associations": {
 			"tsconfig.*json": "jsonc",
 			"*.css": "tailwindcss",
-		}
+		},
+		"typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": true,
+		"editor.detectIndentation": false,
+		"prettier.requireConfig": true,
+		"typescript.inlayHints.parameterNames.enabled": "all",
+		"typescript.inlayHints.variableTypes.enabled": false,
+		"typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+		"typescript.tsserver.experimental.enableProjectDiagnostics": true,
+		"eslint.useESLintClass": true,
+		"explorer.sortOrder": "type",
+		"explorer.sortOrderLexicographicOptions": "upper",
+		"[dotenv]": {
+			"editor.defaultFormatter": "foxundermoon.shell-format",
+		},
 	},
 }

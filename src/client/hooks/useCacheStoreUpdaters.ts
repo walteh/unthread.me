@@ -1,11 +1,14 @@
 import ky, { KyInstance } from "ky";
 import { useEffect } from "react";
 
-import { AccessTokenResponse } from "@src/threadsapi/api";
-import { NestedUserDataTypes, useIsLoggedIn, UserDataTypes, useUserDataStore } from "@src/threadsapi/store";
+import { AccessTokenResponse } from "@src/threadsapi/types";
+
+import { NestedUserDataTypes, UserDataTypes } from "../cache_store";
+import useCacheStore from "./useCacheStore";
+import { useIsLoggedIn } from "./useIsLoggedIn";
 
 export const useThreadsAPIExirationUpdater = () => {
-	const mark = useUserDataStore((state) => state.markAsExpired);
+	const mark = useCacheStore((state) => state.markAsExpired);
 
 	useEffect(() => {
 		const intervalId = setInterval(mark, 1000 * 60 * 10);
@@ -20,10 +23,10 @@ export const useThreadsAPIUserDataUpdater = <G extends keyof UserDataTypes = key
 	storeKey: G,
 	func: (kyd: KyInstance, ktoken: AccessTokenResponse) => Promise<UserDataTypes[G]>,
 ) => {
-	const data = useUserDataStore((state) => state[storeKey]);
-	const setData = useUserDataStore((state) => state.updateData);
-	const setLoading = useUserDataStore((state) => state.updateIsLoading);
-	const setError = useUserDataStore((state) => state.updateError);
+	const data = useCacheStore((state) => state[storeKey]);
+	const setData = useCacheStore((state) => state.updateData);
+	const setLoading = useCacheStore((state) => state.updateIsLoading);
+	const setError = useCacheStore((state) => state.updateError);
 
 	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
@@ -54,9 +57,9 @@ export const useThreadsAPIMediaDataUpdater = <G extends keyof NestedUserDataType
 	storeKey: G,
 	func: (kyd: KyInstance, ktoken: AccessTokenResponse, id: string) => Promise<NestedUserDataTypes[G]>,
 ) => {
-	const data = useUserDataStore((state) => state.user_threads);
-	// const nested_data = useUserDataStore((state) => state[storeKey]);
-	const setData = useUserDataStore((state) => state.updateNestedData);
+	const data = useCacheStore((state) => state.user_threads);
+	// const nested_data = useCacheStore((state) => state[storeKey]);
+	const setData = useCacheStore((state) => state.updateNestedData);
 
 	const [isLoggedIn, accessToken] = useIsLoggedIn();
 

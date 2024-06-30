@@ -2,15 +2,19 @@ import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
+import client from "@src/client";
+import useTimePeriod, {
+	useTimePeriodCountPerDay,
+	useTimePeriodFilteredData,
+	useTimePeriodListOfDays,
+} from "@src/client/hooks/useTimePeriod";
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import useTimePeriod, { useTimePeriodCountPerDay, useTimePeriodFilteredData, useTimePeriodListOfDays } from "@src/hooks/useTimePeriod";
-import { ThreadMedia } from "@src/threadsapi/api";
-import { useUserDataStore } from "@src/threadsapi/store";
+import { ThreadMedia } from "@src/threadsapi/types";
 
 const UserInsightChartView: FC = () => {
-	const data = useUserDataStore((state) => state.user_insights);
-	const threads = useUserDataStore((state) => state.user_threads);
+	const data = client.cache_store((state) => state.user_insights);
+	const threads = client.cache_store((state) => state.user_threads);
 
 	if (!data || !threads) return null;
 

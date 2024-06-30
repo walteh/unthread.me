@@ -1,10 +1,10 @@
 {
-    "trailingComma": "all",
-    "printWidth": 140,
-    "tabWidth": 4,
-    "semi": true,
-    "singleQuote": false,
-    "bracketSpacing": true,
-    "bracketSameLine": false,
-    "useTabs": true
-  }
+	"trailingComma": "all",
+	"printWidth": 140,
+	"tabWidth": 4,
+	"semi": true,
+	"singleQuote": false,
+	"bracketSpacing": true,
+	"bracketSameLine": false,
+	"useTabs": true
+}

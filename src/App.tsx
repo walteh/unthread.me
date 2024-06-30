@@ -3,25 +3,22 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "@src/pages/Home";
 
-import useAccessTokenUpdater from "./hooks/useAccessTokenUpdater";
-import { useThreadsAPIExirationUpdater, useThreadsAPIMediaDataUpdater, useThreadsAPIUserDataUpdater } from "./hooks/useThreadsAPI";
+import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
 import {
-	getAllUserInsightsWithDefaultParams,
-	getDefaultConversation,
-	getFollowerDemographicsInsights,
-	getMediaInsightsWithDefaultParams,
-	getUserProfile,
-	getUserThreads,
-} from "./threadsapi/api";
+	useThreadsAPIExirationUpdater,
+	useThreadsAPIMediaDataUpdater,
+	useThreadsAPIUserDataUpdater,
+} from "./client/hooks/useCacheStoreUpdaters";
+import threadsapi from "./threadsapi";
 
 const App: FC = () => {
 	useAccessTokenUpdater();
-	useThreadsAPIUserDataUpdater("user_profile", getUserProfile);
-	useThreadsAPIUserDataUpdater("user_threads", getUserThreads);
-	useThreadsAPIUserDataUpdater("user_insights", getAllUserInsightsWithDefaultParams);
-	useThreadsAPIUserDataUpdater("user_follower_demographics", getFollowerDemographicsInsights);
-	useThreadsAPIMediaDataUpdater("user_threads_replies", getDefaultConversation);
-	useThreadsAPIMediaDataUpdater("user_threads_insights", getMediaInsightsWithDefaultParams);
+	useThreadsAPIUserDataUpdater("user_profile", threadsapi.get_user_profile);
+	useThreadsAPIUserDataUpdater("user_threads", threadsapi.get_user_threads);
+	useThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
+	useThreadsAPIUserDataUpdater("user_follower_demographics", threadsapi.get_follower_demographics);
+	useThreadsAPIMediaDataUpdater("user_threads_replies", threadsapi.get_conversation);
+	useThreadsAPIMediaDataUpdater("user_threads_insights", threadsapi.get_media_insights);
 	useThreadsAPIExirationUpdater();
 	return (
 		<>

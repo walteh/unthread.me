@@ -1,12 +1,12 @@
 import { FC } from "react";
 
+// Update with the correct path
+import client from "@src/client";
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-// Update with the correct path
-import { useUserDataStore } from "@src/threadsapi/store";
 
 const UserProfileView: FC = () => {
-	const [profile] = useUserDataStore((state) => [state.user_profile]);
+	const [profile] = client.cache_store((state) => [state.user_profile]);
 
 	if (!profile) return null;
 

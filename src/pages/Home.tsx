@@ -1,21 +1,42 @@
-import { FC } from "react";
+import { FC, useMemo, useState } from "react";
 
+import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
+import useSessionStore from "@src/client/hooks/useSessionStore";
+import useTimePeriod from "@src/client/hooks/useTimePeriod";
 import UserInsightsChartView from "@src/components/UserInsightsChartView";
 import UserProfileView from "@src/components/UserProfileView";
 import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
-import useTimePeriod from "@src/hooks/useTimePeriod";
-import { getAuthorizationStartURL } from "@src/threadsapi/api";
+import lib from "@src/lib";
+import threadsapi from "@src/threadsapi";
 
-import { useInMemoryStore, useIsLoggedIn } from "../threadsapi/store";
+function classNames(...classes: (string | boolean | undefined)[]) {
+	return classes.filter(Boolean).join(" ");
+}
 
 const Home: FC = () => {
-	const [is_logging_in] = useInMemoryStore((state) => [state.is_logging_in] as const);
+	const [is_logging_in] = useSessionStore((state) => [state.is_logging_in] as const);
 
 	const [isLoggedIn, , time] = useIsLoggedIn();
 
 	console.log("expiration time", new Date(time ?? 0).toLocaleString());
 
 	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
+
+	const [currentTab, setCurrentTab] = useState("Insights");
+
+	const items = useMemo(() => {
+		return [
+			{
+				label: "Insights",
+				comp: () => <UserInsightsChartView />,
+			},
+
+			{
+				label: "Words",
+				comp: () => <WordSegmentLineChart />,
+			},
+		];
+	}, []);
 
 	if (is_logging_in) {
 		return (
@@ -39,7 +60,7 @@ const Home: FC = () => {
 				<section>
 					<button
 						onClick={() => {
-							const authUrl = getAuthorizationStartURL();
+							const authUrl = threadsapi.generate_auth_start_url();
 							// redirect to the auth URL
 							window.location.href = authUrl.toString();
 						}}
@@ -54,10 +75,23 @@ const Home: FC = () => {
 
 	return (
 		<section>
-			<div className=" bg-base-200">
-				<div className="flex-col lg:flex-col items-start ">
+			<div
+				style={{
+					background: lib.colors.shadowLightGrey,
+					minHeight: "calc(100vh - 64px)",
+					padding: "2rem 0",
+				}}
+			>
+				<div style={{ maxWidth: "1000px" }} className="mx-auto p-4">
 					<UserProfileView />
-					<div className="mb-4 flex justify-center">
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "center",
+							marginTop: "1rem",
+						}}
+					>
 						<label htmlFor="timePeriod" className="mr-2">
 							Select Time Period:
 						</label>
@@ -71,9 +105,66 @@ const Home: FC = () => {
 							))}
 						</select>
 					</div>
-					<UserInsightsChartView />
-					{/* <UserThreadsView /> */}
-					<WordSegmentLineChart />
+					{/* <HappyTabber
+						defaultActiveIndex={0}
+						items={items}
+						headerContainerStyle={{
+							marginTop: "1.5rem",
+							padding: "0rem 1rem",
+							borderRadius: 0,
+						}}
+						wrapperStyle={{
+							justifySelf: "center",
+							background: lib.colors.red,
+						}}
+					/> */}
+
+					<div>
+						<div className="sm:hidden">
+							<label htmlFor="tabs" className="sr-only">
+								Select a tab
+							</label>
+							{/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+							<select
+								id="tabs"
+								name="tabs"
+								className="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+								defaultValue={items.find((tab) => tab.label === currentTab)?.label}
+							>
+								{items.map((tab) => (
+									<option key={tab.label}>{tab.label}</option>
+								))}
+							</select>
+						</div>
+						<div className="hidden sm:block">
+							<nav className="flex space-x-4" aria-label="Tabs">
+								{items.map((tab) => (
+									<a
+										key={tab.label}
+										onClick={() => {
+											setCurrentTab(tab.label);
+										}}
+										// href={tab.href}
+										className={classNames(
+											tab.label === currentTab ? "bg-gray-100 text-gray-700" : "text-gray-500 hover:text-gray-700",
+											"rounded-md px-3 py-2 text-sm font-medium",
+										)}
+										aria-current={tab.label === currentTab ? "page" : undefined}
+									>
+										{tab.label}
+									</a>
+								))}
+							</nav>
+						</div>
+					</div>
+
+					{items.map((item) => (
+						<div key={item.label} className={classNames(item.label === currentTab ? "block" : "hidden")}>
+							<item.comp />
+						</div>
+					))}
+
+					{/* <UserInsightsChartView /> */}
 				</div>
 			</div>
 		</section>

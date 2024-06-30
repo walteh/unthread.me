@@ -2,11 +2,12 @@ import { FC } from "react";
 
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import { Reply, ThreadMedia } from "@src/threadsapi/api";
-import { useUserDataStore } from "@src/threadsapi/store";
+import { Reply, ThreadMedia } from "@src/threadsapi/types";
+
+import client from "../client";
 
 const UserThreadsView = () => {
-	const threads = useUserDataStore((state) => state.user_threads);
+	const threads = client.cache_store((state) => state.user_threads);
 
 	if (!threads) return null;
 
@@ -54,7 +55,7 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => (
 );
 
 const UserThreadReplies: FC<{ thread_id: string }> = ({ thread_id }) => {
-	const replies = useUserDataStore((state) => state.user_threads_replies?.data[thread_id]);
+	const replies = client.cache_store((state) => state.user_threads_replies?.data[thread_id]);
 
 	return (
 		<div>

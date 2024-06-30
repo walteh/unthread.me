@@ -2,15 +2,15 @@ import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
+import client from "@src/client";
+import useTimePeriod, { useTimePeriodFilteredData } from "@src/client/hooks/useTimePeriod";
+import { useByWord, WordType, wordTypes } from "@src/client/hooks/useWords";
 import ErrorMessage from "@src/components/ErrorMessage";
 import Loader from "@src/components/Loader";
-import useTimePeriod, { useTimePeriodFilteredData } from "@src/hooks/useTimePeriod";
-import { useByWord, WordType, wordTypes } from "@src/hooks/useWords";
-import { ThreadMedia } from "@src/threadsapi/api";
-import { useUserDataStore } from "@src/threadsapi/store";
+import { ThreadMedia } from "@src/threadsapi/types";
 
 const WordSegmentLineChart: FC = () => {
-	const [threads] = useUserDataStore((state) => [state.user_threads]);
+	const [threads] = client.cache_store((state) => [state.user_threads]);
 
 	if (!threads) return null;
 
