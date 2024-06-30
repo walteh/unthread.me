@@ -6,7 +6,7 @@
   "homepage": "https://unthread.me/",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "bunx --bun vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write ."
@@ -16,6 +16,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@react-spring/web": "^9.7.3",
     "@threadsjs/threads.js": "^2.0.0",
     "@types/bun": "^1.1.5",
     "@types/chai": "^4.3.16",
@@ -34,11 +35,8 @@
     "autoprefixer": "^10.4.19",
     "ava": "^6.1.3",
     "body-parser": "^1.20.2",
-    "chai": "^5.1.1",
     "compromise": "^14.13.0",
     "compromise-speed": "^0.1.1",
-    "daisyui": "^4.12.7",
-    "emoji-regex": "^10.3.0",
     "eslint": "^8.57.0",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-import-resolver-vite": "^2.0.1",
@@ -50,23 +48,16 @@
     "eslint-plugin-simple-import-sort": "^12.1.0",
     "eslint-plugin-unused-imports": "^4.0.0",
     "express": "^4.19.2",
-    "flowbite": "^2.4.1",
     "ky": "^1.3.0",
     "path": "^0.12.7",
     "pify": "^6.1.0",
-    "preline": "^2.3.0",
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
     "react-apexcharts": "^1.4.1",
     "react-router-dom": "^6.23.1",
-    "react-tagcloud": "^2.3.3",
-    "recharts": "^2.12.7",
     "tailwindcss": "^3.4.4",
-    "tape": "^5.8.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
-    "usehooks-ts": "^3.1.0",
-    "uuid": "^10.0.0",
     "vite": "^5.3.1",
     "zustand": "^4.5.2"
   }

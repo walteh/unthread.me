@@ -6,8 +6,19 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [react(), basicSsl()],
+
 	build: {
-		sourcemap: true,
+		chunkSizeWarningLimit: 600,
+		sourcemap: false,
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					nlp: ["compromise"],
+					animation: ["@react-spring/web"],
+					charts: ["react-apexcharts"],
+				},
+			},
+		},
 	},
 	resolve: {
 		alias: {

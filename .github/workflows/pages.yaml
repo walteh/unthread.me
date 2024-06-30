@@ -38,6 +38,7 @@ jobs:
             - name: set-env
               run: |
                   echo "VITE_UNTHREADME_THREADS_API_APP_ID=${{ secrets.UNTHREADME_THREADS_API_APP_ID }}"  > .env
+                  echo "VITE_UNTHREADME_UMAMI_APP_ID=${{ secrets.UNTHREADME_UMAMI_APP_ID }}" >> .env
             - name: build
               run: |
                   bun install
