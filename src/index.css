@@ -16,6 +16,38 @@
 	}
 }
 
+@media (prefers-color-scheme: light) {
+	html {
+		background: white;
+	}
+	/* body {
+        background: white;
+    }
+    #root {
+        background: radial-gradient(
+            50% 50% at 50% 50%,
+            rgb(80, 144, 234, 0.1) 0%,
+            rgba(80, 144, 234, 0.34) 100%
+        );
+    } */
+}
+
+@media (prefers-color-scheme: dark) {
+	html {
+		background: black;
+	}
+	/* body {
+        background: black;
+    }
+    #root {
+        background: radial-gradient(
+            50% 50% at 50% 50%,
+            rgba(80, 144, 234, 0.34) 0%,
+            rgb(80, 144, 234, 0.1) 1000%
+        );
+    } */
+}
+
 #background-radial-gradient {
 	position: fixed;
 	top: 0;

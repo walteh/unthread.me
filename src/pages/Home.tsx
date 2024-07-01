@@ -3,6 +3,7 @@ import { FC, useMemo, useState } from "react";
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
 import useTimePeriod from "@src/client/hooks/useTimePeriod";
+import DailyReportView from "@src/components/DailyReportView";
 import UserInsightsChartView from "@src/components/UserInsightsChartView";
 import UserProfileView from "@src/components/UserProfileView";
 import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
@@ -27,7 +28,7 @@ const Home: FC = () => {
 		return [
 			{
 				label: "Daily Reports",
-				comp: () => <div>Daily Reports</div>,
+				comp: () => <DailyReportView />,
 			},
 			{
 				label: "Views Chart",
@@ -158,7 +159,7 @@ const Home: FC = () => {
 											tab.label === currentTab
 												? "bg-blue-600 text-white shadow-xl "
 												: "text-gray-500 hover:text-gray-500 bg-gray-100 shadow-sm",
-											"rounded-md px-3 py-2 text-lg font-medium mt-1 mb-1 justify-self-center",
+											"rounded-md px-3 py-2 text-lg font-medium mt-1 mb-1 justify-self-center font-rounded",
 										)}
 										aria-current={tab.label === currentTab ? "page" : undefined}
 									>
