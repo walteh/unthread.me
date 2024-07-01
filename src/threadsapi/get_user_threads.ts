@@ -1,11 +1,12 @@
 import { KyInstance } from "ky";
 
-import { AccessTokenResponse, GetUserThreadsParams, UserThreadsResponse } from "./types";
+import { AccessTokenResponse, GetUserThreadsParams, ThreadMedia, UserThreadsResponse } from "./types";
 
-export const get_user_threads = async (
+const fetch_user_threads_page = async (
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
 	params?: GetUserThreadsParams,
+	cursor?: string,
 ): Promise<UserThreadsResponse> => {
 	const searchParams: Record<string, string | number | boolean> = {
 		fields: "id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,shortcode,thumbnail_url,children,is_quote_post",
@@ -19,10 +20,13 @@ export const get_user_threads = async (
 		if (params?.since) searchParams.since = params.since;
 		if (params?.until) searchParams.until = params.until;
 	}
+	searchParams.limit = 100;
 
-	searchParams.limit = params?.limit ?? Number.MAX_SAFE_INTEGER;
+	if (cursor) {
+		searchParams.after = cursor;
+	}
 
-	const resp = await inst
+	return await inst
 		.get(`v1.0/me/threads`, {
 			searchParams,
 			headers: {
@@ -35,8 +39,30 @@ export const get_user_threads = async (
 			console.error("Error fetching user threads:", error);
 			throw error;
 		});
+};
 
-	return resp;
+export const get_user_threads = async (
+	inst: KyInstance,
+	accessToken: AccessTokenResponse,
+	params?: GetUserThreadsParams,
+): Promise<UserThreadsResponse> => {
+	const allThreads: ThreadMedia[] = [];
+
+	const fetchAllPages = async (cursor?: string): Promise<void> => {
+		const response = await fetch_user_threads_page(inst, accessToken, params, cursor);
+
+		allThreads.push(...response.data);
+
+		if (response.paging?.cursors.after) {
+			await fetchAllPages(response.paging.cursors.after);
+		}
+	};
+
+	await fetchAllPages();
+
+	return {
+		data: allThreads,
+	};
 };
 
 export default get_user_threads;
