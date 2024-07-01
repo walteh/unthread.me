@@ -1,11 +1,11 @@
 import { FC, useMemo, useState } from "react";
 
+import useCacheStore from "@src/client/hooks/useCacheStore";
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
-import useTimePeriod from "@src/client/hooks/useTimePeriod";
 import DailyReportView from "@src/components/DailyReportView";
 import UserInsightsChartView from "@src/components/UserInsightsChartView";
-import UserProfileView from "@src/components/UserProfileView";
+import UserProfile2 from "@src/components/UserProfile2";
 import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
 import threadsapi from "@src/threadsapi";
 
@@ -20,9 +20,9 @@ const Home: FC = () => {
 
 	console.log("expiration time", new Date(time ?? 0).toLocaleString());
 
-	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
-
 	const [currentTab, setCurrentTab] = useState("Views Chart");
+
+	const clear = useCacheStore((state) => state.clearCache);
 
 	const items = useMemo(() => {
 		return [
@@ -37,6 +37,11 @@ const Home: FC = () => {
 
 			{
 				label: "Word Frequency",
+				comp: () => <WordSegmentLineChart />,
+			},
+
+			{
+				label: "Post Search",
 				comp: () => <WordSegmentLineChart />,
 			},
 		];
@@ -86,36 +91,27 @@ const Home: FC = () => {
 				}}
 			>
 				<div style={{ maxWidth: "1000px" }} className="mx-auto p-4">
-					<UserProfileView />
+					<UserProfile2 />
 
 					{/* <button
-						onClick={() => {
-							void refresh();
-						}}
+						onClick={clear}
+						className="relative inline-flex items-center justify-center p-4 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 text-white shadow-lg transition-transform transform hover:scale-110 focus:outline-none"
 					>
-						refresh
+						<svg
+							className="w-6 h-6 animate-spin"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="2"
+								d="M4 4v5h.582m.92-3.667A9 9 0 1112 21v-1M3 3l3 3"
+							></path>
+						</svg>
 					</button> */}
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "center",
-							alignItems: "center",
-							marginTop: "1rem",
-						}}
-					>
-						<label htmlFor="timePeriod" className="mr-2">
-							Select Time Period:
-						</label>
-						<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded">
-							{Object.entries(timePeriods).map(([, tp]) => (
-								<option key={tp.label} value={tp.label}>
-									{!tp.label.includes("days")
-										? tp.label
-										: `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
-								</option>
-							))}
-						</select>
-					</div>
 
 					<div className="flex flex-row justify-around mt-5 mb-5">
 						<div className="sm:hidden">

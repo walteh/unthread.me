@@ -39,7 +39,7 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 	// const likes = useUserLikesByDay();
 	// const threadViews = useUserThreadViewsByDay();
 
-	const [timePeriod] = useTimePeriod();
+	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
 
 	const viewByTimePeriod = useTimePeriodFilteredData(views, (value) => value.end_time, timePeriod);
 
@@ -287,6 +287,25 @@ const ObservedChart: FC<{ views: { end_time: string; value: number }[]; threads:
 
 	return (
 		<div ref={chartContainerRef} className="flex flex-col items-center w-full">
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					marginTop: "1rem",
+				}}
+			>
+				<label htmlFor="timePeriod" className="mr-2">
+					Select Time Period:
+				</label>
+				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded">
+					{Object.entries(timePeriods).map(([, tp]) => (
+						<option key={tp.label} value={tp.label}>
+							{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
+						</option>
+					))}
+				</select>
+			</div>
 			{Chart}
 		</div>
 	);

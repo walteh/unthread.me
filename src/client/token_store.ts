@@ -38,6 +38,7 @@ export const token_store = create(
 			{
 				name: "unthread.me/token_store",
 				storage: createJSONStorage(() => localStorage),
+				version: 0,
 			},
 		),
 	),

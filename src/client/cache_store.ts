@@ -122,13 +122,24 @@ export const cache_store = create(
 								return newState;
 							});
 						},
+
+						clearCache: () => {
+							set(() => ({
+								user_profile: null,
+								user_insights: null,
+								user_threads: null,
+								user_follower_demographics: null,
+								user_threads_replies: null,
+								user_threads_insights: null,
+							}));
+						},
 					};
 				},
 			),
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
-				version: 1,
+				version: 2,
 			},
 		),
 	),
