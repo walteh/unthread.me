@@ -40,6 +40,16 @@ export const get_media_insights_with_params = async (
 			headers: {
 				"Content-Type": "application/json",
 			},
+			retry: 2,
+			hooks: {
+				beforeRetry: [
+					(retryCount) => {
+						console.log("Retrying media insights request", retryCount.retryCount);
+						// sleep for 1 second before retrying
+						return new Promise((resolve) => setTimeout(resolve, retryCount.retryCount * 1000));
+					},
+				],
+			},
 			timeout: 10000,
 		})
 		.then((response) => response.json<InsightsResponse<MediaMetricTypeMap[MediaMetric]>>())

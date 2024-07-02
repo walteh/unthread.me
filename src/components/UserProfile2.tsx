@@ -1,11 +1,6 @@
 import useCacheStore from "@src/client/hooks/useCacheStore";
-
-const user = {
-	name: "Rebecca Nicholas",
-	role: "Product Designer",
-	imageUrl:
-		"https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-};
+import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
+import useUserInsights from "@src/client/hooks/useUserInsights";
 
 const formatNumber = (number: number) => {
 	const formatter = Intl.NumberFormat("en", { notation: "compact" });
@@ -14,20 +9,16 @@ const formatNumber = (number: number) => {
 
 export default function UserProfile2() {
 	const [profile] = useCacheStore((state) => [state.user_profile]);
-	const [insights] = useCacheStore((state) => [state.user_insights]);
-	const [threads] = useCacheStore((state) => [state.user_threads]);
+	const [insights] = useUserInsights();
+	const [threads] = useThreadsListSortedByDate();
 
 	const refresh = useCacheStore((state) => state.clearCache);
 
-	if (!profile?.data) return null;
-	if (!insights?.data) return null;
-	if (!threads?.data) return null;
-
 	const stats = [
-		{ label: "Followers", value: formatNumber(insights.data.followers_count?.total_value.value ?? 0) },
-		{ label: "Total Likes", value: formatNumber(insights.data.likes?.total_value.value ?? 0) },
-		{ label: "Total Views", value: formatNumber(insights.data.views?.values.reduce((acc, curr) => acc + curr.value, 0) ?? 0) },
-		{ label: "Total Threads", value: formatNumber(threads.data.data.length) },
+		{ label: "Followers", value: formatNumber(insights.total_followers) },
+		{ label: "Total Likes", value: formatNumber(insights.total_likes) },
+		{ label: "Total Views", value: formatNumber(insights.total_views) },
+		{ label: "Total Threads", value: formatNumber(threads.length) },
 	];
 
 	return (
@@ -39,12 +30,12 @@ export default function UserProfile2() {
 				<div className="sm:flex sm:items-center sm:justify-between">
 					<div className="sm:flex sm:space-x-5">
 						<div className="flex-shrink-0">
-							<img className="mx-auto h-20 w-20 rounded-full" src={profile.data.threads_profile_picture_url} alt="" />
+							<img className="mx-auto h-20 w-20 rounded-full" src={profile?.data?.threads_profile_picture_url} alt="" />
 						</div>
 						<div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
 							<p className="text-sm font-medium text-gray-600">Welcome back,</p>
-							<p className="text-xl font-bold font-rounded text-gray-900 sm:text-2xl">@{profile.data.username}</p>
-							<p className="text-sm font-medium text-gray-600">{profile.data.threads_biography}</p>
+							<p className="text-xl font-bold font-rounded text-gray-900 sm:text-2xl">@{profile?.data?.username}</p>
+							<p className="text-sm font-medium text-gray-600">{profile?.data?.threads_biography}</p>
 						</div>
 					</div>
 					<div className="mt-5 flex justify-center sm:mt-0">

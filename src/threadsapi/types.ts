@@ -70,6 +70,32 @@ export type InsightMetric = TotalValueMetric | TimeSeriesMetric;
 
 export interface InsightsResponse<T> {
 	data: T[];
+	paging?: {
+		previous?: string;
+		next?: string;
+	};
+}
+
+interface MetricListItem {
+	label: string;
+	value: number;
+}
+
+export interface SimplifedMetricTypeMap {
+	total_likes: number;
+	total_views: number;
+	total_replies: number;
+	total_followers: number;
+	total_quotes: number;
+	total_reposts: number;
+	views_by_day: MetricListItem[];
+}
+
+export interface SimplifiedDemographicMetric {
+	demographics_by_age: MetricListItem[];
+	demographics_by_country: MetricListItem[];
+	demographics_by_city: MetricListItem[];
+	demographics_by_gender: MetricListItem[];
 }
 
 export interface MetricTypeMap {
@@ -79,7 +105,6 @@ export interface MetricTypeMap {
 	reposts: TotalValueMetric | null;
 	quotes: TotalValueMetric | null;
 	followers_count: TotalValueMetric | null;
-	follower_demographics: TotalValueMetric | null;
 }
 
 export interface MediaMetricTypeMap {
@@ -126,11 +151,8 @@ export interface UserThreadsResponse {
 	};
 }
 
-export interface GetUserThreadsParams {
-	since?: string;
-	until?: string;
-	limit?: number;
-	all_time?: boolean;
+export interface UserThreadsMap {
+	threads: ThreadMedia[];
 }
 
 export interface BreakdownMetricTypeMap {
@@ -154,7 +176,7 @@ export interface Reply {
 	children?: Reply[];
 	has_replies: boolean;
 	root_post: { id: string };
-	replied_to: { id: string };
+	replied_to: { id: string } | null;
 	is_reply: boolean;
 	hide_status: string;
 }

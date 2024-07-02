@@ -4,9 +4,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
 import useBackgroundUpdater from "./client/hooks/useBackgroundUpdater";
 import {
-	useThreadsAPIExirationUpdater,
-	useThreadsAPIMediaDataUpdater,
-	useThreadsAPIUserDataUpdater,
+	useInitialThreadsAPIMediaDataUpdater,
+	useInitialThreadsAPIUserDataUpdater,
+	useInitialThreadsLoader,
 } from "./client/hooks/useCacheStoreUpdaters";
 import Home from "./pages/Home";
 import threadsapi from "./threadsapi";
@@ -14,13 +14,12 @@ import threadsapi from "./threadsapi";
 const App: FC = () => {
 	useAccessTokenUpdater();
 	useBackgroundUpdater();
-	useThreadsAPIUserDataUpdater("user_profile", threadsapi.get_user_profile);
-	useThreadsAPIUserDataUpdater("user_threads", threadsapi.get_user_threads);
-	useThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
-	useThreadsAPIUserDataUpdater("user_follower_demographics", threadsapi.get_follower_demographics);
-	useThreadsAPIMediaDataUpdater("user_threads_replies", threadsapi.get_conversation);
-	useThreadsAPIMediaDataUpdater("user_threads_insights", threadsapi.get_media_insights);
-	useThreadsAPIExirationUpdater();
+	useInitialThreadsAPIUserDataUpdater("user_profile", threadsapi.get_user_profile);
+	useInitialThreadsLoader();
+	useInitialThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
+	useInitialThreadsAPIUserDataUpdater("user_follower_demographics", threadsapi.get_follower_demographics);
+	useInitialThreadsAPIMediaDataUpdater("user_threads_replies", threadsapi.get_conversation);
+	useInitialThreadsAPIMediaDataUpdater("user_threads_insights", threadsapi.get_media_insights);
 	return (
 		<>
 			<Routes>

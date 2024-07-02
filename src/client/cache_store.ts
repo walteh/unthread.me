@@ -1,19 +1,22 @@
+import { KyInstance } from "ky";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
+import { fetch_user_threads_page, GetUserThreadsParams } from "@src/threadsapi/get_user_threads";
+
 import {
+	AccessTokenResponse,
 	BreakdownMetricTypeMap,
 	ConversationResponse,
 	MediaMetricTypeMap,
-	MetricTypeMap,
+	SimplifedMetricTypeMap,
+	ThreadMedia,
 	UserProfileResponse,
-	UserThreadsResponse,
 } from "../threadsapi/types";
 
 export interface UserDataTypes {
 	user_profile: UserProfileResponse;
-	user_insights: MetricTypeMap;
-	user_threads: UserThreadsResponse;
+	user_insights: SimplifedMetricTypeMap;
 	user_follower_demographics: BreakdownMetricTypeMap;
 }
 
@@ -27,21 +30,33 @@ interface DataResponse<T extends keyof UserDataTypes> {
 	is_loading: boolean;
 	updated_at?: number;
 	error: string | null;
-	expired: boolean;
 }
 
-interface NestedDataResponse<T extends keyof NestedUserDataTypes> {
-	data: Record<string, NestedUserDataTypes[T] | null>;
+interface RawDataResponse<T> {
+	data: T | null;
 	is_loading: boolean;
 	updated_at: number;
 	error: string | null;
-	expired: boolean;
+}
+
+interface NestedDataDataResponse<T extends keyof NestedUserDataTypes> {
+	data: NestedUserDataTypes[T];
+	is_loading: boolean;
+	updated_at: number;
+	error: string | null;
+}
+
+interface NestedDataResponse<T extends keyof NestedUserDataTypes> {
+	data: Record<string, NestedDataDataResponse<T> | null>;
+	is_loading: boolean;
+	updated_at: number;
+	error: string | null;
 }
 
 interface UserDataStoreData {
 	user_profile: DataResponse<"user_profile"> | null;
 	user_insights: DataResponse<"user_insights"> | null;
-	user_threads: DataResponse<"user_threads"> | null;
+	user_threads: RawDataResponse<Record<string, ThreadMedia>> | null;
 	user_threads_replies: NestedDataResponse<"user_threads_replies"> | null;
 	user_threads_insights: NestedDataResponse<"user_threads_insights"> | null;
 	user_follower_demographics: DataResponse<"user_follower_demographics"> | null;
@@ -63,14 +78,45 @@ export const cache_store = create(
 					return {
 						updateNestedData: <G extends keyof NestedUserDataTypes, T extends NestedUserDataTypes[G]>(
 							key: G,
+							id: string,
+							data: T,
+						) => {
+							set((state) => ({
+								[key]: {
+									...state[key],
+									data: {
+										...state[key]?.data,
+										[id]: {
+											data,
+											is_loading: false,
+											updated_at: Date.now(),
+											error: null,
+											expired: false,
+										},
+									},
+								},
+							}));
+						},
+
+						updateAllNestedData: <G extends keyof NestedUserDataTypes, T extends NestedUserDataTypes[G]>(
+							key: G,
 							data: Record<string, T>,
 						) => {
-							set(() => ({
-								[key]: {
-									data,
+							const newData: Record<string, NestedDataDataResponse<G>> = {};
+							Object.keys(data).forEach((id) => {
+								newData[id] = {
+									data: data[id],
 									is_loading: false,
 									updated_at: Date.now(),
-									expired: false,
+									error: null,
+								};
+							});
+							set((state) => ({
+								[key]: {
+									...state[key],
+									data: newData,
+									is_loading: false,
+									updated_at: Date.now(),
 									error: null,
 								},
 							}));
@@ -83,7 +129,6 @@ export const cache_store = create(
 									data,
 									updated_at: Date.now(),
 									error: null,
-									expired: false,
 								},
 							}));
 						},
@@ -94,7 +139,6 @@ export const cache_store = create(
 									...state[key],
 									is_loading,
 									error: null,
-									expired: false,
 								},
 							}));
 						},
@@ -104,23 +148,8 @@ export const cache_store = create(
 								[key]: {
 									...state[key],
 									error,
-
-									expired: false,
 								},
 							}));
-						},
-
-						markAsExpired: () => {
-							set((state) => {
-								const newState = { ...state };
-								Object.keys(newState).forEach((key) => {
-									const keyd = key as keyof UserDataStoreData;
-									if (typeof newState[keyd] === "object" && newState[keyd] !== null) {
-										newState[keyd].expired = true;
-									}
-								});
-								return newState;
-							});
 						},
 
 						clearCache: () => {
@@ -133,13 +162,81 @@ export const cache_store = create(
 								user_threads_insights: null,
 							}));
 						},
+
+						updateThreadData: (data: Record<string, ThreadMedia>) => {
+							set((state) => ({
+								user_threads: {
+									...state.user_threads,
+									data: {
+										...state.user_threads?.data,
+										...data,
+									},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+									expired: false,
+								},
+							}));
+						},
+
+						loadThreadsData: (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
+							const fetchAllPages = async (cursor?: string): Promise<void> => {
+								try {
+									const response = await fetch_user_threads_page(ky, token, params, cursor);
+
+									set((state) => ({
+										user_threads: {
+											data: {
+												...state.user_threads?.data,
+												...response.data.reduce<Record<string, ThreadMedia>>((acc, thread) => {
+													acc[thread.id] = thread;
+													return acc;
+												}, {}),
+											},
+											is_loading: false,
+											updated_at: Date.now(),
+											error: null,
+										},
+									}));
+
+									if (response.paging?.cursors.after) {
+										await fetchAllPages(response.paging.cursors.after);
+									}
+								} catch (error) {
+									console.error("Error fetching user threads:", error);
+
+									set((state) => ({
+										user_threads: {
+											// ...state.user_threads,
+											data: state.user_threads?.data ?? null,
+											is_loading: false,
+											updated_at: Date.now(),
+											error: "Failed to fetch user threads",
+											expired: false,
+										},
+									}));
+								}
+							};
+
+							set((state) => ({
+								user_threads: {
+									data: state.user_threads?.data ?? null,
+									is_loading: true,
+									error: null,
+									expired: false,
+									updated_at: Date.now(),
+								},
+							}));
+
+							void fetchAllPages();
+						},
 					};
 				},
 			),
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
-				version: 2,
+				version: 3,
 			},
 		),
 	),

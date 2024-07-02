@@ -1,11 +1,12 @@
 import { FC, useMemo, useState } from "react";
 
-import useCacheStore from "@src/client/hooks/useCacheStore";
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
 import DailyReportView from "@src/components/DailyReportView";
+import Status from "@src/components/Status";
 import UserInsightsChartView from "@src/components/UserInsightsChartView";
 import UserProfile2 from "@src/components/UserProfile2";
+import UserThreadsView from "@src/components/UserThreadsView";
 import WordSegmentLineChart from "@src/components/WordSegmentLineChart";
 import threadsapi from "@src/threadsapi";
 
@@ -22,7 +23,7 @@ const Home: FC = () => {
 
 	const [currentTab, setCurrentTab] = useState("Views Chart");
 
-	const clear = useCacheStore((state) => state.clearCache);
+	// const clear = useCacheStore((state) => state.clearCache);
 
 	const items = useMemo(() => {
 		return [
@@ -42,7 +43,7 @@ const Home: FC = () => {
 
 			{
 				label: "Post Search",
-				comp: () => <WordSegmentLineChart />,
+				comp: () => <UserThreadsView />,
 			},
 		];
 	}, []);
@@ -84,6 +85,7 @@ const Home: FC = () => {
 
 	return (
 		<section>
+			<Status />
 			<div
 				style={{
 					minHeight: "calc(100vh - 64px)",

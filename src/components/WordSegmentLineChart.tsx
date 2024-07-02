@@ -2,36 +2,17 @@ import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
-import client from "@src/client";
+import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useTimePeriod, { useTimePeriodFilteredData } from "@src/client/hooks/useTimePeriod";
-import { useByWord, WordType, wordTypes } from "@src/client/hooks/useWords";
+import { MetricKey, useByWord, WordType, wordTypes } from "@src/client/hooks/useWords";
 import ErrorMessage from "@src/components/ErrorMessage";
-import Loader from "@src/components/Loader";
-import { ThreadMedia } from "@src/threadsapi/types";
 
 const WordSegmentLineChart: FC = () => {
-	const [threads] = client.cache_store((state) => [state.user_threads]);
+	const [threads] = useThreadsListSortedByDate();
 
-	if (!threads) return null;
-
-	if (threads.is_loading) return <Loader />;
-	if (threads.error) return <ErrorMessage message={threads.error} />;
-
-	if (!threads.data) return <ErrorMessage message="No threads data available" />;
-
-	return (
-		<div className="container mx-auto">
-			<div className="space-y-6">
-				<Cloud threads={threads.data.data} />
-			</div>
-		</div>
-	);
-};
-
-const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	const [timePeriod] = useTimePeriod();
 	const [wordSegmentType, setWordSegmentType] = useState<WordType>("nouns");
-	const [metric, setMetric] = useState<"total_likes" | "total_views" | "total_count">("total_likes");
+	const [metric, setMetric] = useState<MetricKey>("average_views");
 
 	const threadsByTimePeriod = useTimePeriodFilteredData(threads, (thread) => thread.timestamp, timePeriod);
 	const words = useByWord(threadsByTimePeriod);
@@ -66,19 +47,19 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	};
 
 	const handleMetricChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setMetric(event.target.value as "total_likes" | "total_views" | "total_count");
+		setMetric(event.target.value as MetricKey);
 	};
 
-	const [threashold, setThreashold] = useState(1);
+	const [threashold, setThreashold] = useState(2);
 
 	const paginatedWords = useMemo(() => {
 		const start = currentPage * itemsPerPage;
 		const end = start + itemsPerPage;
 		return (
 			words
-				.filter((v) => v.total_count > threashold)
+				.filter((v) => v.stats.total_count >= threashold)
 				.filter((x) => x.type === wordSegmentType)
-				.sort((a, b) => b[metric] - a[metric])
+				.sort((a, b) => b.stats[metric] - a.stats[metric])
 				// .filter((x) => metric === x.type)
 				.slice(start, end)
 		);
@@ -88,7 +69,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 		return paginatedWords
 			.map((segment) => ({
 				x: segment.word,
-				y: metric === "total_views" ? segment.total_views : metric === "total_likes" ? segment.total_likes : segment.total_count,
+				y: segment.stats[metric],
 			}))
 			.filter((x) => x.y > 0);
 	}, [paginatedWords, metric]);
@@ -111,8 +92,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 			tooltip: {
 				y: [
 					{
-						formatter: (val) =>
-							`${val.toLocaleString()} ${metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts"}`,
+						formatter: (val) => `${val.toLocaleString()} ${metric.replace("_", " ")}`,
 					},
 				],
 			},
@@ -191,7 +171,7 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 
 		const chartSeries: ApexAxisChartSeries = [
 			{
-				name: metric === "total_views" ? "views" : metric === "total_likes" ? "likes" : "posts",
+				name: metric.replace("_", " "),
 				data: dats,
 				color: metric === "total_views" ? "#1C64F2" : metric === "total_likes" ? "#F39C12" : "#10B981",
 				type: "treemap",
@@ -224,54 +204,66 @@ const Cloud: FC<{ threads: ThreadMedia[] }> = ({ threads }) => {
 	}, [words]);
 
 	return (
-		<div className="flex flex-col items-center w-full">
-			<div className="mb-4 flex justify-between w-full ">
-				<div>
-					<div className="mb-4">
-						<select
-							id="wordSegmentType"
-							value={wordSegmentType}
-							onChange={handleWordSegmentTypeChange}
-							className="p-2 border rounded"
-						>
-							{wordTypez.map((type) => (
-								<option key={type.key} value={type.key} disabled={type.value === 0}>
-									{type.key}
-								</option>
-							))}
-						</select>
-					</div>
+		<div className="container mx-auto">
+			<div className="space-y-6">
+				<div className="flex flex-col items-center w-full">
+					<div className="mb-4 flex justify-between w-full ">
+						<div>
+							<div className="mb-4">
+								<select
+									id="wordSegmentType"
+									value={wordSegmentType}
+									onChange={handleWordSegmentTypeChange}
+									className="p-2 border rounded"
+								>
+									{wordTypez.map((type) => (
+										<option key={type.key} value={type.key} disabled={type.value === 0}>
+											{type.key}
+										</option>
+									))}
+								</select>
+							</div>
 
-					<div className="mb-4">
-						<select id="metric" value={metric} onChange={handleMetricChange} className="p-2 border rounded" title="sort by">
-							<option value="total_likes">likes</option>
-							<option value="total_views">views</option>
-							<option value="total_count">posts</option>
-						</select>
+							<div className="mb-4">
+								<select
+									id="metric"
+									value={metric}
+									onChange={handleMetricChange}
+									className="p-2 border rounded"
+									title="sort by"
+								>
+									<option value="total_views">Total Views</option>
+									<option value="total_likes">Total Likes</option>
+									<option value="total_count">Total Threads</option>
+									<option value="average_views">Average Views</option>
+									<option value="average_likes">Average Likes</option>
+								</select>
+							</div>
+							<div className="mb-4">
+								<label htmlFor="threashold" className="mr-2">
+									min post threashold:
+								</label>
+								<select
+									id="threashold"
+									value={threashold}
+									onChange={(e) => {
+										setThreashold(parseInt(e.target.value));
+									}}
+									className="p-2 border rounded"
+								>
+									{[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
+										<option key={value} value={value}>
+											{value}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
 					</div>
-					<div className="mb-4">
-						<label htmlFor="threashold" className="mr-2">
-							min post threashold:
-						</label>
-						<select
-							id="threashold"
-							value={threashold}
-							onChange={(e) => {
-								setThreashold(parseInt(e.target.value));
-							}}
-							className="p-2 border rounded"
-						>
-							{[0, 1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
-								<option key={value} value={value}>
-									{value}
-								</option>
-							))}
-						</select>
+					<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
+						{dats.length === 0 ? <ErrorMessage message="No data available" /> : Chart}
 					</div>
 				</div>
-			</div>
-			<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
-				{dats.length === 0 ? <ErrorMessage message="No data available" /> : Chart}
 			</div>
 		</div>
 	);

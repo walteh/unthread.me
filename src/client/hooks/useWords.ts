@@ -1,64 +1,61 @@
 import nlp from "compromise";
 import { outMethods } from "node_modules/compromise/types/misc";
 import Three from "node_modules/compromise/types/view/three";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
 import { ThreadMedia } from "@src/threadsapi/types";
 
-import useCacheStore from "./useCacheStore";
+import useThreadInfoCallbacks from "./useThreadInfoCallbacks";
+
+interface WordInsightStats {
+	total_likes: number;
+	total_views: number;
+	total_count: number;
+	average_likes: number;
+	average_views: number;
+}
+
+export type MetricKey = keyof WordInsightStats;
 
 interface WordInsight {
 	word: string;
-	total_likes: number;
-	total_views: number;
 	type: WordType;
 	threads: ThreadMedia[];
-	total_count: number;
+	stats: WordInsightStats;
 }
 
+export const extractMetics = (data: WordInsight, key: MetricKey): number => {
+	return data.stats[key];
+};
+
 export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
-	const userThreadsInsights = useCacheStore((state) => state.user_threads_insights);
-
-	const lbt = useCallback(
-		(thread: ThreadMedia) => {
-			const dat = userThreadsInsights?.data;
-			if (!dat) return 0;
-			return dat[thread.id]?.likes?.values[0].value ?? 0;
-		},
-		[userThreadsInsights],
-	);
-
-	const vbt = useCallback(
-		(thread: ThreadMedia) => {
-			const dat = userThreadsInsights?.data;
-			if (!dat) return 0;
-			return dat[thread.id]?.views?.values[0].value ?? 0;
-		},
-		[userThreadsInsights],
-	);
-
+	const [getLikes, getViews] = useThreadInfoCallbacks();
 	return useMemo(() => {
 		const resp = data.reduce<Record<WordSegment, WordInsight | undefined>>((acc, thread) => {
 			if (thread.text) {
-				const views = vbt(thread);
-				const likes = lbt(thread);
+				const views = getViews(thread);
+				const likes = getLikes(thread);
 				const list = segmentText(thread.text);
 				list.forEach((wordobj) => {
 					const word = wordFromSegment(wordobj);
 					if (word === " " || word === "") return;
 					if (acc[wordobj]) {
-						acc[wordobj].total_likes += likes;
-						acc[wordobj].total_views += views;
+						acc[wordobj].stats.total_likes += likes;
+						acc[wordobj].stats.total_views += views;
 						acc[wordobj].threads.push({ ...thread, text: `[${likes} - ${views}] ${thread.text}` });
-						acc[wordobj].total_count += 1;
+						acc[wordobj].stats.total_count += 1;
 					} else {
 						acc[wordobj] = {
 							word: word.toLowerCase(),
-							total_likes: likes,
-							total_views: views,
+							stats: {
+								total_likes: likes,
+								total_views: views,
+								total_count: 1,
+								average_likes: 0,
+								average_views: 0,
+							},
 							type: typeFromSegment(wordobj),
 							threads: [{ ...thread, text: `[${likes} - ${views}] ${thread.text}` }],
-							total_count: 1,
 						};
 					}
 				});
@@ -69,8 +66,17 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 		// console.log({ ren: Object.values(resp).length });
 
-		return Object.values(resp) as unknown as WordInsight[];
-	}, [data, lbt, vbt]);
+		return Object.values(resp)
+			.filter((x) => !!x)
+			.map((word) => ({
+				...word,
+				stats: {
+					...word.stats,
+					average_likes: word.stats.total_likes / word.stats.total_count,
+					average_views: word.stats.total_views / word.stats.total_count,
+				},
+			}));
+	}, [data, getViews, getLikes]);
 };
 
 export type WordType = Lowercase<keyof typeof methodMap>;

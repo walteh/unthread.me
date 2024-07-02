@@ -1,22 +1,7 @@
-import { useMemo } from "react";
 import { create } from "zustand";
 import { combine, devtools } from "zustand/middleware";
 
-import { ThreadMedia, TimePeriodLabel } from "../threadsapi/types";
-import cache_store from "./cache_store";
-
-export const useUserThreadsByDateRange = (start_date: string, end_date: string): ThreadMedia[] => {
-	const userThreads = cache_store((state) => state.user_threads?.data?.data);
-
-	return useMemo(() => {
-		if (!userThreads) return [];
-
-		return userThreads.filter((thread) => {
-			const threadDate = new Date(thread.timestamp).toISOString().slice(0, 10);
-			return threadDate >= start_date && threadDate <= end_date;
-		});
-	}, [userThreads, start_date, end_date]);
-};
+import { TimePeriodLabel } from "../threadsapi/types";
 
 interface InMemoryStore {
 	is_logging_in: boolean;

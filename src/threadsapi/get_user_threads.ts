@@ -1,8 +1,15 @@
 import { KyInstance } from "ky";
 
-import { AccessTokenResponse, GetUserThreadsParams, ThreadMedia, UserThreadsResponse } from "./types";
+import { AccessTokenResponse, ThreadMedia, UserThreadsResponse } from "./types";
 
-const fetch_user_threads_page = async (
+export interface GetUserThreadsParams {
+	since?: string;
+	until?: string;
+	limit?: number;
+	all_time?: boolean;
+}
+
+export const fetch_user_threads_page = async (
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
 	params?: GetUserThreadsParams,
@@ -45,7 +52,7 @@ export const get_user_threads = async (
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
 	params?: GetUserThreadsParams,
-): Promise<UserThreadsResponse> => {
+): Promise<Record<string, ThreadMedia>> => {
 	const allThreads: ThreadMedia[] = [];
 
 	const fetchAllPages = async (cursor?: string): Promise<void> => {
@@ -60,9 +67,12 @@ export const get_user_threads = async (
 
 	await fetchAllPages();
 
-	return {
-		data: allThreads,
-	};
+	const threadsMap: Record<string, ThreadMedia> = {};
+	allThreads.forEach((thread) => {
+		threadsMap[thread.id] = thread;
+	});
+
+	return threadsMap;
 };
 
 export default get_user_threads;
