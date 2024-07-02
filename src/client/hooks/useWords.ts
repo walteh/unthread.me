@@ -68,6 +68,7 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 
 		return Object.values(resp)
 			.filter((x) => !!x)
+			.filter((x) => x.stats.total_views > 0)
 			.map((word) => ({
 				...word,
 				stats: {

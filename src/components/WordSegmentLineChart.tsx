@@ -214,7 +214,7 @@ const WordSegmentLineChart: FC = () => {
 									id="wordSegmentType"
 									value={wordSegmentType}
 									onChange={handleWordSegmentTypeChange}
-									className="p-2 border rounded"
+									className="p-2 border rounded  pr-10"
 								>
 									{wordTypez.map((type) => (
 										<option key={type.key} value={type.key} disabled={type.value === 0}>
@@ -229,7 +229,7 @@ const WordSegmentLineChart: FC = () => {
 									id="metric"
 									value={metric}
 									onChange={handleMetricChange}
-									className="p-2 border rounded"
+									className="p-2 border rounded pr-10"
 									title="sort by"
 								>
 									<option value="total_views">Total Views</option>
@@ -249,7 +249,7 @@ const WordSegmentLineChart: FC = () => {
 									onChange={(e) => {
 										setThreashold(parseInt(e.target.value));
 									}}
-									className="p-2 border rounded"
+									className="p-2 border rounded pr-10"
 								>
 									{[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
 										<option key={value} value={value}>

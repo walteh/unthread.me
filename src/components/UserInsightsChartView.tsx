@@ -216,10 +216,7 @@ const UserInsightsChartView: FC = () => {
 					marginTop: "1rem",
 				}}
 			>
-				<label htmlFor="timePeriod" className="mr-2">
-					Select Time Period:
-				</label>
-				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded">
+				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded  pr-10">
 					{Object.entries(timePeriods).map(([, tp]) => (
 						<option key={tp.label} value={tp.label}>
 							{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
