@@ -33,25 +33,27 @@ const useThreadInfoCallbacks = () => {
 
 			const dats = dat[thread.id]?.data.data ?? [];
 
+			const datsCopy = [...dats];
+
 			// we need to look at each replies parent_id and see if it matches the thread.id, and append it to the children field
 			// of the parent object
 
 			const child_ids: string[] = [];
 
-			dats.forEach((reply) => {
-				if (reply.replied_to?.id) {
-					const parent = dats.find((thread) => thread.id === reply.replied_to?.id);
-					if (parent) {
-						if (!parent.children) {
-							parent.children = [];
-						}
-						parent.children.push(reply);
-						child_ids.push(reply.id);
-					}
-				}
-			});
+			// datsCopy.forEach((reply) => {
+			// 	if (reply.replied_to?.id) {
+			// 		const parent = datsCopy.find((thread) => thread.id === reply.replied_to?.id);
+			// 		if (parent) {
+			// 			if (!parent.children) {
+			// 				parent.children = [];
+			// 			}
+			// 			parent.children.push(reply);
+			// 			child_ids.push(reply.id);
+			// 		}
+			// 	}
+			// });
 
-			return dats.filter((reply) => !child_ids.includes(reply.id));
+			return datsCopy.filter((reply) => !child_ids.includes(reply.id));
 		},
 		[userThreadsReplies],
 	);

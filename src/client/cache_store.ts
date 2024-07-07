@@ -2,6 +2,8 @@ import { KyInstance } from "ky";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
+import get_conversation from "@src/threadsapi/get_conversation";
+import get_media_insights from "@src/threadsapi/get_media_insights";
 import { fetch_user_threads_page, GetUserThreadsParams } from "@src/threadsapi/get_user_threads";
 
 import {
@@ -75,6 +77,80 @@ export const cache_store = create(
 					user_threads_insights: null,
 				} as UserDataStoreData,
 				(set) => {
+					const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
+						try {
+							const result = await get_media_insights(ky, token, id);
+
+							set((state) => ({
+								user_threads_insights: {
+									...state.user_threads_insights,
+									data: {
+										...state.user_threads_insights?.data,
+										[id]: {
+											data: result,
+											is_loading: false,
+											updated_at: Date.now(),
+											error: null,
+											expired: false,
+										},
+									},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						} catch (error) {
+							console.error("Error fetching thread insights:", error);
+
+							set((state) => ({
+								user_threads_insights: {
+									...state.user_threads_insights,
+									data: state.user_threads_insights?.data ?? {},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						}
+					};
+
+					const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
+						try {
+							const response = await get_conversation(ky, token, id);
+
+							set((state) => ({
+								user_threads_replies: {
+									...state.user_threads_replies,
+									data: {
+										...state.user_threads_replies?.data,
+										[id]: {
+											data: response,
+											is_loading: false,
+											updated_at: Date.now(),
+											error: null,
+											expired: false,
+										},
+									},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						} catch (error) {
+							console.error("Error fetching thread replies:", error);
+
+							set((state) => ({
+								user_threads_replies: {
+									...state.user_threads_replies,
+									data: state.user_threads_replies?.data ?? {},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						}
+					};
+
 					return {
 						updateNestedData: <G extends keyof NestedUserDataTypes, T extends NestedUserDataTypes[G]>(
 							key: G,
@@ -198,6 +274,11 @@ export const cache_store = create(
 											error: null,
 										},
 									}));
+
+									for (const thread of response.data) {
+										void loadThreadRepliesData(ky, token, thread.id);
+										void loadThreadInsightsData(ky, token, thread.id);
+									}
 
 									if (response.paging?.cursors.after) {
 										await fetchAllPages(response.paging.cursors.after);

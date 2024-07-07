@@ -76,10 +76,10 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg" />}
 				</div>
 			)}
-			<div>
+			{/* <div>
 				<h3 className="text-lg font-semibold mb-2">Replies</h3>
 				<UserThreadRepliesDisplay replies={replies} pad={0} />
-			</div>
+			</div> */}
 		</div>
 	);
 };

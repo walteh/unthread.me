@@ -3,11 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
 import useBackgroundUpdater from "./client/hooks/useBackgroundUpdater";
-import {
-	useInitialThreadsAPIMediaDataUpdater,
-	useInitialThreadsAPIUserDataUpdater,
-	useInitialThreadsLoader,
-} from "./client/hooks/useCacheStoreUpdaters";
+import { useInitialThreadsAPIUserDataUpdater, useInitialThreadsLoader } from "./client/hooks/useCacheStoreUpdaters";
 import Home from "./pages/Home";
 import threadsapi from "./threadsapi";
 
@@ -18,8 +14,8 @@ const App: FC = () => {
 	useInitialThreadsLoader();
 	useInitialThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
 	useInitialThreadsAPIUserDataUpdater("user_follower_demographics", threadsapi.get_follower_demographics);
-	useInitialThreadsAPIMediaDataUpdater("user_threads_replies", threadsapi.get_conversation);
-	useInitialThreadsAPIMediaDataUpdater("user_threads_insights", threadsapi.get_media_insights);
+	// useInitialThreadsAPIMediaDataUpdater("user_threads_replies", threadsapi.get_conversation);
+	// useInitialThreadsAPIMediaDataUpdater("user_threads_insights", threadsapi.get_media_insights);
 	return (
 		<>
 			<Routes>
