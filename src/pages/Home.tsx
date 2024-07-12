@@ -170,7 +170,7 @@ const Home: FC = () => {
 
 					{items.map((item) => (
 						<div key={item.label} className={classNames(item.label === currentTab ? "block" : "hidden")}>
-							<item.comp />
+							{item.label === currentTab ? <item.comp /> : null}
 						</div>
 					))}
 
