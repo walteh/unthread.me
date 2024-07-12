@@ -43,25 +43,28 @@ const UserInsightsChartView: FC = () => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "area",
-				fontFamily: "Inter, sans-serif",
+				// fontFamily: "Inter, sans-serif",
 				dropShadow: {
 					enabled: false,
 				},
 				toolbar: {
 					show: false,
 				},
+				sparkline: {
+					enabled: true,
+				},
 			},
 			tooltip: {
 				x: {
-					format: "dd MMM yyyy",
+					format: "ddd, MMM d, yyyy",
 				},
 				y: [
 					{
 						formatter: (val) => `${val.toLocaleString()} views`,
 					},
-					{
-						formatter: (val) => `${val.toLocaleString()} posts`,
-					},
+					// {
+					// 	formatter: (val) => `${val.toLocaleString()} posts`,
+					// },
 					// {
 					// 	formatter: (val) => `${val.toLocaleString()} likes`,
 					// },
@@ -70,6 +73,7 @@ const UserInsightsChartView: FC = () => {
 					// },
 				],
 			},
+
 			yaxis: [
 				{
 					labels: {
@@ -78,18 +82,22 @@ const UserInsightsChartView: FC = () => {
 							return formatter.format(val);
 						},
 					},
+					logarithmic: true,
+					logBase: 2,
 					show: false,
 				},
-				{
-					opposite: true,
-					labels: {
-						formatter: (val) => {
-							const formatter = Intl.NumberFormat("en", { notation: "compact" });
-							return formatter.format(val);
-						},
-					},
-					show: false,
-				},
+				// {
+				// 	opposite: true,
+				// 	labels: {
+				// 		formatter: (val) => {
+				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
+				// 			return formatter.format(val);
+				// 		},
+				// 	},
+				// 	logarithmic: true,
+				// 	logBase: 2,
+				// 	show: false,
+				// },
 			],
 			xaxis: {
 				categories: currentDays,
@@ -98,6 +106,7 @@ const UserInsightsChartView: FC = () => {
 					// formatter(value, timestamp, opts) {
 					// 	return new Date(value).toLocaleDateString();
 					// },
+					// add the day of week
 					format: "dd MMM yyyy",
 					// datetimeUTC
 					datetimeFormatter: {
@@ -140,12 +149,13 @@ const UserInsightsChartView: FC = () => {
 			fill: {
 				type: "gradient",
 				gradient: {
-					opacityFrom: 0.55,
-					opacityTo: 0,
-					shade: "#1C64F2",
-					gradientToColors: ["#1C64F2"],
+					opacityFrom: 0.95,
+					opacityTo: 0.25,
+					shade: "#EF4444",
+
+					gradientToColors: ["#10B981"],
 				},
-				colors: ["#1C64F2", "#F39C12"],
+				// colors: ["#1C64F2", "#EF4444", "#10B981", "#F59E0B"],
 			},
 			dataLabels: {
 				enabled: false,
@@ -160,15 +170,16 @@ const UserInsightsChartView: FC = () => {
 					y: value.count,
 				})),
 				color: "#1C64F2",
+				type: "line",
 			},
-			{
-				name: "Posts",
-				data: threadCountPerDay.map((value) => ({
-					x: value.end_date,
-					y: value.count,
-				})),
-				color: "#10B981",
-			},
+			// {
+			// 	name: "Posts",
+			// 	data: threadCountPerDay.map((value) => ({
+			// 		x: value.end_date,
+			// 		y: value.count,
+			// 	})),
+			// 	color: "#10B981",
+			// },
 			// {
 			// 	name: "Likes",
 			// 	data: currentLikes.map((value) => value.count),
