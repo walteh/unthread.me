@@ -30,7 +30,7 @@ const UserThreadsView = () => {
 					{threads.map((thread) => (
 						<div
 							key={thread.id}
-							className={`bg-white sm:p-6 rounded-xl shadow-xl m-5 ${thread.text?.includes(search) ? "" : "hidden"}`}
+							className={`bg-white sm:p-6 rounded-xl shadow-md m-1 ${thread.text?.includes(search) ? "" : "hidden"}`}
 						>
 							<ThreadCard thread={thread} />
 						</div>
@@ -99,7 +99,7 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 					</span>
 				)}
 			</div>
-			<p className="text-3xl font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
+			<p className="sm:text-3xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
 				{thread.text}
 			</p>
 			{thread.media_url && (
