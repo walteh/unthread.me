@@ -160,7 +160,7 @@ const UserInsightsChartView: FC = () => {
 				type: "gradient",
 				gradient: {
 					opacityFrom: 0.95,
-					opacityTo: 0.25,
+					opacityTo: 0.5,
 					shade: "#EF4444",
 
 					gradientToColors: ["#10B981"],
