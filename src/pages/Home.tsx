@@ -2,7 +2,6 @@ import { FC } from "react";
 
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
-import Status from "@src/components/Status";
 import UserProfile2 from "@src/components/UserProfile2";
 import threadsapi from "@src/threadsapi";
 
@@ -54,7 +53,7 @@ const Home: FC = () => {
 
 	return (
 		<section>
-			<Status />
+			{/* <Status /> */}
 			<div
 				style={{
 					minHeight: "calc(100vh - 64px)",

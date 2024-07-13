@@ -269,7 +269,7 @@ export const cache_store = create(
 													return acc;
 												}, {}),
 											},
-											is_loading: false,
+											is_loading: response.paging?.cursors.after ? true : false,
 											updated_at: Date.now(),
 											error: null,
 										},

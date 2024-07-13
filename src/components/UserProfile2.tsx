@@ -15,6 +15,11 @@ const formatNumber = (number: number) => {
 	const formatter = Intl.NumberFormat("en", { notation: "compact" });
 	return formatter.format(number);
 };
+const Loader = () => (
+	<div className="flex justify-center items-center h-full mr-1">
+		<div className="loader ease-linear rounded-full border-2 border-t-2 border-gray-200 h-4 w-4"></div>
+	</div>
+);
 
 export default function UserProfile2() {
 	const [profile] = useCacheStore((state) => [state.user_profile]);
@@ -23,11 +28,23 @@ export default function UserProfile2() {
 
 	const refresh = useCacheStore((state) => state.clearCache);
 
+	const profileL = useCacheStore((state) => state.user_profile);
+	const insightsL = useCacheStore((state) => state.user_insights);
+	const threadsL = useCacheStore((state) => state.user_threads);
+	const followerDemographicsL = useCacheStore((state) => state.user_follower_demographics);
+
 	const stats = [
 		{ label: "Followers", value: formatNumber(insights.total_followers) },
 		{ label: "Total Likes", value: formatNumber(insights.total_likes) },
 		{ label: "Total Views", value: formatNumber(insights.total_views) },
 		{ label: "Total Threads", value: formatNumber(threads.length) },
+	];
+
+	const loaders = [
+		{ label: "Profile", data: profileL },
+		{ label: "Insights", data: insightsL },
+		{ label: "Demographics", data: followerDemographicsL },
+		{ label: "Threads", data: threadsL },
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
@@ -88,6 +105,17 @@ export default function UserProfile2() {
 					</div>
 				</div>
 			</div>
+
+			<div
+				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-4 sm:divide-x sm:divide-y-0`}
+			>
+				{loaders.map((stat) => (
+					<div key={stat.label} className="px-3 py-2 text-center text-xs font-small flex justify-center">
+						{stat.data?.is_loading ? <Loader /> : "✅"} {stat.label}
+					</div>
+				))}
+			</div>
+
 			<div
 				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${stats.length} sm:divide-x sm:divide-y-0`}
 			>
