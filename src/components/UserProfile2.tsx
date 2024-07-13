@@ -90,23 +90,33 @@ export default function UserProfile2() {
 							<img className="mx-auto h-20 w-20 rounded-full" src={profile?.data?.threads_profile_picture_url} alt="" />
 						</div>
 						<div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
-							<p className="text-sm font-medium text-gray-600">Welcome back,</p>
-							<p className="text-xl font-bold font-rounded text-gray-900 sm:text-2xl">@{profile?.data?.username}</p>
-							<p className="text-sm font-medium text-gray-600">{profile?.data?.threads_biography}</p>
+							{/* <p className="text-sm font-medium text-gray-600">Welcome back,</p> */}
+							<p className="text-3xl font-bold font-rounded text-gray-900 sm:text-3xl">@{profile?.data?.username}</p>
+							<p className="text-lg font-medium text-gray-600">{profile?.data?.threads_biography ?? "..."}</p>
 						</div>
 					</div>
-					<div className="mt-5 flex justify-center sm:mt-0">
+					<div className="mt-5 flex justify-around sm:mt-0">
 						<button
 							onClick={refresh}
-							className="flex items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+							className="flex  items-center justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
 						>
-							Reset Cache
+							<div className="flex flex-col">
+								<span>🔄</span>
+								<span className="">cache</span>
+							</div>
+							<div className=" flex flex-col items-start justify-center  rounded-md  text-xs w-full mt-2">
+								{loaders.map((stat) => (
+									<span key={stat.label} className="ml-3 flex text-xs mb-2">
+										{stat.data?.is_loading ? <Loader /> : "✅"} {stat.label}
+									</span>
+								))}
+							</div>
 						</button>
 					</div>
 				</div>
 			</div>
 
-			<div
+			{/* <div
 				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-4 sm:divide-x sm:divide-y-0`}
 			>
 				{loaders.map((stat) => (
@@ -114,7 +124,7 @@ export default function UserProfile2() {
 						{stat.data?.is_loading ? <Loader /> : "✅"} {stat.label}
 					</div>
 				))}
-			</div>
+			</div> */}
 
 			<div
 				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${stats.length} sm:divide-x sm:divide-y-0`}

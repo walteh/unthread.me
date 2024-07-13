@@ -10,7 +10,7 @@ const UserThreadsView = () => {
 	const [search, setSearch] = useState("");
 
 	return (
-		<div className="container mx-auto p-6">
+		<div className="container mx-auto sm:p-6">
 			<div>
 				<div className="flex justify-center flex-row">
 					<div className="relative mt-2 flex items-center mb-2 w-1/2">
@@ -30,7 +30,7 @@ const UserThreadsView = () => {
 					{threads.map((thread) => (
 						<div
 							key={thread.id}
-							className={`bg-white p-6 rounded-xl shadow-xl m-5 ${thread.text?.includes(search) ? "" : "hidden"}`}
+							className={`bg-white sm:p-6 rounded-xl shadow-xl m-5 ${thread.text?.includes(search) ? "" : "hidden"}`}
 						>
 							<ThreadCard thread={thread} />
 						</div>
@@ -103,23 +103,19 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 				{thread.text}
 			</p>
 			{thread.media_url && (
-				<div className="p-5 mt-4 flex justify-center">
+				<div className="p-5 mt-4 flex justify-center max-w-full">
 					{(thread.media_type === "IMAGE" || thread.media_type === "CAROUSEL_ALBUM") && (
-						<img
-							src={thread.media_url}
-							alt="Media"
-							className="rounded-lg max-w-lg max-h-lgborder-solid border-8 border-blue-200"
-						/>
+						<img src={thread.media_url} alt="Media" className="rounded-lg  border-solid shadow-2xl" />
 					)}
-					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg max-w-lg" />}
-					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-lg w-full" />}
-					{thread.is_quote_post &&
+					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg shadow-2xl" />}
+					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-lg shadow-2xl" />}
+					{/* {thread.is_quote_post &&
 						thread.children?.map((quote) => (
 							<div key={quote.id} className="bg-gray-100 p-4 rounded-lg shadow-sm mt-4">
 								<p className="text-sm font-semibold">@{quote.username}</p>
 								<p className="text-sm">{quote.text}</p>
 							</div>
-						))}
+						))} */}
 				</div>
 			)}
 		</div>

@@ -57,7 +57,7 @@ const Home: FC = () => {
 			<div
 				style={{
 					minHeight: "calc(100vh - 64px)",
-					padding: "2rem 0",
+					// padding: "2rem 0",
 				}}
 			>
 				<div style={{ maxWidth: "1000px" }} className="mx-auto p-4">
