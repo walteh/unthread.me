@@ -82,6 +82,7 @@ const WordSegmentLineChart: FC = () => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "treemap",
+
 				// height: chartHeight,
 				// height: chartHeight - 15,
 				toolbar: {
@@ -90,23 +91,44 @@ const WordSegmentLineChart: FC = () => {
 				dropShadow: {
 					enabled: false,
 				},
+				// selection: {
+				// 	enabled: true,
+				// 	type: "x",
+
+				// 	fill: {
+				// 		color: "#24292e",
+				// 		opacity: 0.1,
+				// 	},
+				// },
 			},
 
 			tooltip: {
-				y: [
-					{
-						formatter: (val) => `${val.toLocaleString()} ${metric.replace("_", " ")}`,
-					},
-				],
+				// enabled,
+				// y: [
+				// 	{
+				// 		formatter: (val) => `${val.toLocaleString()} ${metric.replace("_", " ")}`,
+				// 	},
+				// ],
+				// shared: true,
+				// x: {
+				// 	formatter: (val) => `${val}`,
+				// },
+				// style: {
+				// 	fontFamily: "Inter, sans-serif",
+				// 	fontSize: "1000px",
+				// },
 			},
 			yaxis: [
 				{
-					labels: {
-						formatter: (val) => {
-							const formatter = Intl.NumberFormat("en", { notation: "compact" });
-							return formatter.format(val);
-						},
-					},
+					// labels: {
+					// 	formatter: (val) => {
+					// 		const formatter = Intl.NumberFormat("en", { notation: "compact" });
+					// 		return formatter.format(val);
+					// 	},
+					// },
+					// tooltip: {
+					// 	enabled: true,
+					// },
 					// show: true,
 				},
 				// {
@@ -139,12 +161,13 @@ const WordSegmentLineChart: FC = () => {
 				},
 			},
 
+			colors: ["#1C64F2", "#10B981", "#F39C12"],
 			stroke: {
 				curve: "smooth",
 				width: 2,
 			},
 			markers: {
-				size: 4,
+				size: 55,
 			},
 			fill: {
 				type: "solid",
