@@ -1,14 +1,6 @@
 import { KyInstance } from "ky";
 
-import {
-	AccessTokenResponse,
-	GetMediaInsightsParams,
-	InsightsResponse,
-	MediaMetric,
-	MediaMetricTypeMap,
-	TimeSeriesMetric,
-	TotalValueMetric,
-} from "./types";
+import { AccessTokenResponse, GetMediaInsightsParams, InsightsResponse, MediaMetric, MediaMetricTypeMap } from "./types";
 
 const allMediaMetrics: MediaMetric[] = ["views", "likes", "replies", "reposts", "quotes"];
 
@@ -58,19 +50,19 @@ export const get_media_insights_with_params = async (
 			for (const metric of data.data) {
 				switch (metric?.name) {
 					case "views":
-						mapper.views = metric as TimeSeriesMetric;
+						mapper.views = metric;
 						break;
 					case "likes":
-						mapper.likes = metric as TimeSeriesMetric;
+						mapper.likes = metric;
 						break;
 					case "replies":
-						mapper.replies = metric as TotalValueMetric;
+						mapper.replies = metric;
 						break;
 					case "reposts":
-						mapper.reposts = metric as TotalValueMetric;
+						mapper.reposts = metric;
 						break;
 					case "quotes":
-						mapper.quotes = metric as TotalValueMetric;
+						mapper.quotes = metric;
 						break;
 				}
 			}

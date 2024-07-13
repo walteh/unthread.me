@@ -13,6 +13,7 @@ import useUserInsights from "@src/client/hooks/useUserInsights";
 const UserInsightsChartView: FC = () => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
 	const [chartWidth, setChartWidth] = useState<number>(0);
+	const [chartHeight, setChartHeight] = useState<number>(0);
 
 	const [insights] = useUserInsights();
 	const [threads] = useThreadsListSortedByDate();
@@ -39,6 +40,8 @@ const UserInsightsChartView: FC = () => {
 
 	const currentDays = useTimePeriodListOfDays(timePeriod);
 
+	const [labelsOnChart] = useState<boolean>(false);
+
 	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
 			chart: {
@@ -48,11 +51,15 @@ const UserInsightsChartView: FC = () => {
 					enabled: false,
 				},
 				toolbar: {
-					show: false,
+					show: true,
+					// tools: {
+					// 	download: true,
+					// 	selection: true,
+					// },
 				},
-				sparkline: {
-					enabled: true,
-				},
+				// sparkline: {
+				// 	enabled: true,
+				// },
 			},
 			tooltip: {
 				x: {
@@ -81,10 +88,11 @@ const UserInsightsChartView: FC = () => {
 							const formatter = Intl.NumberFormat("en", { notation: "compact" });
 							return formatter.format(val);
 						},
+						show: labelsOnChart,
 					},
 					logarithmic: true,
 					logBase: 2,
-					show: false,
+					show: labelsOnChart,
 				},
 				// {
 				// 	opposite: true,
@@ -102,6 +110,7 @@ const UserInsightsChartView: FC = () => {
 			xaxis: {
 				categories: currentDays,
 				type: "datetime",
+
 				labels: {
 					// formatter(value, timestamp, opts) {
 					// 	return new Date(value).toLocaleDateString();
@@ -109,12 +118,13 @@ const UserInsightsChartView: FC = () => {
 					// add the day of week
 					format: "dd MMM yyyy",
 					// datetimeUTC
-					datetimeFormatter: {
-						year: "",
-						// month: "MMM 'yy",
-						day: "MMM dd",
-						// hour: "HH:mm",
-					},
+					// datetimeFormatter: {
+					// 	year: "",
+					// 	// month: "MMM 'yy",
+					// 	day: "MMM dd",
+					// 	// hour: "HH:mm",
+					// },
+					show: labelsOnChart,
 					// show: true,
 					// rotate: -45,
 					// style: {
@@ -124,10 +134,10 @@ const UserInsightsChartView: FC = () => {
 					// },
 				},
 				axisBorder: {
-					show: false,
+					show: labelsOnChart,
 				},
 				axisTicks: {
-					show: false,
+					show: labelsOnChart,
 				},
 			},
 			grid: {
@@ -160,6 +170,7 @@ const UserInsightsChartView: FC = () => {
 			dataLabels: {
 				enabled: false,
 			},
+			forecastDataPoints: {},
 		};
 
 		const chartSeries: ApexAxisChartSeries = [
@@ -194,13 +205,14 @@ const UserInsightsChartView: FC = () => {
 			// },
 		];
 
-		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="area" />;
-	}, [viewCountPerDay, threadCountPerDay, currentDays, chartWidth]);
+		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} height={chartHeight} type="area" />;
+	}, [viewCountPerDay, threadCountPerDay, currentDays, chartWidth, labelsOnChart, chartHeight]);
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {
 			for (const entry of entries) {
 				setChartWidth(entry.contentRect.width);
+				setChartHeight(entry.contentRect.height);
 			}
 		});
 
@@ -218,13 +230,13 @@ const UserInsightsChartView: FC = () => {
 	}, []);
 
 	return (
-		<div ref={chartContainerRef} className="flex flex-col items-center w-full">
+		<div className="flex flex-col items-center h-full  pb-20">
 			<div
 				style={{
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
-					marginTop: "1rem",
+					// marginTop: "1rem",
 				}}
 			>
 				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded  pr-10">
@@ -235,7 +247,9 @@ const UserInsightsChartView: FC = () => {
 					))}
 				</select>
 			</div>
-			{Chart}
+			<div ref={chartContainerRef} className="p-10 w-full max-h-full">
+				{Chart}
+			</div>
 		</div>
 	);
 };

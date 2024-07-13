@@ -24,18 +24,13 @@ const UserThreadsView = () => {
 							}}
 							className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
 						/>
-						<div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-							<kbd className="inline-flex items-center rounded border border-gray-200 px-1 font-sans text-xs text-gray-400">
-								⌘K
-							</kbd>
-						</div>
 					</div>
 				</div>
-				<div className="space-y-6">
+				<div className="space-y-6  overflow-y-scroll">
 					{threads.map((thread) => (
 						<div
 							key={thread.id}
-							className={`bg-white p-6 rounded-lg shadow-lg ${thread.text?.includes(search) ? "" : "hidden"}`}
+							className={`bg-white p-6 rounded-xl shadow-xl m-5 ${thread.text?.includes(search) ? "" : "hidden"}`}
 						>
 							<ThreadCard thread={thread} />
 						</div>
@@ -47,39 +42,86 @@ const UserThreadsView = () => {
 };
 
 const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
-	const [likes, views, replies] = useThreadInfo(thread);
+	const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	return (
-		<div>
-			<div className="mb-4">
-				<h2 className="text-xl font-semibold">@{thread.username}</h2>
-				<p className="text-sm text-gray-500">{new Date(thread.timestamp).toLocaleString()}</p>
-				<span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
-					<svg className="h-1.5 w-1.5 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
-						<circle cx={3} cy={3} r={3} />
-					</svg>
-					{likes} likes
+		<div className="px-4 py-2">
+			<div className="mb-4 flex justify-between items-center">
+				<p className="text-3xl font-bold font-rounded text-gray-900">@{thread.username}</p>
+				<p className="text-lg text-gray-500">{new Date(thread.timestamp).toLocaleString()}</p>
+			</div>
+
+			<div className="flex flex-wrap gap-2 mb-4">
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-md font-medium text-gray-800">
+					{thread.media_type}
 				</span>
-				<span className="inline-flex items-center gap-x-1.5 rounded-full px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-inset ring-gray-200">
-					<svg className="h-1.5 w-1.5 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
+				{likes > 0 && (
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-md font-medium text-red-800">
+						<svg className="h-3 w-3 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{likes} likes
+					</span>
+				)}
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-md font-medium text-blue-800">
+					<svg className="h-3 w-3 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
 						<circle cx={3} cy={3} r={3} />
 					</svg>
 					{views} views
 				</span>
+				{replies.length > 0 && (
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-md font-medium text-green-800">
+						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{replies.length} replies
+					</span>
+				)}
+				{quotes > 0 && (
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-purple-100 px-3 py-2 text-md font-medium text-purple-800">
+						<svg className="h-3 w-3 fill-purple-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{quotes} quotes
+					</span>
+				)}
+				{reposts > 0 && (
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-yellow-100 px-3 py-2 text-md font-medium text-yellow-800">
+						<svg className="h-3 w-3 fill-yellow-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{reposts} reposts
+					</span>
+				)}
+				{thread.is_quote_post && (
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-md font-medium text-gray-800">
+						QUOTE
+					</span>
+				)}
 			</div>
-			<p className="mb-4 " style={{ whiteSpace: "pre-wrap" }}>
+			<p className="text-3xl font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
 				{thread.text}
 			</p>
 			{thread.media_url && (
-				<div className="mb-4">
-					{thread.media_type === "IMAGE" && <img src={thread.media_url} alt="Media" className="rounded-lg" />}
-					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg" />}
+				<div className="p-5 mt-4 flex justify-center">
+					{(thread.media_type === "IMAGE" || thread.media_type === "CAROUSEL_ALBUM") && (
+						<img
+							src={thread.media_url}
+							alt="Media"
+							className="rounded-lg max-w-lg max-h-lgborder-solid border-8 border-blue-200"
+						/>
+					)}
+					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg max-w-lg" />}
+					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-lg w-full" />}
+					{thread.is_quote_post &&
+						thread.children?.map((quote) => (
+							<div key={quote.id} className="bg-gray-100 p-4 rounded-lg shadow-sm mt-4">
+								<p className="text-sm font-semibold">@{quote.username}</p>
+								<p className="text-sm">{quote.text}</p>
+							</div>
+						))}
 				</div>
 			)}
-			{/* <div>
-				<h3 className="text-lg font-semibold mb-2">Replies</h3>
-				<UserThreadRepliesDisplay replies={replies} pad={0} />
-			</div> */}
 		</div>
 	);
 };

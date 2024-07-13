@@ -26,6 +26,24 @@ const useThreadInfoCallbacks = () => {
 		[userThreadsInsights],
 	);
 
+	const getQuotes = useCallback(
+		(thread: ThreadMedia) => {
+			const dat = userThreadsInsights?.data;
+			if (!dat) return 0;
+			return dat[thread.id]?.data.quotes?.values[0].value ?? 0;
+		},
+		[userThreadsInsights],
+	);
+
+	const getReposts = useCallback(
+		(thread: ThreadMedia) => {
+			const dat = userThreadsInsights?.data;
+			if (!dat) return 0;
+			return dat[thread.id]?.data.reposts?.values[0].value ?? 0;
+		},
+		[userThreadsInsights],
+	);
+
 	const getReplies = useCallback(
 		(thread: ThreadMedia) => {
 			const dat = userThreadsReplies?.data;
@@ -58,7 +76,7 @@ const useThreadInfoCallbacks = () => {
 		[userThreadsReplies],
 	);
 
-	return [getLikes, getViews, getReplies] as const;
+	return [getLikes, getViews, getReplies, getQuotes, getReposts] as const;
 };
 
 export default useThreadInfoCallbacks;

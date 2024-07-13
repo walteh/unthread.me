@@ -1,6 +1,15 @@
+import { useMemo, useState } from "react";
+
 import useCacheStore from "@src/client/hooks/useCacheStore";
+import useModalStore from "@src/client/hooks/useModalStore";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useUserInsights from "@src/client/hooks/useUserInsights";
+
+import DailyReportView from "./DailyReportView";
+import Modal from "./Modal";
+import UserInsightsChartView from "./UserInsightsChartView";
+import UserThreadsView from "./UserThreadsView";
+import WordSegmentLineChart from "./WordSegmentLineChart";
 
 const formatNumber = (number: number) => {
 	const formatter = Intl.NumberFormat("en", { notation: "compact" });
@@ -20,6 +29,37 @@ export default function UserProfile2() {
 		{ label: "Total Views", value: formatNumber(insights.total_views) },
 		{ label: "Total Threads", value: formatNumber(threads.length) },
 	];
+
+	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
+
+	// const clear = useCacheStore((state) => state.clearCache);
+
+	const [setOpenModal] = useModalStore((state) => [state.setOpen]);
+
+	const items = useMemo(() => {
+		return [
+			{
+				label: "Daily Reports 📋",
+				comp: () => <DailyReportView />,
+			},
+			{
+				label: "Views Chart 📈",
+				comp: () => <UserInsightsChartView />,
+			},
+
+			{
+				label: "Word Frequency 📊",
+				comp: () => <WordSegmentLineChart />,
+			},
+
+			{
+				label: "Post Search 🔎",
+				comp: () => <UserThreadsView />,
+			},
+		];
+	}, []);
+
+	// const item = items.find((item) => item.label === currentTab);
 
 	return (
 		<div className="overflow-hidden rounded-xl bg-white shadow-lg">
@@ -49,7 +89,7 @@ export default function UserProfile2() {
 				</div>
 			</div>
 			<div
-				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 sm:grid-cols-${stats.length} sm:divide-x sm:divide-y-0`}
+				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${stats.length} sm:divide-x sm:divide-y-0`}
 			>
 				{stats.map((stat) => (
 					<div key={stat.label} className="px-6 py-5 text-center text-sm font-medium">
@@ -57,6 +97,25 @@ export default function UserProfile2() {
 					</div>
 				))}
 			</div>
+
+			<div
+				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${items.length} sm:divide-x sm:divide-y-0`}
+			>
+				{items.map((tab) => (
+					<button
+						key={tab.label}
+						onClick={() => {
+							setCurrentTab(tab.comp());
+							setOpenModal(true);
+						}}
+						className="px-6 py-5 text-center text-sm font-medium bg-white hover:bg-gray-100 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+					>
+						{tab.label}
+					</button>
+				))}
+			</div>
+
+			<Modal>{currentTab}</Modal>
 		</div>
 	);
 }

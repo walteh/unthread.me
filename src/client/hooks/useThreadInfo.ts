@@ -5,7 +5,7 @@ import { ThreadMedia } from "@src/threadsapi/types";
 import useThreadInfoCallbacks from "./useThreadInfoCallbacks";
 
 const useThreadInfo = (thread: ThreadMedia) => {
-	const [getLikes, getViews, getReplies] = useThreadInfoCallbacks();
+	const [getLikes, getViews, getReplies, getQuotes, getReposts] = useThreadInfoCallbacks();
 
 	const likes = useMemo(() => {
 		return getLikes(thread);
@@ -19,7 +19,15 @@ const useThreadInfo = (thread: ThreadMedia) => {
 		return getReplies(thread);
 	}, [getReplies, thread]);
 
-	return [likes, views, replies] as const;
+	const quotes = useMemo(() => {
+		return getQuotes(thread);
+	}, [getQuotes, thread]);
+
+	const reposts = useMemo(() => {
+		return getReposts(thread);
+	}, [getReposts, thread]);
+
+	return [likes, views, replies, quotes, reposts] as const;
 };
 
 export default useThreadInfo;

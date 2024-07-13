@@ -10,7 +10,7 @@ import ErrorMessage from "@src/components/ErrorMessage";
 const WordSegmentLineChart: FC = () => {
 	const [threads] = useThreadsListSortedByDate();
 
-	const [timePeriod] = useTimePeriod();
+	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
 	const [wordSegmentType, setWordSegmentType] = useState<WordType>("nouns");
 	const [metric, setMetric] = useState<MetricKey>("average_views");
 
@@ -19,6 +19,7 @@ const WordSegmentLineChart: FC = () => {
 
 	const [chartContainerRef, setChartContainerRef] = useState<HTMLDivElement | null>(null);
 	const [chartWidth, setChartWidth] = useState<number>(0);
+	const [chartHeight, setChartHeight] = useState<number>(0);
 
 	const [currentPage, setCurrentPage] = useState(0);
 	const itemsPerPage = 1000;
@@ -27,6 +28,7 @@ const WordSegmentLineChart: FC = () => {
 		const resizeObserver = new ResizeObserver((entries) => {
 			for (const entry of entries) {
 				setChartWidth(entry.contentRect.width);
+				setChartHeight(entry.contentRect.height);
 			}
 		});
 
@@ -80,9 +82,10 @@ const WordSegmentLineChart: FC = () => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "treemap",
-				height: 800,
+				// height: chartHeight,
+				// height: chartHeight - 15,
 				toolbar: {
-					show: false,
+					show: true,
 				},
 				dropShadow: {
 					enabled: false,
@@ -177,9 +180,9 @@ const WordSegmentLineChart: FC = () => {
 				type: "treemap",
 			},
 		];
-
-		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" height={800} />;
-	}, [metric, chartWidth, dats]);
+		console.log(chartHeight);
+		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" height={chartHeight} />;
+	}, [metric, chartWidth, dats, chartHeight]);
 
 	const wordTypez = useMemo(() => {
 		// const start = wordTypes.map((type) => ({ key: type, value: 0 }));
@@ -204,11 +207,11 @@ const WordSegmentLineChart: FC = () => {
 	}, [words]);
 
 	return (
-		<div className="container mx-auto">
-			<div className="space-y-6">
-				<div className="flex flex-col items-center w-full">
-					<div className="mb-4 flex justify-between w-full ">
-						<div>
+		<div className="container mx-auto h-full">
+			<div className="space-y-6 h-full">
+				<div className="flex flex-col items-center w-full h-full">
+					<div className="mb-4 flex justify-between w-full">
+						<div className="flex justify-around w-full">
 							<div className="mb-4">
 								<select
 									id="wordSegmentType"
@@ -223,7 +226,6 @@ const WordSegmentLineChart: FC = () => {
 									))}
 								</select>
 							</div>
-
 							<div className="mb-4">
 								<select
 									id="metric"
@@ -258,9 +260,40 @@ const WordSegmentLineChart: FC = () => {
 									))}
 								</select>
 							</div>
+							<div>
+								<div
+									style={{
+										display: "flex",
+										justifyContent: "center",
+										alignItems: "center",
+										// marginTop: "1rem",
+									}}
+								>
+									<select
+										id="timePeriod"
+										value={timePeriod.label}
+										onChange={handleTimePeriodChange}
+										className="p-2 border rounded  pr-10"
+									>
+										{Object.entries(timePeriods).map(([, tp]) => (
+											<option key={tp.label} value={tp.label}>
+												{!tp.label.includes("days")
+													? tp.label
+													: `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
+											</option>
+										))}
+									</select>
+								</div>
+							</div>
 						</div>
 					</div>
-					<div ref={setChartContainerRef} className="flex flex-col items-center w-full justify-center ">
+					<div
+						ref={setChartContainerRef}
+						className="flex flex-col items-center w-full justify-center h-full overflow-y-hidden"
+						style={{
+							maxHeight: "100%",
+						}}
+					>
 						{dats.length === 0 ? <ErrorMessage message="No data available" /> : Chart}
 					</div>
 				</div>

@@ -110,9 +110,9 @@ export interface MetricTypeMap {
 export interface MediaMetricTypeMap {
 	views: TimeSeriesMetric | null;
 	likes: TimeSeriesMetric | null;
-	replies: TotalValueMetric | null;
-	reposts: TotalValueMetric | null;
-	quotes: TotalValueMetric | null;
+	replies: TimeSeriesMetric | null;
+	reposts: TimeSeriesMetric | null;
+	quotes: TimeSeriesMetric | null;
 }
 
 export type Metric = keyof MetricTypeMap;
