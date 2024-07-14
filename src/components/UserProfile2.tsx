@@ -34,17 +34,17 @@ export default function UserProfile2() {
 	const followerDemographicsL = useCacheStore((state) => state.user_follower_demographics);
 
 	const stats = [
-		{ label: "Followers", value: formatNumber(insights.total_followers) },
-		{ label: "Total Likes", value: formatNumber(insights.total_likes) },
-		{ label: "Total Views", value: formatNumber(insights.total_views) },
-		{ label: "Total Threads", value: formatNumber(threads.length) },
+		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
+		{ label: "all time likes", value: formatNumber(insights.total_likes), real_value: insights.total_likes },
+		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views },
+		{ label: "all time threads", value: formatNumber(threads.length), real_value: threads.length },
 	];
 
 	const loaders = [
-		{ label: "Profile", data: profileL },
-		{ label: "Insights", data: insightsL },
-		{ label: "Demographics", data: followerDemographicsL },
-		{ label: "Threads", data: threadsL },
+		{ label: "profile", data: profileL },
+		{ label: "insights", data: insightsL },
+		{ label: "demographics", data: followerDemographicsL },
+		{ label: "threads", data: threadsL },
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
@@ -56,21 +56,21 @@ export default function UserProfile2() {
 	const items = useMemo(() => {
 		return [
 			{
-				label: "Daily Reports 📋",
+				label: "daily reports 📋",
 				comp: () => <DailyReportView />,
 			},
 			{
-				label: "Views Chart 📈",
+				label: "charts 📈",
 				comp: () => <UserInsightsChartView />,
 			},
 
 			{
-				label: "Word Frequency 📊",
+				label: "words 📊",
 				comp: () => <WordSegmentLineChart />,
 			},
 
 			{
-				label: "Post Search 🔎",
+				label: "search 🔎",
 				comp: () => <UserThreadsView />,
 			},
 		];
@@ -79,8 +79,18 @@ export default function UserProfile2() {
 	// const item = items.find((item) => item.label === currentTab);
 
 	return (
-		<div>
-			<div className="rounded-xl bg-white shadow-lg">
+		<div className="font-rounded">
+			<div className="flex items-center justify-center py-3 px-5 text-black font-rounded font-bold text-xs ">
+				<div className=" flex flex-col justify-center items-center bg-gray-50 rounded-xl py-4 px-5 border-4 ">
+					<div className="flex items-center justify-center  text-black font-rounded font-bold text-2xl mb-2">
+						<img className="h-7 w-7" src="./unthreadme-logo.svg" alt="" />
+						<span className="ml-2">unthread.me</span>
+					</div>
+					<span className="text-gray-900 font-regular">🔒 private threads insights</span>
+				</div>
+			</div>
+
+			<div className="rounded-xl bg-gray-50">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>
@@ -99,7 +109,7 @@ export default function UserProfile2() {
 						<div className="mt-5 flex justify-around sm:mt-0">
 							<button
 								onClick={refresh}
-								className="flex  items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+								className="flex  items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-md border-4 hover:scale-110 hover:shadow-xl transform transition duration-200 ease-in-out"
 							>
 								<div className="flex flex-col">
 									<span>🔄</span>
@@ -127,19 +137,20 @@ export default function UserProfile2() {
 				))}
 			</div> */}
 
-				<div
-					className={`grid grid-cols-2 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${stats.length} sm:divide-x sm:divide-y-0`}
-				>
+				<div className={`grid grid-cols-2 gap-10 divide-gray-200 border-gray-200 px-4 lg:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
-						<div key={stat.label} className="px-6 py-5 text-center text-sm font-medium">
-							<span className="text-gray-900">{stat.value}</span> <span className="text-gray-600">{stat.label}</span>
+						<div className="group" key={stat.label}>
+							<div className="px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl group-hover:hidden">
+								<span className="text-gray-900">{stat.value}</span> <span className=" text-gray-600">{stat.label}</span>
+							</div>
+							<div className="px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl hidden group-hover:block">
+								<span className="">{stat.real_value}</span>
+							</div>
 						</div>
 					))}
 				</div>
 
-				<div
-					className={`grid grid-cols-2 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-${items.length} sm:divide-x sm:divide-y-0 rounded-xl shadow-lg`}
-				>
+				<div className={`grid grid-cols-2 gap-4 lg:grid-cols-${items.length} p-4`}>
 					{items.map((tab) => (
 						<button
 							key={tab.label}
@@ -147,7 +158,7 @@ export default function UserProfile2() {
 								setCurrentTab(tab.comp());
 								setOpenModal(true);
 							}}
-							className="px-6 py-5 text-center text-sm font-medium bg-white hover:bg-gray-100 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+							className="px-6 py-5 text-center text-sm font-medium text-gray-600 bg-white   border-4 rounded-xl  hover:scale-110 transform transition duration-200 ease-in-out hover:shadow-xl shadow-md "
 						>
 							{tab.label}
 						</button>

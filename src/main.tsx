@@ -1,8 +1,8 @@
 import "./index.css";
 
-// import "flowbite";
-// import "preline";
+import nightwind from "nightwind/helper";
 import ReactDOM from "react-dom/client";
+import { Helmet } from "react-helmet";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App.tsx";
@@ -15,6 +15,9 @@ if (!root || !(root instanceof HTMLElement)) {
 
 ReactDOM.createRoot(root).render(
 	<BrowserRouter>
+		<Helmet>
+			<script>{nightwind.init()}</script>
+		</Helmet>
 		<App />
 	</BrowserRouter>,
 );

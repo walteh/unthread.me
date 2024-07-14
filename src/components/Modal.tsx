@@ -22,7 +22,7 @@ const Modal: FunctionComponent<{
 				<DialogPanel
 					as="div"
 					transition
-					className="relative w-full max-w-screen-xl max-h-[95vh] p-6 bg-white shadow-xl rounded-2xl  h-full max-h-screen-xl overflow-y-auto"
+					className="relative w-full max-w-screen-xl max-h-[95vh] p-6 bg-white dark:bg-gray-900 shadow-xl rounded-2xl  h-full max-h-screen-xl overflow-y-auto"
 				>
 					<div className="h-full">{children}</div>
 				</DialogPanel>
