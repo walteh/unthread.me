@@ -111,7 +111,7 @@ export default function UserProfile2() {
 									</div>
 									<div className="text-center sm:text-left my-2 max-w-72 flex items-center flex-col">
 										<p className="truncate text-3xl font-bold font-rounded text-gray-900 max-w-72 ">
-											@{profile?.data?.username}sdafdsfdsfasfasdfadsfdassfasdf
+											@{profile?.data?.username}
 										</p>
 										<p className="mt-3 text-lg">🔄 cache</p>
 									</div>
