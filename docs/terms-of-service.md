@@ -1,6 +1,6 @@
 # Terms and Conditions for unthread.me
 
-\*_Effective Date: 2024-07-14_
+**Effective Date: 2024-07-14**
 
 Welcome to unthread.me! By accessing or using our website (<https://unthread.me>), you agree to comply with and be bound by these Terms and Conditions. Please read them carefully.
 

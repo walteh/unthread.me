@@ -1,6 +1,6 @@
 # Privacy Policy for unthread.me
 
-**Effective Date: [Current Date]**
+**Effective Date: 2024-07-14**
 
 Welcome to unthread.me! Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information.
 
