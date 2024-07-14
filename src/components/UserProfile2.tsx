@@ -56,7 +56,7 @@ export default function UserProfile2() {
 	const items = useMemo(() => {
 		return [
 			{
-				label: "daily reports 📋",
+				label: "daily 📋",
 				comp: () => <DailyReportView />,
 			},
 			{
@@ -139,12 +139,15 @@ export default function UserProfile2() {
 
 				<div className={`grid grid-cols-2 gap-10 divide-gray-200 border-gray-200 px-4 lg:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
-						<div className="group" key={stat.label}>
-							<div className="px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl group-hover:hidden">
-								<span className="text-gray-900">{stat.value}</span> <span className=" text-gray-600">{stat.label}</span>
-							</div>
-							<div className="px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl hidden group-hover:block">
-								<span className="">{stat.real_value}</span>
+						<div key={stat.label}>
+							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl  flex-col flex group ">
+								<div className=" group-hover:hidden">
+									<span className="text-md font-mono text-gray-900">{stat.value}</span>
+								</div>
+								<div className="hidden group-hover:block">
+									<span className="text-md  text-gray-900 font-mono">{stat.real_value.toLocaleString()}</span>
+								</div>
+								<span className="text-xs text-gray-600">{stat.label}</span>
 							</div>
 						</div>
 					))}
