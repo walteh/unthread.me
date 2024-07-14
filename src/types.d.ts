@@ -19,3 +19,7 @@ type RecursiveRequired<T> = { [K in keyof T]: Required<T[K]> };
 declare type CSSPropertiesAnimated = import("@react-spring/web/dist/declarations/src/index").AnimatedProps<import("react").CSSProperties>;
 
 declare type CSSNumber = `${number}rem` | `${number}px` | number;
+
+declare module "nightwind/helper" {
+	export function init(): string;
+}

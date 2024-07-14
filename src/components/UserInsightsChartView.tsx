@@ -52,10 +52,20 @@ const UserInsightsChartView: FC = () => {
 				},
 				toolbar: {
 					show: true,
-					// tools: {
-					// 	download: true,
-					// 	selection: true,
-					// },
+					tools: {
+						download: true,
+						selection: false,
+						pan: false,
+						reset: false,
+						customIcons: [],
+						zoom: false,
+						zoomin: false,
+						zoomout: false,
+						// selection: true,
+					},
+				},
+				selection: {
+					enabled: false,
 				},
 				// sparkline: {
 				// 	enabled: true,
@@ -247,7 +257,7 @@ const UserInsightsChartView: FC = () => {
 					))}
 				</select>
 			</div>
-			<div ref={chartContainerRef} className="p-10 w-full max-h-full">
+			<div ref={chartContainerRef} className="sm:p-10 p-3 w-full max-h-full">
 				{Chart}
 			</div>
 		</div>

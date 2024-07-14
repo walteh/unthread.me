@@ -10,67 +10,68 @@ const UserThreadsView = () => {
 	const [search, setSearch] = useState("");
 
 	return (
-		<div className="container mx-auto sm:p-6">
-			<div>
-				<div className="flex justify-center flex-row">
-					<div className="relative mt-2 flex items-center mb-2 w-1/2">
-						<input
-							type="text"
-							name="search"
-							id="search"
-							value={search}
-							onChange={(e) => {
-								setSearch(e.target.value);
-							}}
-							className="block w-full rounded-md border-0 py-1.5 pr-14 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-						/>
+		<div className="container mx-auto sm:p-6 p-2 flex flex-col items-center">
+			<div className="flex justify-center items-center mt-4 w-full">
+				<div className="relative w-full sm:w-1/2 ">
+					<input
+						type="text"
+						name="search"
+						id="search"
+						value={search}
+						onChange={(e) => {
+							setSearch(e.target.value);
+						}}
+						className="block w-full rounded-full  py-2 pl-12 pr-4 text-gray-900  shadow-2xl placeholder:text-gray-400 sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4"
+						placeholder="search..."
+					/>
+					<span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+				</div>
+			</div>
+			<div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+				{threads.map((thread, idx) => (
+					<div key={thread.id} className={thread.text?.includes(search) ? "" : "hidden"}>
+						<ThreadCard thread={thread} idx={threads.length - idx} />
 					</div>
-				</div>
-				<div className="space-y-6  overflow-y-scroll">
-					{threads.map((thread) => (
-						<div
-							key={thread.id}
-							className={`bg-white sm:p-6 rounded-xl shadow-md m-1 ${thread.text?.includes(search) ? "" : "hidden"}`}
-						>
-							<ThreadCard thread={thread} />
-						</div>
-					))}
-				</div>
+				))}
 			</div>
 		</div>
 	);
 };
 
-const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
+const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) => {
 	const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	return (
-		<div className="px-4 py-2">
-			<div className="mb-4 flex justify-between items-center">
-				<p className="text-3xl font-bold font-rounded text-gray-900">@{thread.username}</p>
-				<p className="text-lg text-gray-500">{new Date(thread.timestamp).toLocaleString()}</p>
-			</div>
-
+		<div className="bg-gray-50 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl mt-5">
 			<div className="flex flex-wrap gap-2 mb-4">
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-md font-medium text-gray-800">
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+					#{idx + 1}
+				</span>
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+					{new Date(thread.timestamp).toLocaleDateString()}
+				</span>
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+					{new Date(thread.timestamp).toLocaleTimeString()}
+				</span>
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
 					{thread.media_type}
 				</span>
 				{likes > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-md font-medium text-red-800">
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-xs font-medium text-red-800">
 						<svg className="h-3 w-3 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
 						{likes} likes
 					</span>
 				)}
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-md font-medium text-blue-800">
+				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-xs font-medium text-blue-800">
 					<svg className="h-3 w-3 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
 						<circle cx={3} cy={3} r={3} />
 					</svg>
 					{views} views
 				</span>
 				{replies.length > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-md font-medium text-green-800">
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
 						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -78,7 +79,7 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 					</span>
 				)}
 				{quotes > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-purple-100 px-3 py-2 text-md font-medium text-purple-800">
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-purple-100 px-3 py-2 text-xs font-medium text-purple-800">
 						<svg className="h-3 w-3 fill-purple-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -86,7 +87,7 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 					</span>
 				)}
 				{reposts > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-yellow-100 px-3 py-2 text-md font-medium text-yellow-800">
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-yellow-100 px-3 py-2 text-xs font-medium text-yellow-800">
 						<svg className="h-3 w-3 fill-yellow-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -94,12 +95,12 @@ const ThreadCard: FC<{ thread: ThreadMedia }> = ({ thread }) => {
 					</span>
 				)}
 				{thread.is_quote_post && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-md font-medium text-gray-800">
+					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
 						QUOTE
 					</span>
 				)}
 			</div>
-			<p className="sm:text-3xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
+			<p className="sm:text-2xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
 				{thread.text}
 			</p>
 			{thread.media_url && (

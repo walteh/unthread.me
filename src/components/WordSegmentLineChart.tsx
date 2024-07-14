@@ -1,6 +1,7 @@
 import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { IoSettings } from "react-icons/io5";
 
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useTimePeriod, { useTimePeriodFilteredData } from "@src/client/hooks/useTimePeriod";
@@ -231,18 +232,44 @@ const WordSegmentLineChart: FC = () => {
 		);
 	}, [words]);
 
+	const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+
 	return (
-		<div className="container mx-auto h-full">
-			<div className="space-y-6 h-full">
-				<div className="flex flex-col items-center w-full h-full">
-					<div className="flex justify-center w-full">
-						<div className={`grid sm:grid-cols-4 grid-cols-2 gap-4 text-center`}>
-							<div className="">
+		<div className="w-full h-full">
+			<div className=" fixed top-4 left-4 z-50">
+				<button
+					className=" bottom-4 right-4 p-3 rounded-full text-gray-800 z-50 hover:scale-110 transform transition duration-200 ease-in-out backdrop-blur-lg bg-gray-400 bg-opacity-50 shadow-2xl"
+					onClick={() => {
+						setIsFlyoutOpen(true);
+					}}
+				>
+					<IoSettings size={30} />
+				</button>
+			</div>
+
+			<div
+				className={`fixed inset-0 z-50 transform ${isFlyoutOpen ? "translate-x-300" : "-translate-x-full"} transition-transform duration-300 ease-in-out flex items-start justify-center sm:mt-4`}
+			>
+				<div
+					className="absolute inset-0 "
+					onClick={() => {
+						setIsFlyoutOpen(false);
+					}}
+				></div>
+				<div
+					className="relative  w-auto h-auto backdrop-blur-2xl bg-gray-200 bg-opacity-50 rounded-xl shadow-2xl p-4"
+					// onClick={() => {
+					// 	setIsFlyoutOpen(false);
+					// }}
+				>
+					<div className="flex flex-col items-center w-full h-full">
+						<div className="grid grid-cols-1 gap-4 text-center  p-4 sm:grid-cols-4">
+							<div>
 								<select
 									id="wordSegmentType"
 									value={wordSegmentType}
 									onChange={handleWordSegmentTypeChange}
-									className="p-2 border rounded pr-10"
+									className="rounded-xl sm:text-sm text-xs truncate"
 								>
 									{wordTypez.map((type) => (
 										<option key={type.key} value={type.key} disabled={type.value === 0}>
@@ -251,12 +278,12 @@ const WordSegmentLineChart: FC = () => {
 									))}
 								</select>
 							</div>
-							<div className="">
+							<div>
 								<select
 									id="metric"
 									value={metric}
 									onChange={handleMetricChange}
-									className="p-2 border rounded pr-10"
+									className="rounded-xl sm:text-sm text-xs truncate"
 									title="sort by"
 								>
 									<option value="total_views">total views</option>
@@ -266,50 +293,119 @@ const WordSegmentLineChart: FC = () => {
 									<option value="average_likes">average likes</option>
 								</select>
 							</div>
-							<div className="">
+							<div>
 								<select
 									id="threashold"
 									value={threashold}
 									onChange={(e) => {
 										setThreashold(parseInt(e.target.value));
 									}}
-									className="p-2 border rounded pr-10"
+									className="rounded-xl sm:text-sm text-xs truncate"
 								>
 									{[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
 										<option key={value} value={value}>
-											at least {value} threads
+											min {value} threads
 										</option>
 									))}
 								</select>
 							</div>
-							<div className="">
+							<div>
 								<select
 									id="timePeriod"
 									value={timePeriod.label}
 									onChange={handleTimePeriodChange}
-									className="p-2 border rounded  pr-10"
+									className="rounded-xl sm:text-sm text-xs truncate"
 								>
 									{Object.entries(timePeriods).map(([, tp]) => (
 										<option key={tp.label} value={tp.label}>
 											{!tp.label.includes("days")
 												? tp.label
-												: `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
+												: `last ${tp.label.replace("days", "").replace("last", "")} days`}
 										</option>
 									))}
 								</select>
 							</div>
 						</div>
 					</div>
-					<div
-						ref={setChartContainerRef}
-						className="flex flex-col items-center w-full justify-center h-full overflow-y-hidden"
-						style={{
-							maxHeight: "100%",
-						}}
-					>
-						{dats.length === 0 ? <ErrorMessage message="No data available" /> : Chart}
+				</div>
+			</div>
+
+			{/* <div className="hidden sm:flex flex-col items-center w-full h-full">
+				<div className="flex justify-center w-full">
+					<div className="grid grid-cols-4 gap-4 text-center sm:text-sm text-xs mt-2">
+						<div>
+							<select
+								id="wordSegmentType"
+								value={wordSegmentType}
+								onChange={handleWordSegmentTypeChange}
+								className="rounded-xl sm:text-sm text-xs truncate"
+							>
+								{wordTypez.map((type) => (
+									<option key={type.key} value={type.key} disabled={type.value === 0}>
+										{type.key}
+									</option>
+								))}
+							</select>
+						</div>
+						<div>
+							<select
+								id="metric"
+								value={metric}
+								onChange={handleMetricChange}
+								className="rounded-xl sm:text-sm text-xs truncate"
+								title="sort by"
+							>
+								<option value="total_views">total views</option>
+								<option value="total_likes">total likes</option>
+								<option value="total_count">total threads</option>
+								<option value="average_views">average views</option>
+								<option value="average_likes">average likes</option>
+							</select>
+						</div>
+						<div>
+							<select
+								id="threashold"
+								value={threashold}
+								onChange={(e) => {
+									setThreashold(parseInt(e.target.value));
+								}}
+								className="rounded-xl sm:text-sm text-xs truncate"
+							>
+								{[1, 2, 3, 4, 5, 10, 20, 30, 50, 100].map((value) => (
+									<option key={value} value={value}>
+										min {value} threads
+									</option>
+								))}
+							</select>
+						</div>
+						<div>
+							<select
+								id="timePeriod"
+								value={timePeriod.label}
+								onChange={handleTimePeriodChange}
+								className="rounded-xl sm:text-sm text-xs truncate"
+							>
+								{Object.entries(timePeriods).map(([, tp]) => (
+									<option key={tp.label} value={tp.label}>
+										{!tp.label.includes("days")
+											? tp.label
+											: `last ${tp.label.replace("days", "").replace("last", "")} days`}
+									</option>
+								))}
+							</select>
+						</div>
 					</div>
 				</div>
+			</div> */}
+
+			<div
+				ref={setChartContainerRef}
+				className="flex flex-col items-center w-full justify-center h-full overflow-y-hidden"
+				style={{
+					maxHeight: "100%",
+				}}
+			>
+				{dats.length === 0 ? <ErrorMessage message="no data available" /> : Chart}
 			</div>
 		</div>
 	);

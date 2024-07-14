@@ -96,30 +96,32 @@ export default function UserProfile2() {
 				</h2>
 				<div className="p-6">
 					<div className="sm:flex sm:items-center sm:justify-between">
-						<div className="sm:flex sm:space-x-5">
-							<div className="flex-shrink-0">
-								<img className="mx-auto h-20 w-20 rounded-full" src={profile?.data?.threads_profile_picture_url} alt="" />
-							</div>
-							<div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
-								{/* <p className="text-sm font-medium text-gray-600">Welcome back,</p> */}
-								<p className="text-3xl font-bold font-rounded text-gray-900 sm:text-3xl">@{profile?.data?.username}</p>
-								<p className="text-lg font-medium text-gray-600">{profile?.data?.threads_biography ?? "..."}</p>
-							</div>
-						</div>
-						<div className="mt-5 flex justify-around sm:mt-0">
+						<div className=" flex justify-around sm:mt-0">
 							<button
 								onClick={refresh}
-								className="flex  items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-md border-4 hover:scale-110 hover:shadow-xl transform transition duration-200 ease-in-out"
+								className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-5 text-sm font-semibold text-gray-900 shadow-md border-4 hover:scale-110 hover:shadow-xl transform transition duration-200 ease-in-out"
 							>
-								<div className="flex flex-col">
-									<span>🔄</span>
-									<span className="">cache</span>
+								<div className="sm:flex sm:space-x-5 ">
+									<div className="flex-shrink-0">
+										<img
+											className="mx-auto h-20 w-20 rounded-xl"
+											src={profile?.data?.threads_profile_picture_url}
+											alt=""
+										/>
+									</div>
+									<div className="text-center sm:text-left my-2 max-w-72">
+										<p className="truncate text-3xl font-bold font-rounded text-gray-900  ">
+											@{profile?.data?.username}
+										</p>
+										<p className="mt-3 text-lg">🔄 cache</p>
+									</div>
 								</div>
-								<div className=" flex flex-col items-start justify-center  rounded-md  text-xs w-full mt-2">
+
+								<div className="    rounded-md  text-xs w-full mt-2 grid grid-cols-2 gap-2">
 									{loaders.map((stat) => (
-										<span key={stat.label} className="ml-3 flex text-xs mb-2">
+										<div key={stat.label} className="ml-3 flex text-xs">
 											{stat.data?.is_loading ? <Loader /> : "✅"} {stat.label}
-										</span>
+										</div>
 									))}
 								</div>
 							</button>
@@ -167,9 +169,9 @@ export default function UserProfile2() {
 						</button>
 					))}
 				</div>
-
-				<Modal>{currentTab}</Modal>
 			</div>
+
+			<Modal>{currentTab}</Modal>
 		</div>
 	);
 }
