@@ -13,9 +13,6 @@ if (!root || !(root instanceof HTMLElement)) {
 
 ReactDOM.createRoot(root).render(
 	<BrowserRouter>
-		{/* <Helmet>
-			<script>{nightwind.init()}</script>
-		</Helmet> */}
 		<App />
 	</BrowserRouter>,
 );

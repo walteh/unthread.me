@@ -80,16 +80,6 @@ export default function UserProfile2() {
 
 	return (
 		<div className="font-rounded flex justify-center flex-col items-center">
-			<div className="flex items-center justify-center py-3 px-5 text-black font-rounded font-bold text-xs ">
-				<div className=" flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-50 rounded-xl py-4 px-5 border-4 border-white">
-					<div className="flex items-center justify-center  text-black font-rounded font-bold text-2xl mb-2">
-						<img className="h-7 w-7" src="./unthreadme-logo.svg" alt="" />
-						<span className="ml-2">unthread.me</span>
-					</div>
-					<span className="text-gray-900 font-regular">🔒 private threads insights</span>
-				</div>
-			</div>
-
 			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50 mx-4 sm:max-w-screen-lg">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview

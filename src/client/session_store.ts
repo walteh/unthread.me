@@ -33,6 +33,7 @@ export const session_store = create(
 		combine(
 			{
 				is_logging_in: false,
+
 				time_period_label: "last7days" as TimePeriodLabel,
 				route: undefined,
 				error: undefined,
