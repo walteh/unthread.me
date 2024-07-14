@@ -18,13 +18,13 @@
 
 @media (prefers-color-scheme: light) {
 	html {
-		background: white;
+		background: black;
 	}
 	body {
-		background: white;
+		background: black;
 	}
 	#root {
-		background: radial-gradient(50% 50% at 50% 50%, rgb(80, 144, 234, 0.1) 0%, rgba(80, 144, 234, 0.34) 100%);
+		background: radial-gradient(50% 50% at 50% 50%, rgba(80, 144, 234, 0.34) 0%, rgb(80, 144, 234, 0.1) 1000%);
 	}
 }
 
