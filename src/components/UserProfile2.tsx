@@ -90,7 +90,7 @@ export default function UserProfile2() {
 				</div>
 			</div>
 
-			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50">
+			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50 mx-4">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>

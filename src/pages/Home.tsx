@@ -52,21 +52,9 @@ const Home: FC = () => {
 	}
 
 	return (
-		<section>
-			{/* <Status /> */}
-			<div
-				style={{
-					minHeight: "calc(100vh - 64px)",
-					// padding: "2rem 0",
-				}}
-			>
-				<div style={{ maxWidth: "1000px" }} className="mx-auto p-4">
-					<UserProfile2 />
-
-					{/* <UserInsightsChartView /> */}
-				</div>
-			</div>
-		</section>
+		<div>
+			<UserProfile2 />
+		</div>
 	);
 };
 
