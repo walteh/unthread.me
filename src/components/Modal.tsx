@@ -28,7 +28,7 @@ const Modal: FunctionComponent<{
 				>
 					<IoClose size={30} />
 				</button>
-				<DialogPanel transition className="relative w-full  shadow-xl h-full max-h-screen-xl overflow-y-auto">
+				<DialogPanel transition className="relative w-full  shadow-xl h-full max-h-screen-xl overflow-y-auto  overflow-x-hidden">
 					<div className="h-full p-4">{children}</div>
 				</DialogPanel>
 			</div>

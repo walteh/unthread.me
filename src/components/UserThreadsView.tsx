@@ -27,7 +27,7 @@ const UserThreadsView = () => {
 					<span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
 				</div>
 			</div>
-			<div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			<div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
 				{threads.map((thread, idx) => (
 					<div key={thread.id} className={thread.text?.includes(search) ? "" : "hidden"}>
 						<ThreadCard thread={thread} idx={threads.length - idx} />
@@ -42,7 +42,7 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 	const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	return (
-		<div className="bg-gray-50 backdrop-blur-xl bg-opacity-75 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl mt-5 relative">
+		<div className="bg-gray-50 backdrop-blur-xl bg-opacity-75 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl  relative">
 			<button
 				onClick={() => {
 					window.open(thread.permalink, "_blank");
