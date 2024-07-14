@@ -79,9 +79,9 @@ export default function UserProfile2() {
 	// const item = items.find((item) => item.label === currentTab);
 
 	return (
-		<div className="font-rounded">
+		<div className="font-rounded ">
 			<div className="flex items-center justify-center py-3 px-5 text-black font-rounded font-bold text-xs ">
-				<div className=" flex flex-col justify-center items-center bg-gray-50 rounded-xl py-4 px-5 border-4 ">
+				<div className=" flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-50 rounded-xl py-4 px-5 border-4 border-white">
 					<div className="flex items-center justify-center  text-black font-rounded font-bold text-2xl mb-2">
 						<img className="h-7 w-7" src="./unthreadme-logo.svg" alt="" />
 						<span className="ml-2">unthread.me</span>
@@ -90,11 +90,11 @@ export default function UserProfile2() {
 				</div>
 			</div>
 
-			<div className="rounded-xl bg-gray-50">
+			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>
-				<div className="p-6">
+				<div className="p-6 ">
 					<div className="sm:flex sm:items-center sm:justify-between">
 						<div className=" flex justify-around sm:mt-0">
 							<button
@@ -142,7 +142,7 @@ export default function UserProfile2() {
 				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 lg:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
 						<div key={stat.label}>
-							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-100 rounded-xl  flex-col flex group hover:bg-gray-200">
+							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group hover:bg-gray-200 backdrop-blur-lg bg-opacity-50">
 								<div className=" group-hover:hidden">
 									<span className="text-md font-mono text-gray-900">{stat.value}</span>
 								</div>

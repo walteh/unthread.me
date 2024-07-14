@@ -42,36 +42,49 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 	const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	return (
-		<div className="bg-gray-50 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl mt-5">
+		<div className="bg-gray-50 backdrop-blur-xl bg-opacity-75 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl mt-5 relative">
+			<button
+				onClick={() => {
+					window.open(thread.permalink, "_blank");
+				}}
+				className="absolute shadow-sm inline-flex items-center gap-x-1.5 rounded-full bg-black px-3 py-2 text-xs font-medium text-white font-mono -top-4 right-1 hover:scale-115 transform transition duration-200 ease-in-out"
+			>
+				open in <img width={15} src="./threads-logo-white.svg"></img>
+			</button>
 			<div className="flex flex-wrap gap-2 mb-4">
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
 					#{idx + 1}
 				</span>
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+					{/* week day */}
+					{new Date(thread.timestamp).toLocaleString("en-US", { weekday: "short" }).toUpperCase()}
+				</span>
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
 					{new Date(thread.timestamp).toLocaleDateString()}
 				</span>
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
 					{new Date(thread.timestamp).toLocaleTimeString()}
 				</span>
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
+
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
 					{thread.media_type}
 				</span>
 				{likes > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-xs font-medium text-red-800">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-xs font-medium text-red-800">
 						<svg className="h-3 w-3 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
 						{likes} likes
 					</span>
 				)}
-				<span className="inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-xs font-medium text-blue-800">
+				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-xs font-medium text-blue-800">
 					<svg className="h-3 w-3 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
 						<circle cx={3} cy={3} r={3} />
 					</svg>
 					{views} views
 				</span>
 				{replies.length > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
 						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -79,7 +92,7 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 					</span>
 				)}
 				{quotes > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-purple-100 px-3 py-2 text-xs font-medium text-purple-800">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-purple-100 px-3 py-2 text-xs font-medium text-purple-800">
 						<svg className="h-3 w-3 fill-purple-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -87,7 +100,7 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 					</span>
 				)}
 				{reposts > 0 && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-yellow-100 px-3 py-2 text-xs font-medium text-yellow-800">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-yellow-100 px-3 py-2 text-xs font-medium text-yellow-800">
 						<svg className="h-3 w-3 fill-yellow-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
@@ -95,21 +108,24 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 					</span>
 				)}
 				{thread.is_quote_post && (
-					<span className="inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
 						QUOTE
 					</span>
 				)}
 			</div>
-			<p className="sm:text-2xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg" style={{ whiteSpace: "pre-wrap" }}>
+			<p
+				className="shadow-md sm:text-2xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg"
+				style={{ whiteSpace: "pre-wrap" }}
+			>
 				{thread.text}
 			</p>
 			{thread.media_url && (
-				<div className="p-5 mt-4 flex justify-center max-w-full">
+				<div className="px-5  pt-5 flex justify-center max-w-full">
 					{(thread.media_type === "IMAGE" || thread.media_type === "CAROUSEL_ALBUM") && (
-						<img src={thread.media_url} alt="Media" className="rounded-lg  border-solid shadow-2xl" />
+						<img src={thread.media_url} alt="Media" className="rounded-2xl  border-solid shadow-2xl" />
 					)}
-					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-lg shadow-2xl" />}
-					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-lg shadow-2xl" />}
+					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-2xl shadow-2xl" />}
+					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-2xl shadow-2xl" />}
 					{/* {thread.is_quote_post &&
 						thread.children?.map((quote) => (
 							<div key={quote.id} className="bg-gray-100 p-4 rounded-lg shadow-sm mt-4">
