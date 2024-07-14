@@ -79,7 +79,7 @@ export default function UserProfile2() {
 	// const item = items.find((item) => item.label === currentTab);
 
 	return (
-		<div className="font-rounded ">
+		<div className="font-rounded flex justify-center flex-col items-center">
 			<div className="flex items-center justify-center py-3 px-5 text-black font-rounded font-bold text-xs ">
 				<div className=" flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-50 rounded-xl py-4 px-5 border-4 border-white">
 					<div className="flex items-center justify-center  text-black font-rounded font-bold text-2xl mb-2">
@@ -90,12 +90,12 @@ export default function UserProfile2() {
 				</div>
 			</div>
 
-			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50 mx-4">
+			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50 mx-4 sm:max-w-screen-lg">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>
 				<div className="p-6 ">
-					<div className="sm:flex sm:items-center sm:justify-between">
+					<div className="sm:flex sm:items-center sm:justify-center">
 						<div className=" flex justify-around sm:mt-0">
 							<button
 								onClick={refresh}
@@ -109,9 +109,9 @@ export default function UserProfile2() {
 											alt=""
 										/>
 									</div>
-									<div className="text-center sm:text-left my-2 max-w-72">
-										<p className="truncate text-3xl font-bold font-rounded text-gray-900  ">
-											@{profile?.data?.username}
+									<div className="text-center sm:text-left my-2 max-w-72 flex items-center flex-col">
+										<p className="truncate text-3xl font-bold font-rounded text-gray-900 max-w-72 ">
+											@{profile?.data?.username}sdafdsfdsfasfasdfadsfdassfasdf
 										</p>
 										<p className="mt-3 text-lg">🔄 cache</p>
 									</div>

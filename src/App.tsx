@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
 import useBackgroundUpdater from "./client/hooks/useBackgroundUpdater";
 import { useInitialThreadsAPIUserDataUpdater, useInitialThreadsLoader } from "./client/hooks/useCacheStoreUpdaters";
-import Home from "./pages/Home";
+import Home from "./components/Home";
 import threadsapi from "./threadsapi";
 
 const App: FC = () => {
