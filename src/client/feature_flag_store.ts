@@ -12,7 +12,11 @@ export const feature_flag_store = create(
 				{
 					enable_alpha_i_know_what_im_doing: false,
 				} as FeatureFlagStore,
-				() => ({}),
+				(set) => ({
+					updateEnableAlphaIKnowWhatImDoing: (value: boolean) => {
+						set({ enable_alpha_i_know_what_im_doing: value });
+					},
+				}),
 			),
 		),
 		{
