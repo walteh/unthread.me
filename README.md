@@ -1,8 +1,8 @@
-# unthread.me
+> [!CAUTION]
+> 🧱 This project is currently under construction.
 
 <p align="center">
-  <img src="./public/temp-header.png" alt="temp-unthread.me-header" width="300"/>
+  <img src="./public/temp-header.png" alt="temp-unthread.me-header" width="300" style="border-radius: 10px"/>
 </p>
 
-> ![Warning](https://img.shields.io/badge/-Warning-red)
-> 🧱 This project is currently under construction.
+# unthread.me
