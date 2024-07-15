@@ -3,7 +3,7 @@ import tailwindcss from "tailwindcss";
 // const fonts: tailwindcss.Fonts = {};
 
 const config: tailwindcss.Config = {
-	darkMode: "class",
+	// darkMode: "class",
 	content: [
 		"./index.html",
 		"./src/**/*.{js,ts,jsx,tsx}",
@@ -39,7 +39,7 @@ const config: tailwindcss.Config = {
 		// }),
 		// require("preline/plugin"),
 		require("@tailwindcss/forms"),
-		require("nightwind"),
+		// require("nightwind"),
 		require("@tailwindcss/typography"),
 	],
 	// typography

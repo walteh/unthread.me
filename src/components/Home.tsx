@@ -24,20 +24,21 @@ const Home: FC = () => {
 
 	if (!is_an_idiot) {
 		return (
-			<div className="flex items-center justify-center flex-col ">
-				<div className="flex flex-col items-center m-10 w-96 text-center">
-					<span className="text-3xl font-extrabold text-gray-900 tracking-wide  font-rounded">🧱</span>
-					<span className="text-xl font-extrabold text-gray-900 tracking-wide  font-rounded mb-5">under construction</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
-						unthread.me lets you access you threads api data in a free and secure way
+			<div className="flex items-center justify-center flex-col">
+				<div className="flex flex-col items-center m-10 mt-0 w-96 text-center  dark:text-gray-100 text-gray-900">
+					<span className="text-3xl font-extrabold  tracking-wide  font-rounded">🧱</span>
+					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">under construction</span>
+					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+						unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
-						all of your data is stored in your browser and never leaves your device
+					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+						all of your data is stored in your browser and <strong>never</strong> leaves your device
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
-						your threads login token is passed through a secure oauth flow and never stored or logged on our servers
+					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+						your threads login token is passed through a secure oauth flow and <strong>never</strong> stored or logged on our
+						servers
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded">
+					<span className="text-md  tracking-wide font-rounded">
 						subscribe to my newsletter and be the first to know when its ready! ⬇️
 					</span>
 				</div>
@@ -45,13 +46,13 @@ const Home: FC = () => {
 				<div className="text-center ">
 					<iframe
 						src="https://www.walteh.com/embed"
-						width="480"
+						// width="400"
 						height="320"
 						// style="border:1px solid #EEE; background:white;"
 						style={{}}
-						className="rounded-2xl"
-						frameBorder="0"
-						scrolling="no"
+						className="rounded-2xl shadow-lg w-96 "
+						// frameBorder="0"
+						// scrolling="no"
 					></iframe>
 				</div>
 			</div>
