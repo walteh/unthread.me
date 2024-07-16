@@ -1,6 +1,13 @@
 import { KyInstance } from "ky";
 
-import { AccessTokenResponse, GetMediaInsightsParams, InsightsResponse, MediaMetric, MediaMetricTypeMap } from "./types";
+import {
+	AccessTokenResponse,
+	GetMediaInsightsParams,
+	InsightsResponse,
+	MediaMetric,
+	MediaMetricTypeMap,
+	SimplifedMediaMetricTypeMap,
+} from "./types";
 
 const allMediaMetrics: MediaMetric[] = ["views", "likes", "replies", "reposts", "quotes"];
 
@@ -8,7 +15,7 @@ export const get_media_insights = async (
 	inst: KyInstance,
 	accessToken: AccessTokenResponse,
 	mediaId: string,
-): Promise<MediaMetricTypeMap> => {
+): Promise<SimplifedMediaMetricTypeMap> => {
 	return await get_media_insights_with_params(inst, accessToken, mediaId, {});
 };
 
@@ -17,7 +24,7 @@ export const get_media_insights_with_params = async (
 	accessToken: AccessTokenResponse,
 	mediaId: string,
 	params: GetMediaInsightsParams = {},
-): Promise<MediaMetricTypeMap> => {
+): Promise<SimplifedMediaMetricTypeMap> => {
 	const searchParams: Record<string, string | number> = {
 		metric: allMediaMetrics.join(","),
 		access_token: accessToken.access_token,
@@ -46,23 +53,29 @@ export const get_media_insights_with_params = async (
 		})
 		.then((response) => response.json<InsightsResponse<MediaMetricTypeMap[MediaMetric]>>())
 		.then((data) => {
-			const mapper: MediaMetricTypeMap = {} as MediaMetricTypeMap;
+			const mapper: SimplifedMediaMetricTypeMap = {
+				total_views: 0,
+				total_likes: 0,
+				total_replies: 0,
+				total_reposts: 0,
+				total_quotes: 0,
+			};
 			for (const metric of data.data) {
 				switch (metric?.name) {
 					case "views":
-						mapper.views = metric;
+						mapper.total_views = metric.values[0].value;
 						break;
 					case "likes":
-						mapper.likes = metric;
+						mapper.total_likes = metric.values[0].value;
 						break;
 					case "replies":
-						mapper.replies = metric;
+						mapper.total_replies = metric.values[0].value;
 						break;
 					case "reposts":
-						mapper.reposts = metric;
+						mapper.total_reposts = metric.values[0].value;
 						break;
 					case "quotes":
-						mapper.quotes = metric;
+						mapper.total_quotes = metric.values[0].value;
 						break;
 				}
 			}

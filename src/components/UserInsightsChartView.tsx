@@ -2,6 +2,7 @@ import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
+import { useInsightsByDateRange } from "@src/client/hooks/useInsightsByDate";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useTimePeriod, {
 	useTimePeriodCountPerDay,
@@ -19,6 +20,7 @@ const UserInsightsChartView: FC = () => {
 	const [threads] = useThreadsListSortedByDate();
 
 	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
+	useInsightsByDateRange(timePeriod.start_date, timePeriod.end_date);
 
 	const viewByTimePeriod = useTimePeriodFilteredData(insights.views_by_day, (value) => value.label, timePeriod);
 

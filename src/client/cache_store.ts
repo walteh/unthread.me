@@ -10,7 +10,7 @@ import {
 	AccessTokenResponse,
 	BreakdownMetricTypeMap,
 	ConversationResponse,
-	MediaMetricTypeMap,
+	SimplifedMediaMetricTypeMap,
 	SimplifedMetricTypeMap,
 	ThreadMedia,
 	UserProfileResponse,
@@ -24,7 +24,7 @@ export interface UserDataTypes {
 
 export interface NestedUserDataTypes {
 	user_threads_replies: ConversationResponse;
-	user_threads_insights: MediaMetricTypeMap;
+	user_threads_insights: SimplifedMediaMetricTypeMap;
 }
 
 interface DataResponse<T extends keyof UserDataTypes> {

@@ -12,7 +12,7 @@ const useThreadInfoCallbacks = () => {
 		(thread: ThreadMedia) => {
 			const dat = userThreadsInsights?.data;
 			if (!dat) return 0;
-			return dat[thread.id]?.data.likes?.values[0].value ?? 0;
+			return dat[thread.id]?.data.total_likes ?? 0;
 		},
 		[userThreadsInsights],
 	);
@@ -21,7 +21,7 @@ const useThreadInfoCallbacks = () => {
 		(thread: ThreadMedia) => {
 			const dat = userThreadsInsights?.data;
 			if (!dat) return 0;
-			return dat[thread.id]?.data.views?.values[0].value ?? 0;
+			return dat[thread.id]?.data.total_views ?? 0;
 		},
 		[userThreadsInsights],
 	);
@@ -30,7 +30,7 @@ const useThreadInfoCallbacks = () => {
 		(thread: ThreadMedia) => {
 			const dat = userThreadsInsights?.data;
 			if (!dat) return 0;
-			return dat[thread.id]?.data.quotes?.values[0].value ?? 0;
+			return dat[thread.id]?.data.total_quotes ?? 0;
 		},
 		[userThreadsInsights],
 	);
@@ -39,7 +39,7 @@ const useThreadInfoCallbacks = () => {
 		(thread: ThreadMedia) => {
 			const dat = userThreadsInsights?.data;
 			if (!dat) return 0;
-			return dat[thread.id]?.data.reposts?.values[0].value ?? 0;
+			return dat[thread.id]?.data.total_reposts ?? 0;
 		},
 		[userThreadsInsights],
 	);

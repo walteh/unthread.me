@@ -52,6 +52,9 @@ const getCurrentTimePeriods = (): Record<TimePeriodLabel, TimePeriod> => {
 		const label = date.toLocaleDateString("default", { year: "numeric", month: "long" }) as TimePeriodLabel;
 		const start_date = new Date(date.getFullYear(), date.getMonth(), 1);
 		const end_date = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+		if (end_date > new Date()) {
+			return { label, start_date, end_date: new Date() };
+		}
 		return { label, start_date, end_date };
 	});
 
@@ -59,6 +62,11 @@ const getCurrentTimePeriods = (): Record<TimePeriodLabel, TimePeriod> => {
 	const last7days = {
 		label: "last7days" as TimePeriodLabel,
 		start_date: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7),
+		end_date: today,
+	};
+	const last14days = {
+		label: "last14days" as TimePeriodLabel,
+		start_date: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 14),
 		end_date: today,
 	};
 	const last30days = {
@@ -74,6 +82,7 @@ const getCurrentTimePeriods = (): Record<TimePeriodLabel, TimePeriod> => {
 
 	return {
 		last7days, // "last7days" as TimePeriodLabel,
+		last14days,
 		last30days,
 		last90days,
 		...Object.fromEntries(monthPeriods.map((period) => [period.label, period])),
@@ -84,6 +93,8 @@ export const useTimePeriodListOfDays = (period: TimePeriod): string[] => {
 	return useMemo(() => {
 		const days = [];
 		for (let d = new Date(period.start_date); d <= period.end_date; d.setDate(d.getDate() + 1)) {
+			// make sure its not greater than today
+
 			days.push(new Date(d).toISOString().slice(0, 10));
 		}
 		return days;

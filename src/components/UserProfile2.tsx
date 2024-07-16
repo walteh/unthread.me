@@ -7,7 +7,7 @@ import useUserInsights from "@src/client/hooks/useUserInsights";
 
 import DailyReportView from "./DailyReportView";
 import Modal from "./Modal";
-import UserInsightsChartView from "./UserInsightsChartView";
+import UserInsightsChartView2 from "./UserInsightsChartView2";
 import UserThreadsView from "./UserThreadsView";
 import WordSegmentLineChart from "./WordSegmentLineChart";
 
@@ -61,7 +61,7 @@ export default function UserProfile2() {
 			},
 			{
 				label: "charts 📈",
-				comp: () => <UserInsightsChartView />,
+				comp: () => <UserInsightsChartView2 />,
 			},
 
 			{

@@ -15,3 +15,5 @@ type NLStyleSheet = ApplyToChildren<React.CSSProperties>;
 type Dictionary<T> = Record<string, T>;
 
 type RecursiveRequired<T> = { [K in keyof T]: Required<T[K]> };
+
+declare module "timeseries-analysis";

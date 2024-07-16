@@ -1,4 +1,4 @@
-export type TimePeriodLabel = "last7days" | "last30days" | "last90days" | `${string} ${number}`;
+export type TimePeriodLabel = "last7days" | "last14days" | "last30days" | "last90days" | `${string} ${number}`;
 
 export interface TimePeriod {
 	label: TimePeriodLabel;
@@ -113,6 +113,14 @@ export interface MediaMetricTypeMap {
 	replies: TimeSeriesMetric | null;
 	reposts: TimeSeriesMetric | null;
 	quotes: TimeSeriesMetric | null;
+}
+
+export interface SimplifedMediaMetricTypeMap {
+	total_views: number;
+	total_likes: number;
+	total_replies: number;
+	total_reposts: number;
+	total_quotes: number;
 }
 
 export type Metric = keyof MetricTypeMap;
