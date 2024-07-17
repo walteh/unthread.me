@@ -39,11 +39,12 @@ export default function UserProfile2() {
 	];
 
 	const loaders = [
-		{ label: "profile", data: profileL },
-		{ label: "insights", data: insightsL },
-		{ label: "demographics", data: followerDemographicsL },
-		{ label: "threads", data: threadsL },
-		{ label: "thread insights", data: threadsInsightsL },
+		{ label: "profile", is_loading: profileL?.is_loading ?? false },
+		{ label: "insights", is_loading: insightsL?.is_loading ?? false },
+		{ label: "demographics", is_loading: followerDemographicsL?.is_loading ?? false },
+		{ label: "threads", is_loading: threadsL?.is_loading ?? false },
+		{ label: "thread insights", is_loading: (threadsInsightsL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
+		{ label: "threads replies", is_loading: (threadsInsightsL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
@@ -109,7 +110,7 @@ export default function UserProfile2() {
 								<div className="    rounded-md  text-xs w-full mt-2 grid grid-cols-2 gap-2">
 									{loaders.map((stat) => (
 										<div key={stat.label} className="ml-3 flex text-xs">
-											{stat.data?.is_loading ? <Loader /> : "✅"} {stat.label}
+											{stat.is_loading ? <Loader /> : "✅"} {stat.label}
 										</div>
 									))}
 								</div>

@@ -370,6 +370,26 @@ export const cache_store = create(
 									num_loaded: 0,
 									updated_at: Date.now(),
 								},
+								user_threads_insights: {
+									...(state.user_threads_insights ?? {
+										data: {},
+										is_loading: false,
+										updated_at: Date.now(),
+										error: null,
+										num_loading: 0,
+									}),
+									is_loading: true,
+								},
+								user_threads_replies: {
+									...(state.user_threads_replies ?? {
+										data: {},
+										is_loading: false,
+										updated_at: Date.now(),
+										error: null,
+										num_loading: 0,
+									}),
+									is_loading: true,
+								},
 							}));
 
 							void fetchAllPages();

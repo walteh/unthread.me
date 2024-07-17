@@ -5,6 +5,7 @@ import ReactApexChart from "react-apexcharts";
 import { useInsightsByDateRange } from "@src/client/hooks/useInsightsByDate";
 import useTimePeriod, { useTimePeriodListOfDays } from "@src/client/hooks/useTimePeriod";
 import { analyzeTrendWithLinearRegression, formatNumber, InsightsByDate, MLData, transormFullDataForML } from "@src/lib/ml";
+import { TimePeriod } from "@src/threadsapi/types";
 
 import Toggle from "./Toggle";
 
@@ -66,13 +67,25 @@ const UserInsightsChartView2: FC = () => {
 
 	const [labelsOnChart] = useState<boolean>(false);
 
-	const [dataWithCorrectedTrend, slope] = useMemo(() => {
+	const [includeToday, setIncludeToday] = useState<boolean>(true);
+
+	const analysis = useMemo(() => {
 		const dataWithToday = chartTypeData.mldata(data);
 		const dataWithouToday = dataWithToday.slice(0, dataWithToday.length - 1);
-		const analysis = analyzeTrendWithLinearRegression(dataWithouToday);
-		const dataWithCorrectedTrend = analysis.trend.concat(analysis.nextValue);
-		return [dataWithCorrectedTrend, analysis.slope];
-	}, [data, chartTypeData]);
+		if (includeToday) {
+			const analysis = analyzeTrendWithLinearRegression(dataWithToday);
+			return {
+				dataWithCorrectedTrend: analysis.trend,
+				slope: analysis.slope,
+			};
+		} else {
+			const analysis = analyzeTrendWithLinearRegression(dataWithouToday);
+			return {
+				dataWithCorrectedTrend: analysis.trend.concat(analysis.nextValue),
+				slope: analysis.slope,
+			};
+		}
+	}, [data, chartTypeData, includeToday]);
 
 	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
@@ -212,7 +225,7 @@ const UserInsightsChartView2: FC = () => {
 			},
 			{
 				name: "trend",
-				data: dataWithCorrectedTrend.map((value, index) => ({
+				data: analysis.dataWithCorrectedTrend.map((value, index) => ({
 					x: currentDays[index],
 					y: value,
 				})),
@@ -234,7 +247,7 @@ const UserInsightsChartView2: FC = () => {
 		chartTypeData,
 		logarithmic,
 		chartType,
-		dataWithCorrectedTrend,
+		analysis,
 	]);
 
 	useEffect(() => {
@@ -260,54 +273,88 @@ const UserInsightsChartView2: FC = () => {
 
 	return (
 		<div className="flex flex-col items-center h-full  pb-20">
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					// marginTop: "1rem",
-				}}
-			>
-				<select id="timePeriod" value={timePeriod.label} onChange={handleTimePeriodChange} className="p-2 border rounded  pr-10">
-					{Object.entries(timePeriods).map(([, tp]) => (
-						<option key={tp.label} value={tp.label}>
-							{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
-						</option>
-					))}
-				</select>
-
-				<select
-					id="chartType"
-					value={chartType}
-					onChange={(e) => {
-						setChartType(e.target.value as keyof typeof chartTypes);
-					}}
-					className="p-2 border rounded  pr-10"
-				>
-					{Object.entries(chartTypes).map(([key, value]) => (
-						<option key={key} value={key}>
-							{value.name}
-						</option>
-					))}
-				</select>
-
-				<div>
-					<span>log</span>
-					<Toggle label="log" enabled={logarithmic} setEnabled={setLogarithmic} />
-				</div>
-
-				<div>
-					{slope && (
-						<p>
-							{formatNumber(slope)} per day
-							{/* {equation} */}
-						</p>
-					)}
-				</div>
-			</div>
+			<Selector
+				timePeriod={timePeriod}
+				timePeriods={timePeriods}
+				handleTimePeriodChange={handleTimePeriodChange}
+				chartType={chartType}
+				setChartType={setChartType}
+				logarithmic={logarithmic}
+				setLogarithmic={setLogarithmic}
+				includeToday={includeToday}
+				setIncludeToday={setIncludeToday}
+				analysis={analysis}
+			/>
 			<div ref={chartContainerRef} className="sm:p-10 p-3 w-full max-h-full">
 				{Chart}
 			</div>
+		</div>
+	);
+};
+
+interface MyComponentProps {
+	timePeriod: TimePeriod;
+	timePeriods: Record<string, TimePeriod>;
+	handleTimePeriodChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+	chartType: string;
+	setChartType: React.Dispatch<React.SetStateAction<keyof typeof chartTypes>>;
+	logarithmic: boolean;
+	setLogarithmic: React.Dispatch<React.SetStateAction<boolean>>;
+	includeToday: boolean;
+	setIncludeToday: React.Dispatch<React.SetStateAction<boolean>>;
+	analysis: { slope: number; dataWithCorrectedTrend: number[] };
+}
+
+const Selector: React.FC<MyComponentProps> = ({
+	timePeriod,
+	timePeriods,
+	handleTimePeriodChange,
+	chartType,
+	setChartType,
+	logarithmic,
+	setLogarithmic,
+	includeToday,
+	setIncludeToday,
+	analysis,
+}) => {
+	return (
+		<div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 p-4">
+			<select
+				id="timePeriod"
+				value={timePeriod.label}
+				onChange={handleTimePeriodChange}
+				className="p-2 border rounded pr-10 bg-white dark:bg-gray-800 dark:text-white"
+			>
+				{Object.entries(timePeriods).map(([, tp]) => (
+					<option key={tp.label} value={tp.label}>
+						{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
+					</option>
+				))}
+			</select>
+
+			<select
+				id="chartType"
+				value={chartType}
+				onChange={(e) => {
+					setChartType(e.target.value as keyof typeof chartTypes);
+				}}
+				className="p-2 border rounded pr-10 bg-white dark:bg-gray-800 dark:text-white"
+			>
+				{Object.entries(chartTypes).map(([key, value]) => (
+					<option key={key} value={key}>
+						{value.name}
+					</option>
+				))}
+			</select>
+
+			<div className="flex items-center space-x-2">
+				<span className="text-gray-700 dark:text-gray-300">Log</span>
+				<Toggle label="log" enabled={logarithmic} setEnabled={setLogarithmic} />
+				<span className="text-gray-700 dark:text-gray-300">Include Today</span>
+				<Toggle label="include today" enabled={includeToday} setEnabled={setIncludeToday} />
+			</div>
+
+			<div className="text-gray-700 dark:text-gray-300">{analysis.slope && <p>{formatNumber(analysis.slope)} per day</p>}</div>
 		</div>
 	);
 };
