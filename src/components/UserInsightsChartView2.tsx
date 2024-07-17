@@ -4,7 +4,9 @@ import ReactApexChart from "react-apexcharts";
 
 import { useInsightsByDateRange } from "@src/client/hooks/useInsightsByDate";
 import useTimePeriod, { useTimePeriodListOfDays } from "@src/client/hooks/useTimePeriod";
-import { analyzeTrendWithLinearRegression, InsightsByDate, MLData, transormFullDataForML } from "@src/lib/ml";
+import { analyzeTrendWithLinearRegression, formatNumber, InsightsByDate, MLData, transormFullDataForML } from "@src/lib/ml";
+
+import Toggle from "./Toggle";
 
 const chartTypes = {
 	"user views": {
@@ -47,7 +49,7 @@ const UserInsightsChartView2: FC = () => {
 
 	const [chartType, setChartType] = useState<keyof typeof chartTypes>("user views");
 
-	const [logarithmic, setLogarithmic] = useState<boolean>(false);
+	const [logarithmic, setLogarithmic] = useState<boolean>(true);
 
 	// const [insights] = useUserInsights();
 	// const [threads] = useThreadsListSortedByDate();
@@ -64,9 +66,15 @@ const UserInsightsChartView2: FC = () => {
 
 	const [labelsOnChart] = useState<boolean>(false);
 
-	const Chart = useMemo(() => {
-		const analysis = analyzeTrendWithLinearRegression(chartTypeData.mldata(data));
+	const [dataWithCorrectedTrend, slope] = useMemo(() => {
+		const dataWithToday = chartTypeData.mldata(data);
+		const dataWithouToday = dataWithToday.slice(0, dataWithToday.length - 1);
+		const analysis = analyzeTrendWithLinearRegression(dataWithouToday);
+		const dataWithCorrectedTrend = analysis.trend.concat(analysis.nextValue);
+		return [dataWithCorrectedTrend, analysis.slope];
+	}, [data, chartTypeData]);
 
+	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "area",
@@ -105,8 +113,7 @@ const UserInsightsChartView2: FC = () => {
 							const formatter = Intl.NumberFormat("en", {
 								notation: "compact",
 								compactDisplay: "short",
-								// maximumSignificantDigits: 2,
-								useGrouping: true,
+								minimumFractionDigits: 0,
 							});
 							return formatter.format(val);
 						},
@@ -115,40 +122,19 @@ const UserInsightsChartView2: FC = () => {
 						formatter: (val) => {
 							const formatter = Intl.NumberFormat("en", {
 								notation: "compact",
-								compactDisplay: "short",
-								maximumSignificantDigits: 2,
-								useGrouping: true,
+								minimumFractionDigits: 0,
 							});
 							return formatter.format(val);
 						},
 					},
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} post replies`,
-					// },
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} post reposts`,
-					// },
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} post quotes`,
-					// },
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} posts`,
-					// },
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} likes`,
-					// },
-					// {
-					// 	formatter: (val) => `${val.toLocaleString()} thread views`,
-					// },
 				],
 			},
 
 			yaxis: [
 				{
-					opposite: true,
 					labels: {
 						formatter: (val) => {
-							const formatter = Intl.NumberFormat("en", { notation: "compact" });
+							const formatter = Intl.NumberFormat("en", { notation: "compact", minimumSignificantDigits: 2 });
 							return formatter.format(val);
 						},
 						show: labelsOnChart,
@@ -157,80 +143,14 @@ const UserInsightsChartView2: FC = () => {
 					logBase: 2,
 					show: labelsOnChart,
 				},
-				// {
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 		show: labelsOnChart,
-				// 	},
-				// 	logarithmic: true,
-				// 	logBase: 2,
-				// 	show: labelsOnChart,
-				// },
-				// {
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 		show: labelsOnChart,
-				// 	},
-				// 	logarithmic: true,
-				// 	logBase: 2,
-				// 	show: labelsOnChart,
-				// },
-				// {
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 		show: labelsOnChart,
-				// 	},
-				// 	logarithmic: true,
-				// 	logBase: 2,
-				// 	show: labelsOnChart,
-				// },
-				// {
-				// 	labels: {
-				// 		formatter: (val) => {
-				// 			const formatter = Intl.NumberFormat("en", { notation: "compact" });
-				// 			return formatter.format(val);
-				// 		},
-				// 		show: labelsOnChart,
-				// 	},
-				// 	logarithmic: true,
-				// 	logBase: 2,
-				// 	show: labelsOnChart,
-				// },
 			],
 			xaxis: {
 				categories: currentDays,
 				type: "datetime",
 
 				labels: {
-					// formatter(value, timestamp, opts) {
-					// 	return new Date(value).toLocaleDateString();
-					// },
-					// add the day of week
 					format: "dd MMM yyyy",
-					// datetimeUTC
-					// datetimeFormatter: {
-					// 	year: "",
-					// 	// month: "MMM 'yy",
-					// 	day: "MMM dd",
-					// 	// hour: "HH:mm",
-					// },
 					show: labelsOnChart,
-					// show: true,
-					// rotate: -45,
-					// style: {
-					// 	fontSize: "12px",
-					// 	// fontFamily: "Inter, sans-serif",
-					// 	colors: "#9aa0ac",
-					// },
 				},
 				axisBorder: {
 					show: labelsOnChart,
@@ -264,17 +184,20 @@ const UserInsightsChartView2: FC = () => {
 
 					gradientToColors: ["#10B981"],
 				},
+
 				// colors: ["#1C64F2", "#EF4444", "#10B981", "#F59E0B"],
 			},
 			dataLabels: {
 				enabled: false,
 			},
-			forecastDataPoints: {},
+			forecastDataPoints: {
+				count: 1,
+			},
 		};
 
 		const chartSeries: ApexAxisChartSeries = [
 			{
-				name: "user views",
+				name: chartType,
 				data: Object.entries(insights)
 					.map(([k, value]) => ({
 						x: k,
@@ -285,58 +208,34 @@ const UserInsightsChartView2: FC = () => {
 				color: "#1C64F2",
 				type: "line",
 				zIndex: 2,
+				group: chartType,
 			},
 			{
-				name: "user views trend",
-				data: analysis.trend.map((value, index) => ({
+				name: "trend",
+				data: dataWithCorrectedTrend.map((value, index) => ({
 					x: currentDays[index],
 					y: value,
 				})),
 				color: "#AFAFAF",
 				type: "line",
 				zIndex: 1,
+				group: chartType,
 			},
-
-			// {
-			// 	name: "post likes",
-			// 	data: insights.map((value) => ({
-			// 		x: value.date,
-			// 		y: value.cumlativePostInsights.total_likes,
-			// 	})),
-			// 	color: "#1C64F2",
-			// 	type: "line",
-			// },
-			// {
-			// 	name: "post replies",
-			// 	data: insights.map((value) => ({
-			// 		x: value.date,
-			// 		y: value.cumlativePostInsights.total_replies,
-			// 	})),
-			// 	color: "#1C64F2",
-			// 	type: "line",
-			// },
-			// {
-			// 	name: "post reposts",
-			// 	data: insights.map((value) => ({
-			// 		x: value.date,
-			// 		y: value.cumlativePostInsights.total_reposts,
-			// 	})),
-			// 	color: "#1C64F2",
-			// 	type: "line",
-			// },
-			// {
-			// 	name: "post quotes",
-			// 	data: insights.map((value) => ({
-			// 		x: value.date,
-			// 		y: value.cumlativePostInsights.total_quotes,
-			// 	})),
-			// 	color: "#1C64F2",
-			// 	type: "line",
-			// },
 		];
 
 		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} height={chartHeight} type="area" />;
-	}, [insights, currentDays, chartWidth, labelsOnChart, chartHeight, chartTypeData, data, logarithmic]);
+	}, [
+		//
+		insights,
+		currentDays,
+		chartWidth,
+		labelsOnChart,
+		chartHeight,
+		chartTypeData,
+		logarithmic,
+		chartType,
+		dataWithCorrectedTrend,
+	]);
 
 	useEffect(() => {
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -392,14 +291,19 @@ const UserInsightsChartView2: FC = () => {
 					))}
 				</select>
 
-				<button
-					onClick={() => {
-						setLogarithmic((l) => !l);
-					}}
-					className="p-2 border rounded  pr-10"
-				>
-					{logarithmic ? "Logarithmic" : "Linear"}
-				</button>
+				<div>
+					<span>log</span>
+					<Toggle label="log" enabled={logarithmic} setEnabled={setLogarithmic} />
+				</div>
+
+				<div>
+					{slope && (
+						<p>
+							{formatNumber(slope)} per day
+							{/* {equation} */}
+						</p>
+					)}
+				</div>
 			</div>
 			<div ref={chartContainerRef} className="sm:p-10 p-3 w-full max-h-full">
 				{Chart}

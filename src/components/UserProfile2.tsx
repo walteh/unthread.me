@@ -4,6 +4,7 @@ import useCacheStore from "@src/client/hooks/useCacheStore";
 import useModalStore from "@src/client/hooks/useModalStore";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useUserInsights from "@src/client/hooks/useUserInsights";
+import { formatNumber } from "@src/lib/ml";
 
 import DailyReportView from "./DailyReportView";
 import Modal from "./Modal";
@@ -11,10 +12,6 @@ import UserInsightsChartView2 from "./UserInsightsChartView2";
 import UserThreadsView from "./UserThreadsView";
 import WordSegmentLineChart from "./WordSegmentLineChart";
 
-const formatNumber = (number: number) => {
-	const formatter = Intl.NumberFormat("en", { notation: "compact" });
-	return formatter.format(number);
-};
 const Loader = () => (
 	<div className="flex justify-center items-center h-full mr-1">
 		<div className="loader ease-linear rounded-full border-2 border-t-2 border-gray-200 h-4 w-4"></div>
@@ -32,6 +29,7 @@ export default function UserProfile2() {
 	const insightsL = useCacheStore((state) => state.user_insights);
 	const threadsL = useCacheStore((state) => state.user_threads);
 	const followerDemographicsL = useCacheStore((state) => state.user_follower_demographics);
+	const threadsInsightsL = useCacheStore((state) => state.user_threads_insights);
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
@@ -45,6 +43,7 @@ export default function UserProfile2() {
 		{ label: "insights", data: insightsL },
 		{ label: "demographics", data: followerDemographicsL },
 		{ label: "threads", data: threadsL },
+		{ label: "thread insights", data: threadsInsightsL },
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);

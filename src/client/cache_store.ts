@@ -52,6 +52,7 @@ interface NestedDataResponse<T extends keyof NestedUserDataTypes> {
 	data: Record<string, NestedDataDataResponse<T> | null>;
 	is_loading: boolean;
 	updated_at: number;
+	num_loading: number;
 	error: string | null;
 }
 
@@ -79,26 +80,45 @@ export const cache_store = create(
 				(set) => {
 					const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
 						try {
-							const result = await get_media_insights(ky, token, id);
-
 							set((state) => ({
 								user_threads_insights: {
-									...state.user_threads_insights,
-									data: {
-										...state.user_threads_insights?.data,
-										[id]: {
-											data: result,
+									...(state.user_threads_insights ??
+										({
+											data: {},
 											is_loading: false,
 											updated_at: Date.now(),
 											error: null,
-											expired: false,
-										},
-									},
-									is_loading: false,
-									updated_at: Date.now(),
-									error: null,
+											num_loading: 0,
+										} as NestedDataResponse<"user_threads_insights">)),
+									num_loading: (state.user_threads_insights?.num_loading ?? 0) + 1,
+									is_loading: true,
 								},
 							}));
+
+							const result = await get_media_insights(ky, token, id);
+
+							set((state) => {
+								const num_loading = (state.user_threads_insights?.num_loading ?? 0) - 1;
+								return {
+									user_threads_insights: {
+										...state.user_threads_insights,
+										data: {
+											...state.user_threads_insights?.data,
+											[id]: {
+												data: result,
+												updated_at: Date.now(),
+												error: null,
+												expired: false,
+												is_loading: false,
+											},
+										},
+										num_loading: num_loading,
+										is_loading: num_loading !== 0,
+										updated_at: Date.now(),
+										error: null,
+									},
+								};
+							});
 						} catch (error) {
 							console.error("Error fetching thread insights:", error);
 
@@ -109,6 +129,7 @@ export const cache_store = create(
 									is_loading: false,
 									updated_at: Date.now(),
 									error: null,
+									num_loading: (state.user_threads_insights?.num_loading ?? 0) - 1,
 								},
 							}));
 						}
@@ -116,26 +137,54 @@ export const cache_store = create(
 
 					const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
 						try {
-							const response = await get_conversation(ky, token, id);
-
 							set((state) => ({
 								user_threads_replies: {
-									...state.user_threads_replies,
+									...(state.user_threads_replies ?? {
+										is_loading: false,
+										updated_at: Date.now(),
+										error: null,
+										expired: false,
+										num_loading: 0,
+										data: {},
+									}),
+									num_loading: (state.user_threads_replies?.num_loading ?? 0) + 1,
 									data: {
-										...state.user_threads_replies?.data,
+										...(state.user_threads_replies?.data ?? {}),
 										[id]: {
-											data: response,
-											is_loading: false,
+											data: {} as ConversationResponse,
+											is_loading: true,
 											updated_at: Date.now(),
 											error: null,
 											expired: false,
 										},
 									},
-									is_loading: false,
-									updated_at: Date.now(),
-									error: null,
 								},
 							}));
+
+							const result = await get_conversation(ky, token, id);
+
+							set((state) => {
+								const num_loading = (state.user_threads_replies?.num_loading ?? 0) - 1;
+								return {
+									user_threads_replies: {
+										...state.user_threads_replies,
+										data: {
+											...state.user_threads_replies?.data,
+											[id]: {
+												data: result,
+												updated_at: Date.now(),
+												error: null,
+												expired: false,
+												is_loading: false,
+											},
+										},
+										num_loading: num_loading,
+										is_loading: num_loading !== 0,
+										updated_at: Date.now(),
+										error: null,
+									},
+								};
+							});
 						} catch (error) {
 							console.error("Error fetching thread replies:", error);
 
@@ -146,6 +195,7 @@ export const cache_store = create(
 									is_loading: false,
 									updated_at: Date.now(),
 									error: null,
+									num_loading: (state.user_threads_replies?.num_loading ?? 0) - 1,
 								},
 							}));
 						}
@@ -229,31 +279,35 @@ export const cache_store = create(
 						},
 
 						clearCache: () => {
-							set(() => ({
-								user_profile: null,
-								user_insights: null,
-								user_threads: null,
-								user_follower_demographics: null,
-								user_threads_replies: null,
-								user_threads_insights: null,
-							}));
+							set(() => {
+								return {
+									user_profile: null,
+									user_insights: null,
+									user_threads: null,
+									user_follower_demographics: null,
+									user_threads_replies: null,
+									user_threads_insights: null,
+								};
+							});
 						},
 
-						updateThreadData: (data: Record<string, ThreadMedia>) => {
-							set((state) => ({
-								user_threads: {
-									...state.user_threads,
-									data: {
-										...state.user_threads?.data,
-										...data,
-									},
-									is_loading: false,
-									updated_at: Date.now(),
-									error: null,
-									expired: false,
-								},
-							}));
-						},
+						// updateThreadData: (data: Record<string, ThreadMedia>) => {
+						// 	set((state) => {
+						// 		const newData = { ...state.user_threads?.data, ...data };
+
+						// 		return {
+						// 			user_threads: {
+						// 				...state.user_threads,
+						// 				data: newData,
+						// 				is_loading: false,
+						// 				updated_at: Date.now(),
+						// 				error: null,
+						// 				num_loaded: Object.keys(data).length,
+						// 				expired: false,
+						// 			},
+						// 		};
+						// 	});
+						// },
 
 						loadThreadsData: (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
 							const fetchAllPages = async (cursor?: string): Promise<void> => {
@@ -269,16 +323,23 @@ export const cache_store = create(
 													return acc;
 												}, {}),
 											},
+											// num_loaded: state.user_threads.num_loaded + response.data.length,
 											is_loading: response.paging?.cursors.after ? true : false,
 											updated_at: Date.now(),
 											error: null,
 										},
 									}));
 
-									for (const thread of response.data) {
-										void loadThreadRepliesData(ky, token, thread.id);
-										void loadThreadInsightsData(ky, token, thread.id);
-									}
+									const help = () => {
+										for (const thread of response.data) {
+											// run in batches of 5
+
+											void loadThreadRepliesData(ky, token, thread.id);
+											void loadThreadInsightsData(ky, token, thread.id);
+										}
+									};
+
+									help();
 
 									if (response.paging?.cursors.after) {
 										await fetchAllPages(response.paging.cursors.after);
@@ -290,6 +351,7 @@ export const cache_store = create(
 										user_threads: {
 											// ...state.user_threads,
 											data: state.user_threads?.data ?? null,
+											// num_loaded: 0,
 											is_loading: false,
 											updated_at: Date.now(),
 											error: "Failed to fetch user threads",
@@ -305,6 +367,7 @@ export const cache_store = create(
 									is_loading: true,
 									error: null,
 									expired: false,
+									num_loaded: 0,
 									updated_at: Date.now(),
 								},
 							}));
@@ -317,7 +380,7 @@ export const cache_store = create(
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
-				version: 3,
+				version: 6,
 			},
 		),
 	),

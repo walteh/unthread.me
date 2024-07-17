@@ -138,8 +138,6 @@ export const isbd = (
 	const okay = this_day_last_month(date);
 	const ONE_DAY = 24 * 60 * 60 * 1000;
 
-	console.log({ date, okay });
-
 	return {
 		relativeInsights: () => ({}) as RelativeInsightsByDate,
 		totalUserViews: totalViews,
@@ -159,12 +157,12 @@ export const isbd = (
 };
 
 const this_day_last_month = (date: string): string => {
-	const month = new Date(date).getUTCMonth() + 1;
-	const year = new Date(date).getUTCFullYear();
+	const month = new Date(date).getMonth() + 1;
+	const year = new Date(date).getFullYear();
 	const lastMonth = month === 1 ? 12 : month - 1;
 	const lastYear = month === 1 ? year - 1 : year;
 	const lastMonthDays = new Date(lastYear, lastMonth, 0).getUTCDate();
-	const today = new Date(date).getUTCDate();
+	const today = new Date(date).getDate();
 
 	// If today is greater than last month's last day, return last month's last day
 	if (today > lastMonthDays) return `${lastYear}-${lastMonth.toString().padStart(2, "0")}-${lastMonthDays.toString().padStart(2, "0")}`;
@@ -226,10 +224,6 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 			...isi.cumlativePostInsights,
 		};
 
-		// if (!found && total_likes + total_replies + total_reposts + total_quotes + total_views === 0) return;
-
-		// found = true;
-
 		dates.push(today);
 		viewsData.push(total_views);
 		likesData.push(total_likes);
@@ -240,12 +234,10 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 
 	// r
 
-	console.log({ dates, viewsData, likesData, repliesData, repostsData, quotesData });
-
 	return { dates, viewsData, likesData, repliesData, repostsData, quotesData };
 };
 
-const movingAverage = (data: number[], windowSize: number): number[] => {
+export const movingAverage = (data: number[], windowSize: number): number[] => {
 	const result = [];
 	for (let i = 0; i <= data.length - windowSize; i++) {
 		const window = data.slice(i, i + windowSize);
@@ -255,8 +247,13 @@ const movingAverage = (data: number[], windowSize: number): number[] => {
 	return result;
 };
 
-export const analyzeTrendWithLinearRegression = (data: number[]): { trend: number[]; nextValue: number } => {
-	if (data.length === 0) return { trend: [], nextValue: NaN };
+export const formatNumber = (number: number) => {
+	const formatter = Intl.NumberFormat("en", { notation: "compact", minimumFractionDigits: 0 });
+	return formatter.format(number);
+};
+
+export const analyzeTrendWithLinearRegression = (data: number[]) => {
+	if (data.length === 0) return { trend: [] as number[], nextValue: NaN, slope: NaN, intercept: NaN };
 
 	const points = data.map((value, index) => [index, value]);
 	const regression = linearRegression(points);
@@ -265,29 +262,12 @@ export const analyzeTrendWithLinearRegression = (data: number[]): { trend: numbe
 	const trend = data.map((_, index) => predict(index));
 	const nextValue = predict(data.length);
 
-	return { trend, nextValue: parseFloat(nextValue.toFixed(2)) };
-};
+	const slope = regression.m;
+	const intercept = regression.b;
 
-export const analyzeTrend = (data: number[], windowSize = 30): { trend: number[]; nextValue: number } => {
-	if (data.length === 0) return { trend: [], nextValue: NaN };
+	// console.log("Trend:", trend);
+	// console.log("Next Value:", nextValue);
+	// console.log("Equation:", equation);
 
-	// Calculate moving average
-	const trend = movingAverage(data, windowSize);
-
-	// Predict the next value using the last moving average value
-	const nextValue = trend[trend.length - 1];
-
-	return { trend, nextValue };
-};
-
-export const detectAnomalies = (data: number[]): boolean[] => {
-	if (data.length === 0) return [];
-
-	const mean = tf.mean(data).dataSync()[0];
-	const std = tf.moments(data).variance.sqrt().dataSync()[0];
-
-	return data.map((value) => {
-		const zScore = (value - mean) / std;
-		return Math.abs(zScore) > 2; // Anomaly if z-score > 2
-	});
+	return { trend, nextValue: parseFloat(nextValue.toFixed(2)), slope, intercept };
 };
