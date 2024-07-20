@@ -32,6 +32,8 @@ const fetch_conversation_page = async (
 			searchParams,
 			headers: {
 				"Content-Type": "application/json",
+				// zstd encoding
+				"Accept-Encoding": "zstd",
 			},
 			timeout: 10000,
 		})

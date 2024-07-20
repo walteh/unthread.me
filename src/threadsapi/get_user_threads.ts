@@ -38,6 +38,7 @@ export const fetch_user_threads_page = async (
 			searchParams,
 			headers: {
 				"Content-Type": "application/json",
+				"Accept-Encoding": "zstd",
 			},
 			timeout: 10000,
 		})

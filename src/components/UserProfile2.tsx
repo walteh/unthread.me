@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import useCacheStore from "@src/client/hooks/useCacheStore";
+import { useThreadsAPILast25Updater } from "@src/client/hooks/useCacheStoreUpdaters";
 import useModalStore from "@src/client/hooks/useModalStore";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useUserInsights from "@src/client/hooks/useUserInsights";
@@ -24,12 +25,16 @@ export default function UserProfile2() {
 	const [threads] = useThreadsListSortedByDate();
 
 	const refresh = useCacheStore((state) => state.clearCache);
+	const refreshProfile = useCacheStore((state) => state.clearUserData);
+	const refreshThreads = useCacheStore((state) => state.clearThreads);
+	const [refreshLast25, refreshLast25Loading] = useThreadsAPILast25Updater();
 
 	const profileL = useCacheStore((state) => state.user_profile);
 	const insightsL = useCacheStore((state) => state.user_insights);
 	const threadsL = useCacheStore((state) => state.user_threads);
 	const followerDemographicsL = useCacheStore((state) => state.user_follower_demographics);
 	const threadsInsightsL = useCacheStore((state) => state.user_threads_insights);
+	const threadsRepliesL = useCacheStore((state) => state.user_threads_replies);
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
@@ -44,7 +49,31 @@ export default function UserProfile2() {
 		{ label: "demographics", is_loading: followerDemographicsL?.is_loading ?? false },
 		{ label: "threads", is_loading: threadsL?.is_loading ?? false },
 		{ label: "thread insights", is_loading: (threadsInsightsL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
-		{ label: "threads replies", is_loading: (threadsInsightsL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
+		{ label: "threads replies", is_loading: (threadsRepliesL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
+	];
+
+	const refreshers = [
+		{
+			label: "user data",
+			action: () => {
+				refreshProfile();
+			},
+			isLoading: profileL?.is_loading ?? insightsL?.is_loading ?? followerDemographicsL?.is_loading ?? false,
+		},
+		{
+			label: "all threads",
+			action: () => {
+				refreshThreads();
+			},
+			isLoading: threadsL?.is_loading ?? threadsInsightsL?.is_loading ?? threadsRepliesL?.is_loading ?? false,
+		},
+		{
+			label: "threads last 2 days",
+			action: () => {
+				refreshLast25();
+			},
+			isLoading: refreshLast25Loading,
+		},
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
@@ -116,6 +145,22 @@ export default function UserProfile2() {
 								</div>
 							</button>
 						</div>
+					</div>
+				</div>
+
+				<div>
+					<div className="grid grid-cols-3 gap-4 px-4">
+						{refreshers.map((tab) => (
+							<button
+								key={tab.label}
+								onClick={tab.action}
+								className="flex px-2 py-3 m-5 font-rounded rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50   text-md font-semibold shadow-md hover:scale-110 transform transition duration-200 ease-in-out hover:shadow-xl"
+							>
+								<div className="ml-3 flex text-xs">
+									{tab.isLoading ? <Loader /> : "🔄"} {tab.label}
+								</div>
+							</button>
+						))}
 					</div>
 				</div>
 

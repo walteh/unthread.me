@@ -78,6 +78,88 @@ export const cache_store = create(
 					user_threads_insights: null,
 				} as UserDataStoreData,
 				(set) => {
+					const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
+						const promises: Promise<void>[] = [];
+						// let count = 0;
+						const fetchAllPages = async (cursor?: string): Promise<void> => {
+							try {
+								const response = await fetch_user_threads_page(ky, token, params, cursor);
+
+								set((state) => ({
+									user_threads: {
+										data: {
+											...state.user_threads?.data,
+											...response.data.reduce<Record<string, ThreadMedia>>((acc, thread) => {
+												acc[thread.id] = thread;
+												return acc;
+											}, {}),
+										},
+										// num_loaded: state.user_threads.num_loaded + response.data.length,
+										is_loading: response.paging?.cursors.after ? true : false,
+										updated_at: Date.now(),
+										error: null,
+									},
+								}));
+
+								for (const thread of response.data) {
+									promises.push(loadThreadRepliesData(ky, token, thread.id));
+									promises.push(loadThreadInsightsData(ky, token, thread.id));
+								}
+
+								if (response.paging?.cursors.after && !params?.limit) {
+									await fetchAllPages(response.paging.cursors.after);
+								}
+							} catch (error) {
+								console.error("Error fetching user threads:", error);
+
+								set((state) => ({
+									user_threads: {
+										// ...state.user_threads,
+										data: state.user_threads?.data ?? null,
+										// num_loaded: 0,
+										is_loading: false,
+										updated_at: Date.now(),
+										error: "Failed to fetch user threads",
+										expired: false,
+									},
+								}));
+							}
+						};
+
+						set((state) => ({
+							user_threads: {
+								data: state.user_threads?.data ?? null,
+								is_loading: true,
+								error: null,
+								expired: false,
+								num_loaded: 0,
+								updated_at: Date.now(),
+							},
+							user_threads_insights: {
+								...(state.user_threads_insights ?? {
+									data: {},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+									num_loading: 0,
+								}),
+								is_loading: true,
+							},
+							user_threads_replies: {
+								...(state.user_threads_replies ?? {
+									data: {},
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+									num_loading: 0,
+								}),
+								is_loading: true,
+							},
+						}));
+
+						await fetchAllPages();
+						await Promise.all(promises);
+					};
 					const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
 						try {
 							set((state) => ({
@@ -291,6 +373,43 @@ export const cache_store = create(
 							});
 						},
 
+						clearUserData: () => {
+							set(() => {
+								return {
+									user_profile: null,
+									user_insights: null,
+									user_follower_demographics: null,
+								};
+							});
+						},
+
+						loadThreadsData,
+
+						refreshLast25Threads: async (ky: KyInstance, token: AccessTokenResponse) => {
+							set((state) => {
+								if (state.user_threads) {
+									state.user_threads.is_loading = true;
+								} else {
+									state.user_threads = {
+										data: null,
+										is_loading: true,
+										updated_at: Date.now(),
+										error: null,
+									};
+								}
+								return state;
+							});
+							await loadThreadsData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` });
+						},
+
+						clearThreads: () => {
+							set(() => ({
+								user_threads: null,
+								user_threads_replies: null,
+								user_threads_insights: null,
+							}));
+						},
+
 						// updateThreadData: (data: Record<string, ThreadMedia>) => {
 						// 	set((state) => {
 						// 		const newData = { ...state.user_threads?.data, ...data };
@@ -308,92 +427,6 @@ export const cache_store = create(
 						// 		};
 						// 	});
 						// },
-
-						loadThreadsData: (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
-							const fetchAllPages = async (cursor?: string): Promise<void> => {
-								try {
-									const response = await fetch_user_threads_page(ky, token, params, cursor);
-
-									set((state) => ({
-										user_threads: {
-											data: {
-												...state.user_threads?.data,
-												...response.data.reduce<Record<string, ThreadMedia>>((acc, thread) => {
-													acc[thread.id] = thread;
-													return acc;
-												}, {}),
-											},
-											// num_loaded: state.user_threads.num_loaded + response.data.length,
-											is_loading: response.paging?.cursors.after ? true : false,
-											updated_at: Date.now(),
-											error: null,
-										},
-									}));
-
-									const help = () => {
-										for (const thread of response.data) {
-											// run in batches of 5
-
-											void loadThreadRepliesData(ky, token, thread.id);
-											void loadThreadInsightsData(ky, token, thread.id);
-										}
-									};
-
-									help();
-
-									if (response.paging?.cursors.after) {
-										await fetchAllPages(response.paging.cursors.after);
-									}
-								} catch (error) {
-									console.error("Error fetching user threads:", error);
-
-									set((state) => ({
-										user_threads: {
-											// ...state.user_threads,
-											data: state.user_threads?.data ?? null,
-											// num_loaded: 0,
-											is_loading: false,
-											updated_at: Date.now(),
-											error: "Failed to fetch user threads",
-											expired: false,
-										},
-									}));
-								}
-							};
-
-							set((state) => ({
-								user_threads: {
-									data: state.user_threads?.data ?? null,
-									is_loading: true,
-									error: null,
-									expired: false,
-									num_loaded: 0,
-									updated_at: Date.now(),
-								},
-								user_threads_insights: {
-									...(state.user_threads_insights ?? {
-										data: {},
-										is_loading: false,
-										updated_at: Date.now(),
-										error: null,
-										num_loading: 0,
-									}),
-									is_loading: true,
-								},
-								user_threads_replies: {
-									...(state.user_threads_replies ?? {
-										data: {},
-										is_loading: false,
-										updated_at: Date.now(),
-										error: null,
-										num_loading: 0,
-									}),
-									is_loading: true,
-								},
-							}));
-
-							void fetchAllPages();
-						},
 					};
 				},
 			),

@@ -1,5 +1,5 @@
 import ky, { KyInstance } from "ky";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { AccessTokenResponse } from "@src/threadsapi/types";
 
@@ -101,9 +101,38 @@ export const useInitialThreadsLoader = () => {
 	useEffect(() => {
 		if (isLoggedIn && !data) {
 			const kyi = ky.create({ prefixUrl: "https://graph.threads.net" });
-			fetchData(kyi, accessToken, { all_time: true });
+			void fetchData(kyi, accessToken, { all_time: true });
 		}
 	}, [isLoggedIn, accessToken, data, fetchData, setLoading, setError]);
 
 	return null;
+};
+
+export const useThreadsAPILast25Updater = () => {
+	const refresh = useCacheStore((state) => state.refreshLast25Threads);
+	const [isLoading, setLoading] = useState(false);
+
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
+
+	const caller = useCallback(() => {
+		async function fetchData(token: AccessTokenResponse) {
+			setLoading(true);
+			try {
+				const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
+				await refresh(kyd, token);
+			} catch (error) {
+				console.error(`Error fetching data for last 25 threads:`, error);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		if (isLoggedIn) {
+			void fetchData(accessToken);
+		}
+
+		return;
+	}, [isLoggedIn, accessToken, refresh, setLoading]);
+
+	return [caller, isLoading] as const;
 };

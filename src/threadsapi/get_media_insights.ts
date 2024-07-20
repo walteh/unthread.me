@@ -38,6 +38,7 @@ export const get_media_insights_with_params = async (
 			searchParams,
 			headers: {
 				"Content-Type": "application/json",
+				"Accept-Encoding": "zstd",
 			},
 			retry: 2,
 			hooks: {
