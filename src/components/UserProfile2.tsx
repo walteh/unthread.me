@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 
 import useCacheStore from "@src/client/hooks/useCacheStore";
-import { useThreadsAPILast25Updater } from "@src/client/hooks/useCacheStoreUpdaters";
 import useModalStore from "@src/client/hooks/useModalStore";
+import { useAllThreadsRefresher, useLast2DaysThreadsRefresher, useUserDataRefresher } from "@src/client/hooks/useRefreshers";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useUserInsights from "@src/client/hooks/useUserInsights";
 import { formatNumber } from "@src/lib/ml";
@@ -24,10 +24,9 @@ export default function UserProfile2() {
 	const [insights] = useUserInsights();
 	const [threads] = useThreadsListSortedByDate();
 
-	const refresh = useCacheStore((state) => state.clearCache);
-	const refreshProfile = useCacheStore((state) => state.clearUserData);
-	const refreshThreads = useCacheStore((state) => state.clearThreads);
-	const [refreshLast25, refreshLast25Loading] = useThreadsAPILast25Updater();
+	const [refreshLast2DayThreads, refreshLast2DayThreadsLoading, refreshLast2DayThreadsErr] = useLast2DaysThreadsRefresher();
+	const [refreshAllThreads, refreshAllThreadsLoading, refreshAllThreadsErr] = useAllThreadsRefresher();
+	const [refreshUserData, refreshUserDataLoading, refreshUserDataError] = useUserDataRefresher();
 
 	const profileL = useCacheStore((state) => state.user_profile);
 	const insightsL = useCacheStore((state) => state.user_insights);
@@ -55,30 +54,25 @@ export default function UserProfile2() {
 	const refreshers = [
 		{
 			label: "user data",
-			action: () => {
-				refreshProfile();
-			},
-			isLoading: profileL?.is_loading ?? insightsL?.is_loading ?? followerDemographicsL?.is_loading ?? false,
+			action: refreshUserData,
+			isLoading: refreshUserDataLoading,
+			error: refreshUserDataError,
 		},
 		{
 			label: "all threads",
-			action: () => {
-				refreshThreads();
-			},
-			isLoading: threadsL?.is_loading ?? threadsInsightsL?.is_loading ?? threadsRepliesL?.is_loading ?? false,
+			action: refreshAllThreads,
+			isLoading: refreshAllThreadsLoading,
+			error: refreshAllThreadsErr,
 		},
 		{
 			label: "threads last 2 days",
-			action: () => {
-				refreshLast25();
-			},
-			isLoading: refreshLast25Loading,
+			action: refreshLast2DayThreads,
+			isLoading: refreshLast2DayThreadsLoading,
+			error: refreshLast2DayThreadsErr,
 		},
 	];
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
-
-	// const clear = useCacheStore((state) => state.clearCache);
 
 	const [setOpenModal] = useModalStore((state) => [state.setOpen]);
 

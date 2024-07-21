@@ -2,6 +2,7 @@ import { KyInstance } from "ky";
 import { create } from "zustand";
 import { combine, createJSONStorage, devtools, persist } from "zustand/middleware";
 
+import threadsapi from "@src/threadsapi";
 import get_conversation from "@src/threadsapi/get_conversation";
 import get_media_insights from "@src/threadsapi/get_media_insights";
 import { fetch_user_threads_page, GetUserThreadsParams } from "@src/threadsapi/get_user_threads";
@@ -216,7 +217,6 @@ export const cache_store = create(
 							}));
 						}
 					};
-
 					const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: string) => {
 						try {
 							set((state) => ({
@@ -283,7 +283,46 @@ export const cache_store = create(
 						}
 					};
 
+					const loadUserData = async (ky: KyInstance, token: AccessTokenResponse) => {
+						const prof = threadsapi.get_user_profile(ky, token).then((data) => {
+							set(() => ({
+								user_profile: {
+									data,
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						});
+
+						const ins = threadsapi.get_user_insights(ky, token).then((data) => {
+							set(() => ({
+								user_insights: {
+									data,
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						});
+
+						const dem = threadsapi.get_follower_demographics(ky, token).then((data) => {
+							set(() => ({
+								user_follower_demographics: {
+									data,
+									is_loading: false,
+									updated_at: Date.now(),
+									error: null,
+								},
+							}));
+						});
+
+						await Promise.all([prof, ins, dem]);
+
+						return;
+					};
 					return {
+						loadUserData,
 						updateNestedData: <G extends keyof NestedUserDataTypes, T extends NestedUserDataTypes[G]>(
 							key: G,
 							id: string,
@@ -385,7 +424,7 @@ export const cache_store = create(
 
 						loadThreadsData,
 
-						refreshLast25Threads: async (ky: KyInstance, token: AccessTokenResponse) => {
+						refreshThreadsLast2Days: async (ky: KyInstance, token: AccessTokenResponse) => {
 							set((state) => {
 								if (state.user_threads) {
 									state.user_threads.is_loading = true;
