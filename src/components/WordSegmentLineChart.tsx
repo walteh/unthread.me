@@ -15,7 +15,7 @@ const WordSegmentLineChart: FC = () => {
 	const [wordSegmentType, setWordSegmentType] = useState<WordType>("nouns");
 	const [metric, setMetric] = useState<MetricKey>("average_views");
 
-	const threadsByTimePeriod = useTimePeriodFilteredData(threads, (thread) => thread.timestamp, timePeriod);
+	const threadsByTimePeriod = useTimePeriodFilteredData(threads, (thread) => thread.media.timestamp, timePeriod);
 	const words = useByWord(threadsByTimePeriod);
 
 	const [chartContainerRef, setChartContainerRef] = useState<HTMLDivElement | null>(null);

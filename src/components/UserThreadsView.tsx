@@ -1,8 +1,9 @@
 import { FC, useState } from "react";
 
-import useThreadInfo from "@src/client/hooks/useThreadInfo";
+import { ThreadID } from "@src/client/cache_store";
+import useCacheStore from "@src/client/hooks/useCacheStore";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
-import { Reply, ThreadMedia } from "@src/threadsapi/types";
+import { Reply } from "@src/threadsapi/types";
 
 const UserThreadsView = () => {
 	const [threads] = useThreadsListSortedByDate();
@@ -29,8 +30,8 @@ const UserThreadsView = () => {
 			</div>
 			<div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
 				{threads.map((thread, idx) => (
-					<div key={thread.id} className={thread.text?.includes(search) ? "" : "hidden"}>
-						<ThreadCard thread={thread} idx={threads.length - idx} />
+					<div key={thread.id} className={thread.media.text?.includes(search) ? "" : "hidden"}>
+						<ThreadCard threadid={thread.id} idx={threads.length - idx} />
 					</div>
 				))}
 			</div>
@@ -38,14 +39,22 @@ const UserThreadsView = () => {
 	);
 };
 
-const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) => {
-	const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
+const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) => {
+	// const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
+
+	const thread = useCacheStore((state) => state.user_threads[threadid]);
+
+	const likes = thread.insights?.total_likes ?? 0;
+	const views = thread.insights?.total_views ?? 0;
+	const replyCount = thread.replies?.data.length ?? 0;
+	const quotes = thread.insights?.total_quotes ?? 0;
+	const reposts = thread.insights?.total_reposts ?? 0;
 
 	return (
 		<div className="bg-gray-50 backdrop-blur-xl bg-opacity-75 sm:p-6 p-4 rounded-3xl shadow-2xl m-1 max-w-xl  relative">
 			<button
 				onClick={() => {
-					window.open(thread.permalink, "_blank");
+					window.open(thread.media.permalink, "_blank");
 				}}
 				className="absolute shadow-sm inline-flex items-center gap-x-1.5 rounded-full bg-black px-3 py-2 text-xs font-medium text-white font-mono -top-4 right-1 hover:scale-115 transform transition duration-200 ease-in-out"
 			>
@@ -57,38 +66,40 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 				</span>
 				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
 					{/* week day */}
-					{new Date(thread.timestamp).toLocaleString("en-US", { weekday: "short" }).toUpperCase()}
+					{new Date(thread.media.timestamp).toLocaleString("en-US", { weekday: "short" }).toUpperCase()}
 				</span>
 				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
-					{new Date(thread.timestamp).toLocaleDateString()}
+					{new Date(thread.media.timestamp).toLocaleDateString()}
 				</span>
 				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800 font-mono">
-					{new Date(thread.timestamp).toLocaleTimeString()}
+					{new Date(thread.media.timestamp).toLocaleTimeString()}
 				</span>
 
 				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
-					{thread.media_type}
+					{thread.media.media_type}
 				</span>
 				{likes > 0 && (
 					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-red-100 px-3 py-2 text-xs font-medium text-red-800">
 						<svg className="h-3 w-3 fill-red-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
-						{likes} likes
+						{thread.insights?.total_likes} likes
 					</span>
 				)}
-				<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-xs font-medium text-blue-800">
-					<svg className="h-3 w-3 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
-						<circle cx={3} cy={3} r={3} />
-					</svg>
-					{views} views
-				</span>
-				{replies.length > 0 && (
+				{views > 0 && (
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-blue-100 px-3 py-2 text-xs font-medium text-blue-800">
+						<svg className="h-3 w-3 fill-blue-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{views} views
+					</span>
+				)}
+				{replyCount > 0 && (
 					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
 						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
-						{replies.length} replies
+						{replyCount} replies
 					</span>
 				)}
 				{quotes > 0 && (
@@ -107,7 +118,7 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 						{reposts} reposts
 					</span>
 				)}
-				{thread.is_quote_post && (
+				{thread.media.is_quote_post && (
 					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-gray-100 px-3 py-2 text-xs font-medium text-gray-800">
 						QUOTE
 					</span>
@@ -117,15 +128,19 @@ const ThreadCard: FC<{ thread: ThreadMedia; idx: number }> = ({ thread, idx }) =
 				className="shadow-md sm:text-2xl text-lg font-mono text-gray-800 bg-slate-100 px-5 py-3 rounded-lg"
 				style={{ whiteSpace: "pre-wrap" }}
 			>
-				{thread.text}
+				{thread.media.text}
 			</p>
-			{thread.media_url && (
+			{thread.media.media_url && (
 				<div className="px-5  pt-5 flex justify-center max-w-full">
-					{(thread.media_type === "IMAGE" || thread.media_type === "CAROUSEL_ALBUM") && (
-						<img src={thread.media_url} alt="Media" className="rounded-2xl  border-solid shadow-2xl" />
+					{(thread.media.media_type === "IMAGE" || thread.media.media_type === "CAROUSEL_ALBUM") && (
+						<img src={thread.media.media_url} alt="Media" className="rounded-2xl  border-solid shadow-2xl" />
 					)}
-					{thread.media_type === "VIDEO" && <video src={thread.media_url} controls className="rounded-2xl shadow-2xl" />}
-					{thread.media_type === "AUDIO" && <audio src={thread.media_url} controls className="rounded-2xl shadow-2xl" />}
+					{thread.media.media_type === "VIDEO" && (
+						<video src={thread.media.media_url} controls className="rounded-2xl shadow-2xl" />
+					)}
+					{thread.media.media_type === "AUDIO" && (
+						<audio src={thread.media.media_url} controls className="rounded-2xl shadow-2xl" />
+					)}
 					{/* {thread.is_quote_post &&
 						thread.children?.map((quote) => (
 							<div key={quote.id} className="bg-gray-100 p-4 rounded-lg shadow-sm mt-4">

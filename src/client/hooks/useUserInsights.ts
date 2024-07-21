@@ -9,7 +9,7 @@ const useUserInsights = () => {
 	const demoGraphics = useCacheStore((state) => state.user_follower_demographics);
 
 	const dataReformt = useMemo(() => {
-		if (!data?.data) {
+		if (!data) {
 			return {
 				total_likes: 0,
 				total_views: 0,
@@ -22,14 +22,12 @@ const useUserInsights = () => {
 		}
 
 		return {
-			...data.data,
-
-			// Adjust the data here
+			...data,
 		} as SimplifedMetricTypeMap & SimplifiedDemographicMetric;
 	}, [data]);
 
 	const demoReformat = useMemo(() => {
-		if (!demoGraphics?.data) {
+		if (!demoGraphics) {
 			return {
 				demographics_by_age: [],
 				demographics_by_country: [],
@@ -39,10 +37,10 @@ const useUserInsights = () => {
 		}
 
 		return {
-			demographics_by_age: demoGraphics.data.age.simplified_values.sort((a, b) => a.value - b.value),
-			demographics_by_country: demoGraphics.data.country.simplified_values.sort((a, b) => a.value - b.value),
-			demographics_by_city: demoGraphics.data.city.simplified_values.sort((a, b) => a.value - b.value),
-			demographics_by_gender: demoGraphics.data.gender.simplified_values.sort((a, b) => a.value - b.value),
+			demographics_by_age: demoGraphics.age.simplified_values.sort((a, b) => a.value - b.value),
+			demographics_by_country: demoGraphics.country.simplified_values.sort((a, b) => a.value - b.value),
+			demographics_by_city: demoGraphics.city.simplified_values.sort((a, b) => a.value - b.value),
+			demographics_by_gender: demoGraphics.gender.simplified_values.sort((a, b) => a.value - b.value),
 
 			// Adjust the data here
 		} as SimplifiedDemographicMetric;

@@ -3,20 +3,13 @@ import { IoLogoGithub } from "react-icons/io5";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
-import { useInitialThreadsAPIUserDataUpdater, useInitialThreadsLoader } from "./client/hooks/useCacheStoreUpdaters";
 import useFeatureFlagUpdater from "./client/hooks/useFeatureFlagUpdater";
 import Home from "./components/Home";
-import threadsapi from "./threadsapi";
 
 const App: FC = () => {
 	useFeatureFlagUpdater();
 	useAccessTokenUpdater();
 	// useBackgroundUpdater();
-
-	useInitialThreadsAPIUserDataUpdater("user_profile", threadsapi.get_user_profile);
-	useInitialThreadsLoader();
-	useInitialThreadsAPIUserDataUpdater("user_insights", threadsapi.get_user_insights);
-	useInitialThreadsAPIUserDataUpdater("user_follower_demographics", threadsapi.get_follower_demographics);
 
 	return (
 		<>

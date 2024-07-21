@@ -28,27 +28,13 @@ export default function UserProfile2() {
 	const [refreshAllThreads, refreshAllThreadsLoading, refreshAllThreadsErr] = useAllThreadsRefresher();
 	const [refreshUserData, refreshUserDataLoading, refreshUserDataError] = useUserDataRefresher();
 
-	const profileL = useCacheStore((state) => state.user_profile);
-	const insightsL = useCacheStore((state) => state.user_insights);
-	const threadsL = useCacheStore((state) => state.user_threads);
-	const followerDemographicsL = useCacheStore((state) => state.user_follower_demographics);
-	const threadsInsightsL = useCacheStore((state) => state.user_threads_insights);
-	const threadsRepliesL = useCacheStore((state) => state.user_threads_replies);
+	const clearThreads = useCacheStore((state) => state.clearThreads);
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
 		{ label: "all time likes", value: formatNumber(insights.total_likes), real_value: insights.total_likes },
 		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views },
 		{ label: "all time threads", value: formatNumber(threads.length), real_value: threads.length },
-	];
-
-	const loaders = [
-		{ label: "profile", is_loading: profileL?.is_loading ?? false },
-		{ label: "insights", is_loading: insightsL?.is_loading ?? false },
-		{ label: "demographics", is_loading: followerDemographicsL?.is_loading ?? false },
-		{ label: "threads", is_loading: threadsL?.is_loading ?? false },
-		{ label: "thread insights", is_loading: (threadsInsightsL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
-		{ label: "threads replies", is_loading: (threadsRepliesL?.is_loading ?? false) || (threadsL?.is_loading ?? false) },
 	];
 
 	const refreshers = [
@@ -110,34 +96,15 @@ export default function UserProfile2() {
 				<div className="p-6 ">
 					<div className="sm:flex sm:items-center sm:justify-center">
 						<div className=" flex justify-around sm:mt-0">
-							<button
-								onClick={refresh}
-								className="flex flex-col items-center justify-center rounded-xl bg-white px-6 py-5 text-sm font-semibold text-gray-900 shadow-md border-4 hover:scale-110 hover:shadow-xl transform transition duration-200 ease-in-out"
-							>
-								<div className="sm:flex sm:space-x-5 ">
-									<div className="flex-shrink-0">
-										<img
-											className="mx-auto h-20 w-20 rounded-xl"
-											src={profile?.data?.threads_profile_picture_url}
-											alt=""
-										/>
-									</div>
-									<div className="text-center sm:text-left my-2 max-w-72 flex items-center flex-col">
-										<p className="truncate text-3xl font-bold font-rounded text-gray-900 max-w-72 ">
-											@{profile?.data?.username}
-										</p>
-										<p className="mt-3 text-lg">🔄 cache</p>
-									</div>
+							<div className="sm:flex sm:space-x-5 ">
+								<div className="flex-shrink-0">
+									<img className="mx-auto h-20 w-20 rounded-xl" src={profile?.threads_profile_picture_url} alt="" />
 								</div>
-
-								<div className="    rounded-md  text-xs w-full mt-2 grid grid-cols-2 gap-2">
-									{loaders.map((stat) => (
-										<div key={stat.label} className="ml-3 flex text-xs">
-											{stat.is_loading ? <Loader /> : "✅"} {stat.label}
-										</div>
-									))}
+								<div className="text-center sm:text-left my-2 max-w-72 flex items-center flex-col">
+									<p className="truncate text-3xl font-bold font-rounded text-gray-900 max-w-72 ">@{profile?.username}</p>
+									<p className="mt-3 text-lg">🔄 cache</p>
 								</div>
-							</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -157,6 +124,15 @@ export default function UserProfile2() {
 						))}
 					</div>
 				</div>
+
+				<button
+					onClick={() => {
+						clearThreads();
+					}}
+					className="flex px-2 py-3 m-5 font-rounded rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50   text-md font-semibold shadow-md hover:scale-110 transform transition duration-200 ease-in-out hover:shadow-xl"
+				>
+					clear cache
+				</button>
 
 				{/* <div
 				className={`grid grid-cols-1 divide-y divide-gray-200 border-t border-gray-200 bg-gray-50 lg:grid-cols-4 sm:divide-x sm:divide-y-0`}

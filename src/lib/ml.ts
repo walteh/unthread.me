@@ -1,6 +1,7 @@
 import { linearRegression, linearRegressionLine } from "simple-statistics";
 
-import { SimplifedMediaMetricTypeMap, SimplifedMetricTypeMap, ThreadMedia } from "@src/threadsapi/types";
+import { CachedThreadData } from "@src/client/cache_store";
+import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
 export interface InsightsByDate {
 	dateInfo: {
@@ -14,15 +15,7 @@ export interface InsightsByDate {
 		this_day_last_month: string;
 	};
 	totalUserViews: number;
-	threadsListWithInsights: (ThreadMedia & {
-		insights: {
-			total_views: number;
-			total_likes: number;
-			total_replies: number;
-			total_reposts: number;
-			total_quotes: number;
-		};
-	})[];
+
 	cumlativePostInsights: {
 		total_likes: number;
 		total_replies: number;
@@ -45,23 +38,18 @@ export interface RelativeInsightsByDate {
 	this_day_last_month: InsightsByDate;
 }
 
-export const isdbAll = (
-	userInsights: SimplifedMetricTypeMap,
-	userThreads: ThreadMedia[],
-	userThreadsInsights: Record<string, { data: SimplifedMediaMetricTypeMap }>,
-): Record<string, InsightsByDate> => {
+export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
-	return isdbRange(startDate, endDate, userInsights, userThreads, userThreadsInsights);
+	return isdbRange(startDate, endDate, userInsights, userThreads);
 };
 
 export const isdbRange = (
 	startDate: Date,
 	endDate: Date,
-	userInsights: SimplifedMetricTypeMap,
-	userThreads: ThreadMedia[],
-	userThreadsInsights: Record<string, { data: SimplifedMediaMetricTypeMap }>,
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
 ): Record<string, InsightsByDate> => {
 	const days: string[] = [];
 
@@ -72,7 +60,7 @@ export const isdbRange = (
 	const wrk = days
 		.reverse()
 		.map((date) => {
-			return isbd(date, userInsights, userThreads, userThreadsInsights);
+			return isbd(date, userInsights, userThreads);
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {
 			acc[data.dateInfo.today] = data;
@@ -98,26 +86,14 @@ export const isdbRange = (
 	return wrk;
 };
 
-export const isbd = (
-	date: string,
-	userInsights: SimplifedMetricTypeMap,
-	userThreads: ThreadMedia[],
-	userThreadsInsights: Record<string, { data: SimplifedMediaMetricTypeMap }>,
-): InsightsByDate => {
-	const threadsListWithInsights = userThreads
-		.filter((v) => new Date(v.timestamp).toISOString().slice(0, 10) === date)
-		.map((v) => {
-			const insights = userThreadsInsights[v.id];
-			return {
-				...v,
-				insights: insights.data,
-			};
-		});
+export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): InsightsByDate => {
+	if (!userInsights) return {} as InsightsByDate;
 
 	const totalViews = userInsights.views_by_day.filter((v) => new Date(v.label).toISOString().slice(0, 10) === date)[0]?.value ?? 0;
 
-	const cumlativePostInsights = threadsListWithInsights.reduce(
+	const cumlativePostInsights = userThreads.reduce(
 		(acc, data) => {
+			if (!data.insights) return acc;
 			return {
 				total_likes: acc.total_likes + data.insights.total_likes,
 				total_replies: acc.total_replies + data.insights.total_replies,
@@ -141,7 +117,6 @@ export const isbd = (
 	return {
 		relativeInsights: () => ({}) as RelativeInsightsByDate,
 		totalUserViews: totalViews,
-		threadsListWithInsights,
 		cumlativePostInsights,
 		dateInfo: {
 			today: date,

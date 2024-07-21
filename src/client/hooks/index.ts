@@ -6,7 +6,6 @@ import useFeatureFlagStrore from "./useFeatureFlagStrore";
 import useModalStore from "./useModalStore";
 import useSessionStore from "./useSessionStore";
 import useThreadInfo from "./useThreadInfo";
-import useThreadInfoCallbacks from "./useThreadInfoCallbacks";
 import useThreadInfoListByDateRange from "./useThreadInfoListByDateRange";
 import useThreadsListByDate from "./useThreadsListByDate";
 import useTimePeriod from "./useTimePeriod";
@@ -22,7 +21,6 @@ export default {
 	useSessionStore,
 	useModalStore,
 	useThreadInfo,
-	useThreadInfoCallbacks,
 	useCacheStore,
 	useAccessTokenUpdater,
 	useBackgroundUpdater,

@@ -1,31 +1,16 @@
-import { useMemo } from "react";
+import { ThreadID } from "../cache_store";
+import useCacheStore from "./useCacheStore";
 
-import { ThreadMedia } from "@src/threadsapi/types";
+const useThreadInfo = (thread: ThreadID) => {
+	const likes = useCacheStore((state) => state.user_threads[thread].insights?.total_likes ?? 0);
 
-import useThreadInfoCallbacks from "./useThreadInfoCallbacks";
+	const views = useCacheStore((state) => state.user_threads[thread].insights?.total_views ?? 0);
 
-const useThreadInfo = (thread: ThreadMedia) => {
-	const [getLikes, getViews, getReplies, getQuotes, getReposts] = useThreadInfoCallbacks();
+	const replies = useCacheStore((state) => state.user_threads[thread].replies?.data ?? []);
 
-	const likes = useMemo(() => {
-		return getLikes(thread);
-	}, [getLikes, thread]);
+	const quotes = useCacheStore((state) => state.user_threads[thread].insights?.total_quotes ?? 0);
 
-	const views = useMemo(() => {
-		return getViews(thread);
-	}, [getViews, thread]);
-
-	const replies = useMemo(() => {
-		return getReplies(thread);
-	}, [getReplies, thread]);
-
-	const quotes = useMemo(() => {
-		return getQuotes(thread);
-	}, [getQuotes, thread]);
-
-	const reposts = useMemo(() => {
-		return getReposts(thread);
-	}, [getReposts, thread]);
+	const reposts = useCacheStore((state) => state.user_threads[thread].insights?.total_reposts ?? 0);
 
 	return [likes, views, replies, quotes, reposts] as const;
 };

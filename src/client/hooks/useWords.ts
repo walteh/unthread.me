@@ -3,9 +3,7 @@ import { outMethods } from "node_modules/compromise/types/misc";
 import Three from "node_modules/compromise/types/view/three";
 import { useMemo } from "react";
 
-import { ThreadMedia } from "@src/threadsapi/types";
-
-import useThreadInfoCallbacks from "./useThreadInfoCallbacks";
+import { CachedThreadData } from "../cache_store";
 
 interface WordInsightStats {
 	total_likes: number;
@@ -20,7 +18,7 @@ export type MetricKey = keyof WordInsightStats;
 interface WordInsight {
 	word: string;
 	type: WordType;
-	threads: ThreadMedia[];
+	// threads: CachedThreadData[];
 	stats: WordInsightStats;
 }
 
@@ -28,21 +26,21 @@ export const extractMetics = (data: WordInsight, key: MetricKey): number => {
 	return data.stats[key];
 };
 
-export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
-	const [getLikes, getViews] = useThreadInfoCallbacks();
+export const useByWord = (data: CachedThreadData[]): WordInsight[] => {
 	return useMemo(() => {
 		const resp = data.reduce<Record<WordSegment, WordInsight | undefined>>((acc, thread) => {
-			if (thread.text) {
-				const views = getViews(thread);
-				const likes = getLikes(thread);
-				const list = segmentText(thread.text);
+			if (!thread.media || !thread.insights) return acc;
+			if (thread.media.text) {
+				const likes = thread.insights.total_likes;
+				const views = thread.insights.total_views;
+				const list = segmentText(thread.media.text);
 				list.forEach((wordobj) => {
 					const word = wordFromSegment(wordobj);
 					if (word === " " || word === "") return;
 					if (acc[wordobj]) {
 						acc[wordobj].stats.total_likes += likes;
 						acc[wordobj].stats.total_views += views;
-						acc[wordobj].threads.push({ ...thread, text: `[${likes} - ${views}] ${thread.text}` });
+						// acc[wordobj].threads.push({ ...thread, text: `[${likes} - ${views}] ${thread.media.text}` });
 						acc[wordobj].stats.total_count += 1;
 					} else {
 						acc[wordobj] = {
@@ -55,7 +53,7 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 								average_views: 0,
 							},
 							type: typeFromSegment(wordobj),
-							threads: [{ ...thread, text: `[${likes} - ${views}] ${thread.text}` }],
+							// threads: [{ ...thread, text: `[${likes} - ${views}] ${thread.text}` }],
 						};
 					}
 				});
@@ -77,7 +75,7 @@ export const useByWord = (data: ThreadMedia[]): WordInsight[] => {
 					average_views: word.stats.total_views / word.stats.total_count,
 				},
 			}));
-	}, [data, getViews, getLikes]);
+	}, [data]);
 };
 
 export type WordType = Lowercase<keyof typeof methodMap>;
