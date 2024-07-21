@@ -55,7 +55,7 @@ const useAccessTokenUpdater = () => {
 					console.error(err);
 				});
 		}
-	}, [searchParams, setSearchParams, updateAccessToken, updateIsLoggingIn]);
+	}, [searchParams, setSearchParams, updateAccessToken, updateIsLoggingIn, refreshAllThreads, refreshThreads, refreshUserProfile]);
 
 	/// generate or refresh long-lived access token
 	// if long lived access token is not present and short-lived access token is present -> generate long-lived access token

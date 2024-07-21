@@ -82,11 +82,22 @@ export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads
 	return isdbRange(startDate, endDate, userInsights, userThreads);
 };
 
+export const isdbAllNoRelative = (
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: MinimalThreadData[],
+): Record<string, InsightsByDate> => {
+	const startDate = new Date("2024-04-01");
+	const endDate = new Date();
+
+	return isdbRange(startDate, endDate, userInsights, userThreads, false);
+};
+
 export const isdbRange = (
 	startDate: Date,
 	endDate: Date,
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: MinimalThreadData[],
+	includeRelativeInsights = true,
 ): Record<string, InsightsByDate> => {
 	const days: string[] = [];
 
@@ -104,6 +115,8 @@ export const isdbRange = (
 
 			return acc;
 		}, {});
+
+	if (!includeRelativeInsights) return wrk;
 
 	Object.keys(wrk).forEach((value) => {
 		const today = value;
