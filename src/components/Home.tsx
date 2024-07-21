@@ -62,7 +62,7 @@ const Home: FC = () => {
 	if (!isLoggedIn) {
 		return (
 			<div className="flex items-center justify-center flex-col ">
-				<div className="flex flex-col items-center m-10  w-80 dark:text-gray-100 text-gray-900">
+				<div className="flex flex-col items-center m-5  w-80 dark:text-gray-100 text-gray-900">
 					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">welcome!</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
@@ -84,8 +84,8 @@ const Home: FC = () => {
 					</span>
 				</div>
 
-				<div>
-					<label className="flex items-center space-x-3 w-80 mb-2">
+				<div className="mb-5">
+					<label className="flex items-center space-x-3 w-80">
 						<input
 							type="checkbox"
 							checked={checked}
