@@ -9,7 +9,7 @@ import threadsapi from "@src/threadsapi";
 const Home: FC = () => {
 	const [is_logging_in] = useSessionStore((state) => [state.is_logging_in] as const);
 
-	const [is_an_idiot] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
+	const [is_alpha_user] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
 
 	const [isLoggedIn, ,] = useIsLoggedIn();
 	if (is_logging_in) {
@@ -22,10 +22,10 @@ const Home: FC = () => {
 		);
 	}
 
-	if (!is_an_idiot) {
+	if (!is_alpha_user) {
 		return (
 			<div className="flex items-center justify-center flex-col">
-				<div className="flex flex-col items-center m-10 mt-0 w-96 text-center  dark:text-gray-100 text-gray-900">
+				<div className="flex flex-col items-center m-10 mt-0 w-80 text-center  dark:text-gray-100 text-gray-900">
 					<span className="text-3xl font-extrabold  tracking-wide  font-rounded">🧱</span>
 					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">under construction</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
@@ -62,7 +62,7 @@ const Home: FC = () => {
 	if (!isLoggedIn) {
 		return (
 			<div className="flex items-center justify-center flex-col ">
-				<div className="flex flex-col items-center m-10 w-96">
+				<div className="flex flex-col items-center m-10  w-80">
 					<span className="text-xl font-extrabold text-gray-900 tracking-wide  font-rounded mb-5">welcome!</span>
 					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
 						unthread.me lets you access you threads api data in a free and secure way

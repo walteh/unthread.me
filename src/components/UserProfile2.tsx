@@ -154,7 +154,7 @@ export default function UserProfile2() {
 
 	return (
 		<div className="font-rounded flex justify-center flex-col items-center">
-			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-20 mx-4 sm:max-w-screen-lg">
+			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-20 mx-4 sm:max-w-screen-lg mb-2">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>
@@ -175,7 +175,7 @@ export default function UserProfile2() {
 				</div>
 
 				<div>
-					<div className="grid sm:grid-cols-3 gap-2 p-8 pt-0">
+					<div className="grid sm:grid-cols-3 gap-2 px-8 pt-0 pb-4">
 						{refreshers.map((tab) => (
 							<button
 								key={tab.label}
@@ -202,7 +202,7 @@ export default function UserProfile2() {
 					</div>
 				</div>
 
-				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 lg:grid-cols-${stats.length}`}>
+				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
 						<div key={stat.label}>
 							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group hover:bg-gray-200 backdrop-blur-lg bg-opacity-50 shadow-md">
@@ -246,7 +246,7 @@ export default function UserProfile2() {
 					))}
 				</div>
 
-				<div className={`grid grid-cols-2 gap-4 lg:grid-cols-${items.length} p-4`}>
+				<div className={`grid grid-cols-2 gap-4 sm:grid-cols-${items.length} p-4`}>
 					{items.map((tab) => (
 						<button
 							key={tab.label}

@@ -7,6 +7,8 @@ import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import threadsapi from "@src/threadsapi";
 
+import useCacheStore from "./useCacheStore";
+
 const useAccessTokenUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const updateAccessToken = useTokenStore((state) => state.updateAccessToken);
@@ -16,6 +18,10 @@ const useAccessTokenUpdater = () => {
 	const updateLongLivedAccessToken = client.token_store((state) => state.updateLongLivedToken);
 	const accessToken = client.token_store((state) => state.access_token);
 	const [isLoggedIn] = useIsLoggedIn();
+
+	const refreshUserProfile = useCacheStore((state) => state.loadUserData);
+	const refreshThreads = useCacheStore((state) => state.refreshThreadsLast2Days);
+	const refreshAllThreads = useCacheStore((state) => state.loadThreadsData);
 	// const clearAccessToken = client.token_store((state) => state.clearAccessToken);
 
 	// update the access token if a code is present in the URL
@@ -26,8 +32,13 @@ const useAccessTokenUpdater = () => {
 			updateIsLoggingIn(true);
 			try {
 				const kyd = ky.create({ prefixUrl: "https://api.unthread.me/" });
+
 				const res = await threadsapi.exchange_code_for_short_lived_token(kyd, code);
 				updateAccessToken(res);
+				const kyd2 = ky.create({ prefixUrl: "https://graph.threads.net" });
+				void refreshUserProfile(kyd2, res);
+				void refreshThreads(kyd2, res);
+				void refreshAllThreads(kyd2, res);
 			} catch (error) {
 				console.error("Error updating access token:", error);
 			} finally {
