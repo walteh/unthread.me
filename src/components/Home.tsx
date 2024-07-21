@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 
 import useFeatureFlagStore from "@src/client/hooks/useFeatureFlagStrore";
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
@@ -10,6 +10,8 @@ const Home: FC = () => {
 	const [is_logging_in] = useSessionStore((state) => [state.is_logging_in] as const);
 
 	const [is_alpha_user] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
+
+	const [checked, setChecked] = useState<boolean>(false);
 
 	const [isLoggedIn, ,] = useIsLoggedIn();
 	if (is_logging_in) {
@@ -73,6 +75,21 @@ const Home: FC = () => {
 					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
 						your threads login token is passed through a secure oauth flow and never stored or logged on our servers
 					</span>
+				</div>
+
+				<div>
+					<label className="flex items-center space-x-3">
+						<input
+							type="checkbox"
+							checked={checked}
+							onChange={(e) => {
+								setChecked(e.target.checked);
+							}}
+						/>
+						<span className="text-gray-900 dark:text-gray-100">
+							I understand this app has not yet gone through the meta approval process and am using it at my own risk
+						</span>
+					</label>
 				</div>
 
 				<button
