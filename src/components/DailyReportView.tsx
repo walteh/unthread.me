@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-import { useInsightsByAll } from "@src/client/hooks/useInsightsByDate";
+import { useDaily } from "@src/client/hooks/useInsightsByDate";
 import { InsightsByDate } from "@src/lib/ml";
 
 const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, insights }) => {
@@ -23,7 +23,7 @@ const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, ins
 };
 
 export default function DailyReportView() {
-	const allInsights = useInsightsByAll();
+	const allInsights = useDaily();
 	const dates = Object.keys(allInsights);
 
 	return (

@@ -3,18 +3,42 @@ import { linearRegression, linearRegressionLine } from "simple-statistics";
 import { CachedThreadData } from "@src/client/cache_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
+// export function getDateStringInPacificTime(date: Date) {
+// 	const pacificTime = date.toLocaleString("en-US", {
+// 		timeZone: "America/Los_Angeles",
+// 		month: "2-digit",
+// 		day: "2-digit",
+// 		year: "numeric",
+// 	});
+
+// 	const split = pacificTime.split("/");
+// 	const formattedDate = `${split[2]}-${split[0].padStart(2, "0")}-${split[1].padStart(2, "0")}`;
+
+// 	return formattedDate;
+// }
+
 export function getDateStringInPacificTime(date: Date) {
-	const pacificTime = date.toLocaleString("en-US", {
-		timeZone: "America/Los_Angeles",
-		month: "2-digit",
-		day: "2-digit",
-		year: "numeric",
-	});
+	// Pacific Time (PT) is UTC-8 during standard time and UTC-7 during daylight saving time.
+	const PST_OFFSET = -8 * 60; // UTC-8 in minutes
+	const PDT_OFFSET = -7 * 60; // UTC-7 in minutes
 
-	const split = pacificTime.split("/");
-	const formattedDate = `${split[2]}-${split[0].padStart(2, "0")}-${split[1].padStart(2, "0")}`;
+	// Check if daylight saving time is in effect
+	const isDST = (d: Date) => {
+		const jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
+		const jul = new Date(d.getFullYear(), 6, 1).getTimezoneOffset();
+		return Math.max(jan, jul) !== d.getTimezoneOffset();
+	};
 
-	return formattedDate;
+	const offset = isDST(date) ? PDT_OFFSET : PST_OFFSET;
+
+	// Convert the date to PT by adjusting the timezone offset
+	const pacificDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000 + offset * 60000);
+
+	const year = pacificDate.getUTCFullYear();
+	const month = String(pacificDate.getUTCMonth() + 1).padStart(2, "0");
+	const day = String(pacificDate.getUTCDate()).padStart(2, "0");
+
+	return `${year}-${month}-${day}`;
 }
 
 export interface InsightsByDate {
