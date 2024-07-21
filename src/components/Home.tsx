@@ -78,7 +78,7 @@ const Home: FC = () => {
 				</div>
 
 				<div>
-					<label className="flex items-center space-x-3">
+					<label className="flex items-center space-x-3 w-80 mb-2">
 						<input
 							type="checkbox"
 							checked={checked}
@@ -97,7 +97,8 @@ const Home: FC = () => {
 						const authUrl = threadsapi.generate_auth_start_url();
 						window.open(authUrl.toString(), "_system");
 					}}
-					className="flex items-center bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105"
+					disabled={!checked}
+					className="flex items-center bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105 disabled:bg-gray-600"
 				>
 					login with
 					<img className="ml-2" width="20" src="./threads-logo-white.svg" alt="Threads Logo" />
