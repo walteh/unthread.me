@@ -65,19 +65,20 @@ const Home: FC = () => {
 				<div className="flex flex-col items-center m-5  w-80 dark:text-gray-100 text-gray-900">
 					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">welcome!</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
-						unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
+						<code>unthread.me</code> lets you access your threads api data in a <strong>free</strong> and{" "}
+						<strong>secure</strong> way
 					</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						all of your data is stored in your browser and <strong>never</strong> leaves your device
 					</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
-						your threads login token is passed through a secure oauth flow hosted at <code>api.unthread.me</code> and{" "}
+						your threads login token is passed through a secure oauth flow hosted at <code> api.unthread.me</code> and{" "}
 						<strong>never</strong> stored or logged
 					</span>
 
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						once your token is created, your browser interacts with the <strong>threads api directly</strong> at
-						<code>graph.threads.net</code>
+						<code> graph.threads.net</code>
 					</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						you only ever have <strong>READ</strong> access to your threads data
