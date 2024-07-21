@@ -86,7 +86,7 @@ export default function UserProfile2() {
 			error: refreshUserDataError,
 		},
 		{
-			label: "all threads",
+			label: "all threads (slow)",
 			action: refreshAllThreads,
 			isLoading: refreshAllThreadsLoading,
 			error: refreshAllThreadsErr,
@@ -217,7 +217,9 @@ export default function UserProfile2() {
 						</div>
 					))}
 				</div>
-				<div className={`grid grid-cols-3 gap-4 divide-gray-200 border-gray-200 px-4 lg:grid-cols-${todayStats.length} mt-3`}>
+				<div
+					className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${todayStats.length} mt-3 justify-center`}
+				>
 					{todayStats.map((stat) => (
 						<div key={stat.label}>
 							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group hover:bg-gray-200 backdrop-blur-lg bg-opacity-50 shadow-md">
