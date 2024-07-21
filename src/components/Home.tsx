@@ -40,11 +40,11 @@ const Home: FC = () => {
 						your threads login token is passed through a secure oauth flow hosted at <code> api.unthread.me</code> and{" "}
 						<strong>never</strong> stored or logged
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
+					<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
 						once your token is created, your browser interacts with the <strong>threads api directly</strong> at
 						<code> graph.threads.net</code>
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
+					<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
 						you only ever have <strong>READ</strong> access to your threads data
 					</span>
 					<span className="text-md  tracking-wide font-rounded">
@@ -62,8 +62,8 @@ const Home: FC = () => {
 	if (!isLoggedIn) {
 		return (
 			<div className="flex items-center justify-center flex-col ">
-				<div className="flex flex-col items-center m-10  w-80">
-					<span className="text-xl font-extrabold text-gray-900 tracking-wide  font-rounded mb-5">welcome!</span>
+				<div className="flex flex-col items-center m-10  w-80 dark:text-gray-100 text-gray-900">
+					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">welcome!</span>
 					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
 					</span>
@@ -75,11 +75,11 @@ const Home: FC = () => {
 						<strong>never</strong> stored or logged
 					</span>
 
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
+					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						once your token is created, your browser interacts with the <strong>threads api directly</strong> at
 						<code>graph.threads.net</code>
 					</span>
-					<span className="text-md text-gray-900 tracking-wide font-rounded  prose-p text-center mb-5">
+					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
 						you only ever have <strong>READ</strong> access to your threads data
 					</span>
 				</div>
