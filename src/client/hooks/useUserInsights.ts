@@ -23,7 +23,7 @@ const useUserInsights = () => {
 
 		return {
 			...data,
-		} as SimplifedMetricTypeMap & SimplifiedDemographicMetric;
+		} as SimplifedMetricTypeMap;
 	}, [data]);
 
 	const demoReformat = useMemo(() => {

@@ -109,10 +109,31 @@ export const get_user_insights_with_params = async (
 			switch (metric?.name) {
 				case "views":
 					allMetrics.views_by_day = allMetrics.views_by_day.concat(
-						(metric as TimeSeriesMetric).values.map((item) => ({
-							label: item.end_time,
-							value: item.value,
-						})),
+						(metric as TimeSeriesMetric).values.map((item) => {
+							// const date = new Date(item.end_time);
+							// // date.setTime(date.getTime() - 1000);
+							// const pacificTime = date.toLocaleString("en-US", {
+							// 	timeZone: "America/Los_Angeles",
+							// 	month: "2-digit",
+							// 	day: "2-digit",
+							// 	year: "numeric",
+							// });
+							// const datez = new Date(pacificTime);
+
+							// const year = datez.getFullYear();
+							// const month = String(datez.getMonth() + 1).padStart(2, "0");
+							// const day = String(datez.getDate()).padStart(2, "0");
+
+							// const formattedDate = `${year}-${month}-${day}`;
+
+							return {
+								// Subtract one minute (60000 milliseconds)
+
+								// label: formattedDate, /// thisis midnight pacific time returnred "2024-04-14T07:00:00+0000"
+								label: item.end_time,
+								value: item.value,
+							};
+						}),
 					);
 					allMetrics.total_views += (metric as TimeSeriesMetric).values.reduce((acc, item) => acc + item.value, 0);
 					break;

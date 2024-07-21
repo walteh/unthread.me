@@ -30,12 +30,13 @@ const fetch_conversation_page = async (
 	return await inst
 		.get(`v1.0/${mediaId}/conversation`, {
 			searchParams,
+			retry: 5,
 			headers: {
 				"Content-Type": "application/json",
 				// zstd encoding
 				"Accept-Encoding": "zstd",
 			},
-			timeout: 10000,
+			timeout: 30000,
 		})
 		.then((response) => response.json<ConversationResponse>())
 		.catch((error: unknown) => {

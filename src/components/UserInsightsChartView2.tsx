@@ -1,47 +1,14 @@
 import { ApexOptions } from "apexcharts";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { IoSettings } from "react-icons/io5";
 
-import { useInsightsByDateRange } from "@src/client/hooks/useInsightsByDate";
+import { useDarkMode } from "@src/client/hooks/useDarkMode";
+import useMLByDate, { chartTypes } from "@src/client/hooks/useMLByDate";
 import useTimePeriod, { useTimePeriodListOfDays } from "@src/client/hooks/useTimePeriod";
-import { analyzeTrendWithLinearRegression, formatNumber, InsightsByDate, MLData, transormFullDataForML } from "@src/lib/ml";
 import { TimePeriod } from "@src/threadsapi/types";
 
 import Toggle from "./Toggle";
-
-const chartTypes = {
-	"user views": {
-		name: "user views",
-		color: "#1C64F2",
-		mldata: (data: MLData) => data.viewsData,
-		isbd: (data: InsightsByDate) => data.totalUserViews,
-	},
-	"post likes": {
-		name: "post likes",
-		color: "#EF4444",
-		mldata: (data: MLData) => data.likesData,
-		isbd: (data: InsightsByDate) => data.cumlativePostInsights.total_likes,
-	},
-	"post replies": {
-		name: "post replies",
-		color: "#10B981",
-		mldata: (data: MLData) => data.repliesData,
-		isbd: (data: InsightsByDate) => data.cumlativePostInsights.total_replies,
-	},
-	"post reposts": {
-		name: "post reposts",
-		color: "#F59E0B",
-		mldata: (data: MLData) => data.repostsData,
-		isbd: (data: InsightsByDate) => data.cumlativePostInsights.total_reposts,
-	},
-
-	"post quotes": {
-		name: "post quotes",
-		color: "#3B82F6",
-		mldata: (data: MLData) => data.quotesData,
-		isbd: (data: InsightsByDate) => data.cumlativePostInsights.total_quotes,
-	},
-};
 
 const UserInsightsChartView2: FC = () => {
 	const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -57,35 +24,22 @@ const UserInsightsChartView2: FC = () => {
 
 	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
 
-	const insights = useInsightsByDateRange(timePeriod.start_date, timePeriod.end_date);
-
-	const data = transormFullDataForML(insights);
-
-	const chartTypeData = chartTypes[chartType];
-
 	const currentDays = useTimePeriodListOfDays(timePeriod);
 
 	const [labelsOnChart] = useState<boolean>(false);
 
-	const [includeToday, setIncludeToday] = useState<boolean>(true);
+	const [analysis, insights, chartTypeData] = useMLByDate(chartType, timePeriod);
 
-	const analysis = useMemo(() => {
-		const dataWithToday = chartTypeData.mldata(data);
-		const dataWithouToday = dataWithToday.slice(0, dataWithToday.length - 1);
-		if (includeToday) {
-			const analysis = analyzeTrendWithLinearRegression(dataWithToday);
-			return {
-				dataWithCorrectedTrend: analysis.trend,
-				slope: analysis.slope,
-			};
-		} else {
-			const analysis = analyzeTrendWithLinearRegression(dataWithouToday);
-			return {
-				dataWithCorrectedTrend: analysis.trend.concat(analysis.nextValue),
-				slope: analysis.slope,
-			};
-		}
-	}, [data, chartTypeData, includeToday]);
+	const [includeToday, setIncludeToday] = useState<boolean>(false);
+
+	const [dummy] = useState<boolean>(false);
+
+	const isdark = useDarkMode();
+
+	// const triggerRerender = () => {
+	// 	setDummy(true);
+	// 	setDummy(false);
+	// };
 
 	const Chart = useMemo(() => {
 		const opts: ApexOptions = {
@@ -180,6 +134,10 @@ const UserInsightsChartView2: FC = () => {
 					right: 2,
 					top: 0,
 				},
+				borderColor: isdark ? "#1F2937" : "#D1D5DB",
+			},
+			legend: {
+				show: false,
 			},
 			stroke: {
 				curve: "smooth",
@@ -189,15 +147,13 @@ const UserInsightsChartView2: FC = () => {
 				size: 4,
 			},
 			fill: {
-				type: "gradient",
-				gradient: {
-					opacityFrom: 0.95,
-					opacityTo: 0.5,
-					shade: "#EF4444",
-
-					gradientToColors: ["#10B981"],
-				},
-
+				type: "solid",
+				// type: "gradient",
+				// gradient: {
+				// 	opacityFrom: 0.95,
+				// 	opacityTo: 0.5,
+				// 	// gradientToColors: [isdark ? "#1F2937" : "#D1D5DB", isdark ? "#1F2937" : "#D1D5DB"],
+				// },
 				// colors: ["#1C64F2", "#EF4444", "#10B981", "#F59E0B"],
 			},
 			dataLabels: {
@@ -217,8 +173,8 @@ const UserInsightsChartView2: FC = () => {
 						y: chartTypeData.isbd(value),
 					}))
 					.sort((a, b) => new Date(a.x).getTime() - new Date(b.x).getTime()),
-
-				color: "#1C64F2",
+				// make it
+				color: isdark ? "#10B981" : "#10B981",
 				type: "line",
 				zIndex: 2,
 				group: chartType,
@@ -248,6 +204,7 @@ const UserInsightsChartView2: FC = () => {
 		logarithmic,
 		chartType,
 		analysis,
+		isdark,
 	]);
 
 	useEffect(() => {
@@ -271,8 +228,20 @@ const UserInsightsChartView2: FC = () => {
 		};
 	}, []);
 
+	const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+
 	return (
 		<div className="flex flex-col items-center h-full  pb-20">
+			<div className=" fixed top-4 left-4 z-50">
+				<button
+					className=" bottom-4 right-4 p-3 rounded-full text-gray-800 z-50 hover:scale-110 transform transition duration-200 ease-in-out backdrop-blur-lg bg-gray-400 bg-opacity-50 shadow-2xl"
+					onClick={() => {
+						setIsFlyoutOpen(true);
+					}}
+				>
+					<IoSettings size={30} />
+				</button>
+			</div>
 			<Selector
 				timePeriod={timePeriod}
 				timePeriods={timePeriods}
@@ -284,9 +253,18 @@ const UserInsightsChartView2: FC = () => {
 				includeToday={includeToday}
 				setIncludeToday={setIncludeToday}
 				analysis={analysis}
+				setIsFlyoutOpen={setIsFlyoutOpen}
+				isFlyoutOpen={isFlyoutOpen}
+				// triggerRerender={triggerRerender}
 			/>
-			<div ref={chartContainerRef} className="sm:p-10 p-3 w-full max-h-full">
-				{Chart}
+			<div
+				ref={chartContainerRef}
+				className="sm:p-10 p-3 w-full h-full "
+				style={{
+					maxHeight: "100%",
+				}}
+			>
+				{dummy ? null : Chart}
 			</div>
 		</div>
 	);
@@ -303,6 +281,9 @@ interface MyComponentProps {
 	includeToday: boolean;
 	setIncludeToday: React.Dispatch<React.SetStateAction<boolean>>;
 	analysis: { slope: number; dataWithCorrectedTrend: number[] };
+	setIsFlyoutOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	isFlyoutOpen: boolean;
+	// triggerRerender: () => void;
 }
 
 const Selector: React.FC<MyComponentProps> = ({
@@ -313,48 +294,78 @@ const Selector: React.FC<MyComponentProps> = ({
 	setChartType,
 	logarithmic,
 	setLogarithmic,
-	includeToday,
-	setIncludeToday,
-	analysis,
+	// includeToday,
+	// setIncludeToday,
+	setIsFlyoutOpen,
+	isFlyoutOpen,
+	// triggerRerender,
 }) => {
 	return (
-		<div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4 p-4">
-			<select
-				id="timePeriod"
-				value={timePeriod.label}
-				onChange={handleTimePeriodChange}
-				className="p-2 border rounded pr-10 bg-white dark:bg-gray-800 dark:text-white"
-			>
-				{Object.entries(timePeriods).map(([, tp]) => (
-					<option key={tp.label} value={tp.label}>
-						{!tp.label.includes("days") ? tp.label : `Last ${tp.label.replace("days", "").replace("last", "")} Days`}
-					</option>
-				))}
-			</select>
-
-			<select
-				id="chartType"
-				value={chartType}
-				onChange={(e) => {
-					setChartType(e.target.value as keyof typeof chartTypes);
+		<div
+			className={`fixed inset-0 z-50 transform ${isFlyoutOpen ? "translate-x-300" : "-translate-x-full"} transition-transform duration-300 ease-in-out flex items-start justify-center sm:mt-4`}
+		>
+			<div
+				className="absolute inset-0 "
+				onClick={() => {
+					setIsFlyoutOpen(false);
 				}}
-				className="p-2 border rounded pr-10 bg-white dark:bg-gray-800 dark:text-white"
+			></div>
+			<div
+				className="relative  w-auto h-auto backdrop-blur-2xl bg-gray-200 bg-opacity-50 rounded-xl shadow-2xl p-4"
+				// onClick={() => {
+				// 	setIsFlyoutOpen(false);
+				// }}
 			>
-				{Object.entries(chartTypes).map(([key, value]) => (
-					<option key={key} value={key}>
-						{value.name}
-					</option>
-				))}
-			</select>
+				<div className="flex flex-col items-center w-full h-full">
+					<div className="grid grid-cols-1 gap-4 text-center  p-4 sm:grid-cols-3">
+						<div>
+							<select
+								id="wordSegmentType"
+								value={chartType}
+								onChange={(e) => {
+									setChartType(e.target.value as keyof typeof chartTypes);
+								}}
+								className="rounded-xl sm:text-sm text-xs truncate"
+							>
+								{Object.keys(chartTypes).map((key) => (
+									<option key={key} value={key}>
+										{key}
+									</option>
+								))}
+							</select>
+						</div>
 
-			<div className="flex items-center space-x-2">
-				<span className="text-gray-700 dark:text-gray-300">Log</span>
-				<Toggle label="log" enabled={logarithmic} setEnabled={setLogarithmic} />
-				<span className="text-gray-700 dark:text-gray-300">Include Today</span>
-				<Toggle label="include today" enabled={includeToday} setEnabled={setIncludeToday} />
+						<div>
+							<select
+								id="timePeriod"
+								value={timePeriod.label}
+								onChange={handleTimePeriodChange}
+								className="rounded-xl sm:text-sm text-xs truncate"
+							>
+								{Object.entries(timePeriods).map(([, tp]) => (
+									<option key={tp.label} value={tp.label}>
+										{!tp.label.includes("days")
+											? tp.label
+											: `last ${tp.label.replace("days", "").replace("last", "")} days`}
+									</option>
+								))}
+							</select>
+						</div>
+
+						<Toggle label="logarithmic" enabled={logarithmic} setEnabled={setLogarithmic} />
+						{/* <Toggle label="include today" enabled={includeToday} setEnabled={setIncludeToday} /> */}
+
+						{/* <button
+							onClick={() => {
+								triggerRerender();
+							}}
+							className="col-span-4 p-4 rounded-xl backdrop-blur-2xl bg-white bg-opacity-50 shadow-md hover:scale-110 transform transition duration-200 ease-in-out"
+						>
+							rerender chart
+						</button> */}
+					</div>
+				</div>
 			</div>
-
-			<div className="text-gray-700 dark:text-gray-300">{analysis.slope && <p>{formatNumber(analysis.slope)} per day</p>}</div>
 		</div>
 	);
 };

@@ -78,7 +78,7 @@ const Home: FC = () => {
 				<button
 					onClick={() => {
 						const authUrl = threadsapi.generate_auth_start_url();
-						window.location.href = authUrl.toString();
+						window.open(authUrl.toString(), "_system");
 					}}
 					className="flex items-center bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105"
 				>

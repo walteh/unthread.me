@@ -206,7 +206,6 @@ const WordSegmentLineChart: FC = () => {
 				type: "treemap",
 			},
 		];
-		console.log(chartHeight);
 		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} type="treemap" height={chartHeight} />;
 	}, [metric, chartWidth, dats, chartHeight]);
 

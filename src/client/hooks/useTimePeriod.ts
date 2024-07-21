@@ -101,6 +101,14 @@ export const useTimePeriodListOfDays = (period: TimePeriod): string[] => {
 	}, [period]);
 };
 
+export const useTimePeriodLastNDaysFromToday = (n: number): TimePeriod => {
+	const today = new Date();
+	const daysInMs = n * 24 * 60 * 60 * 1000;
+	const start_date = new Date(today.getTime() - daysInMs);
+	const end_date = today;
+	return { label: `last${n}days`, start_date, end_date };
+};
+
 export const useTimePeriodListOfMonths = (period: TimePeriod): string[] => {
 	return useMemo(() => {
 		const months = [];

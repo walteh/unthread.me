@@ -1,6 +1,7 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { useInsightsByAll } from "@src/client/hooks/useInsightsByDate";
+import { getDateStringInPacificTime } from "@src/lib/ml";
 
 const InsightsCard: FC<{ title: string; value: number }> = ({ title, value }) => {
 	return (
@@ -11,77 +12,34 @@ const InsightsCard: FC<{ title: string; value: number }> = ({ title, value }) =>
 	);
 };
 
+const now = new Date();
+
+// Format the date to Pacific Time
+// const options = {
+// 	timeZone: "America/Los_Angeles",
+// 	year: "numeric",
+// 	//   month: '2-digit',
+// 	//   day: '2-digit',
+// 	//   hour: '2-digit',
+// 	//   minute: '2-digit',
+// 	//   second: '2-digit',
+// 	hour12: false,
+// };
+
 const Day: React.FC = () => {
-	const [date] = useState<Date>(new Date());
-	// const [trends, setTrends] = useState<Record<string, { trend: number[]; nextValue: number }>>({});
-	// const [anomalies, setAnomalies] = useState<Record<string, boolean[]>>({});
-
-	// const [trendsd, setTrendsd] = useState<Record<string, { trend: number[]; nextValue: number }>>({});
-	// const [anomaliesd, setAnomaliesd] = useState<Record<string, boolean[]>>({});
-
-	// const [running, setRunning] = useState<boolean>(false);
-
 	const allInsights = useInsightsByAll();
 
-	const myDateString = date.toISOString().slice(0, 10);
+	const formattedDate = getDateStringInPacificTime(now);
 
-	const mySights = allInsights[myDateString];
+	const mySights = allInsights[formattedDate.slice(0, 10)];
 
 	const myRelativeInsights = mySights.relativeInsights();
 
-	// useEffect(() => {
-	// 	const data = transormFullDataForML(allInsights);
-	// 	const datad = transformDataForML(allInsights, date);
-	// 	const analyzeAllMetrics = () => {
-	// 		const trends = {
-	// 			views: analyzeTrendWithLinearRegression(data.viewsData),
-	// 			likes: analyzeTrendWithLinearRegression(data.likesData),
-	// 			replies: analyzeTrendWithLinearRegression(data.repliesData),
-	// 			reposts: analyzeTrendWithLinearRegression(data.repostsData),
-	// 			quotes: analyzeTrendWithLinearRegression(data.quotesData),
-	// 		};
-
-	// 		const anomalies = {
-	// 			views: detectAnomalies(data.viewsData),
-	// 			likes: detectAnomalies(data.likesData),
-	// 			replies: detectAnomalies(data.repliesData),
-	// 			reposts: detectAnomalies(data.repostsData),
-	// 			quotes: detectAnomalies(data.quotesData),
-	// 		};
-
-	// 		setTrends(trends);
-	// 		setAnomalies(anomalies);
-
-	// 		const dtrends = {
-	// 			views: analyzeTrendWithLinearRegression(datad.viewsData),
-	// 			likes: analyzeTrendWithLinearRegression(datad.likesData),
-	// 			replies: analyzeTrendWithLinearRegression(datad.repliesData),
-	// 			reposts: analyzeTrendWithLinearRegression(datad.repostsData),
-	// 			quotes: analyzeTrendWithLinearRegression(datad.quotesData),
-	// 		};
-
-	// 		const danomalies = {
-	// 			views: detectAnomalies(datad.viewsData),
-	// 			likes: detectAnomalies(datad.likesData),
-	// 			replies: detectAnomalies(datad.repliesData),
-	// 			reposts: detectAnomalies(datad.repostsData),
-	// 			quotes: detectAnomalies(datad.quotesData),
-	// 		};
-
-	// 		setTrendsd(dtrends);
-	// 		setAnomaliesd(danomalies);
-	// 	};
-
-	// 	if (!running) {
-	// 		setRunning(true);
-
-	// 		analyzeAllMetrics();
-	// 	}
-	// }, [allInsights, date, running]);
-
 	return (
 		<div className="p-6 bg-gray-100 min-h-screen">
-			<h1 className="text-3xl font-bold mb-6">today</h1>
+			<h1 className="text-3xl font-bold mb-6">today {formattedDate}</h1>
+
+			{/* <span>{JSON.stringify(mySights.dateInfo)}</span> */}
 			{/* <div className="mb-4">
 				<label htmlFor="date-select" className="block text-sm font-medium text-gray-700">
 					Select Date
@@ -104,27 +62,33 @@ const Day: React.FC = () => {
 					<option value="this_day_last_month">This Day Last Month</option>
 				</select>
 			</div> */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
 				<InsightsCard title="user views" value={mySights.totalUserViews} />
+				<InsightsCard title="posts" value={mySights.cumlativePostInsights.total_posts} />
+				<InsightsCard title="post views" value={mySights.cumlativePostInsights.total_views} />
 				<InsightsCard title="post likes" value={mySights.cumlativePostInsights.total_likes} />
 				<InsightsCard title="post replies" value={mySights.cumlativePostInsights.total_replies} />
 				<InsightsCard title="post reposts" value={mySights.cumlativePostInsights.total_reposts} />
 				<InsightsCard title="post quotes" value={mySights.cumlativePostInsights.total_quotes} />
 			</div>
-			<h1 className="text-3xl font-bold mb-6">one week ago</h1>
+			<h1 className="text-3xl font-bold mb-6">one week ago {myRelativeInsights.one_week_ago.dateInfo.today}</h1>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
 				<InsightsCard title="user views" value={myRelativeInsights.one_week_ago.totalUserViews} />
+				<InsightsCard title="posts" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_posts} />
+				<InsightsCard title="post views" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_views} />
 				<InsightsCard title="post likes" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_likes} />
 				<InsightsCard title="post replies" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_replies} />
 				<InsightsCard title="post reposts" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_reposts} />
 				<InsightsCard title="post quotes" value={myRelativeInsights.one_week_ago.cumlativePostInsights.total_quotes} />
 			</div>
 
-			<h1 className="text-3xl font-bold mb-6">last month</h1>
+			<h1 className="text-3xl font-bold mb-6">last month {myRelativeInsights.this_day_last_month.dateInfo.today}</h1>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
 				<InsightsCard title="user views" value={myRelativeInsights.this_day_last_month.totalUserViews} />
+				<InsightsCard title="posts" value={myRelativeInsights.this_day_last_month.cumlativePostInsights.total_posts} />
+				<InsightsCard title="post views" value={myRelativeInsights.this_day_last_month.cumlativePostInsights.total_views} />
 				<InsightsCard title="post likes" value={myRelativeInsights.this_day_last_month.cumlativePostInsights.total_likes} />
 				<InsightsCard title="post replies" value={myRelativeInsights.this_day_last_month.cumlativePostInsights.total_replies} />
 				<InsightsCard title="post reposts" value={myRelativeInsights.this_day_last_month.cumlativePostInsights.total_reposts} />

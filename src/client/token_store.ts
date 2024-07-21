@@ -33,6 +33,16 @@ export const token_store = create(
 							long_lived_token_refreshable_at: Date.now() + 24 * 60 * 60 * 1000, // 24 hours - from docs
 						});
 					},
+
+					clearTokens: () => {
+						set({
+							access_token: {} as AccessTokenResponse,
+							access_token_expires_at: null,
+							long_lived_token: null,
+							long_lived_token_expires_at: null,
+							long_lived_token_refreshable_at: null,
+						});
+					},
 				}),
 			),
 			{

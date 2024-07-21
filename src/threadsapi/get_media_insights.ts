@@ -40,7 +40,7 @@ export const get_media_insights_with_params = async (
 				"Content-Type": "application/json",
 				"Accept-Encoding": "zstd",
 			},
-			retry: 2,
+			retry: 5,
 			hooks: {
 				beforeRetry: [
 					(retryCount) => {
@@ -50,7 +50,7 @@ export const get_media_insights_with_params = async (
 					},
 				],
 			},
-			timeout: 10000,
+			timeout: 30000,
 		})
 		.then((response) => response.json<InsightsResponse<MediaMetricTypeMap[MediaMetric]>>())
 		.then((data) => {

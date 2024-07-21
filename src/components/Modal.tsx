@@ -16,7 +16,7 @@ const Modal: FunctionComponent<{
 		<Dialog open={open} onClose={setOpen} className="relative z-10">
 			<DialogBackdrop
 				transition
-				className="fixed inset-0 backdrop-blur-2xl transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
+				className="fixed inset-0 backdrop-blur-3xl transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
 			/>
 
 			<div className="fixed inset-0 z-10 flex items-center justify-center">
