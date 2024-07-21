@@ -10,6 +10,9 @@ const config: tailwindcss.Config = {
 		// "./node_modules/flowbite/**/*.js", "node_modules/preline/dist/*.js"
 	],
 	theme: {
+		future: {
+			hoverOnlyWhenSupported: true,
+		},
 		extend: {
 			fontFamily: {
 				mono: ["SF Mono", "ui-monospace", "SFMono-Regular", "DejaVu Sans Mono", "Menlo", "Consolas", "monospace"],
