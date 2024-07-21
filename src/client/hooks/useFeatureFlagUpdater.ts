@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import useFeatureFlagStore from "./useFeatureFlagStrore";
+import useFeatureFlagStore from "./useFeatureFlagStore";
 
 const useFeatureFlagUpdater = () => {
 	const [searchParams, setSearchParams] = useSearchParams();

@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import useFeatureFlagStore from "@src/client/hooks/useFeatureFlagStrore";
+import useFeatureFlagStore from "@src/client/hooks/useFeatureFlagStore"; // corrected 'useFeatureFlagStrore'
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
 import UserProfile2 from "@src/components/UserProfile2";
@@ -53,16 +53,7 @@ const Home: FC = () => {
 				</div>
 
 				<div className="text-center ">
-					<iframe
-						src="https://www.walteh.com/embed"
-						// width="400"
-						height="320"
-						// style="border:1px solid #EEE; background:white;"
-						style={{}}
-						className="rounded-2xl shadow-lg w-96 "
-						// frameBorder="0"
-						// scrolling="no"
-					></iframe>
+					<iframe src="https://www.walteh.com/embed" height="320" style={{}} className="rounded-2xl shadow-lg w-96 "></iframe>
 				</div>
 			</div>
 		);

@@ -2,7 +2,7 @@ import useAccessTokenUpdater from "./useAccessTokenUpdater";
 import useBackgroundUpdater from "./useBackgroundUpdater";
 import useCacheStore from "./useCacheStore";
 import useDimensions from "./useDimensions";
-import useFeatureFlagStrore from "./useFeatureFlagStrore";
+import useFeatureFlagStrore from "./useFeatureFlagStore";
 import useModalStore from "./useModalStore";
 import useSessionStore from "./useSessionStore";
 import useThreadInfo from "./useThreadInfo";
