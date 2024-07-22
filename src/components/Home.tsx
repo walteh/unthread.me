@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 
-import useFeatureFlagStore from "@src/client/hooks/useFeatureFlagStore"; // corrected 'useFeatureFlagStrore'
+// corrected 'useFeatureFlagStrore'
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useSessionStore from "@src/client/hooks/useSessionStore";
 import UserProfile2 from "@src/components/UserProfile2";
@@ -9,7 +9,7 @@ import threadsapi from "@src/threadsapi";
 const Home: FC = () => {
 	const [is_logging_in] = useSessionStore((state) => [state.is_logging_in] as const);
 
-	const [is_alpha_user] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
+	// const [is_alpha_user] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
 
 	const [checked, setChecked] = useState<boolean>(false);
 
@@ -26,40 +26,40 @@ const Home: FC = () => {
 		);
 	}
 
-	if (!is_alpha_user) {
-		return (
-			<div className="flex items-center justify-center flex-col">
-				<div className="flex flex-col items-center m-10 mt-0 w-80 text-center  dark:text-gray-100 text-gray-900">
-					<span className="text-3xl font-extrabold  tracking-wide  font-rounded">🧱</span>
-					<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">under construction</span>
-					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
-						unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
-					</span>
-					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
-						all of your data is stored in your browser and <strong>never</strong> leaves your device
-					</span>
-					<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
-						your threads login token is passed through a secure oauth flow hosted at <code> api.unthread.me</code> and{" "}
-						<strong>never</strong> stored or logged
-					</span>
-					<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
-						once your token is created, your browser interacts with the <strong>threads api directly</strong> at
-						<code> graph.threads.net</code>
-					</span>
-					<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
-						you only ever have <strong>READ</strong> access to your threads data
-					</span>
-					<span className="text-md  tracking-wide font-rounded">
-						subscribe to my newsletter and be the first to know when its ready! ⬇️
-					</span>
-				</div>
+	// if (!is_alpha_user) {
+	// 	return (
+	// 		<div className="flex items-center justify-center flex-col">
+	// 			<div className="flex flex-col items-center m-10 mt-0 w-80 text-center  dark:text-gray-100 text-gray-900">
+	// 				<span className="text-3xl font-extrabold  tracking-wide  font-rounded">🧱</span>
+	// 				<span className="text-xl font-extrabold  tracking-wide  font-rounded mb-5">under construction</span>
+	// 				<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+	// 					unthread.me lets you access your threads api data in a <strong>free</strong> and <strong>secure</strong> way
+	// 				</span>
+	// 				<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+	// 					all of your data is stored in your browser and <strong>never</strong> leaves your device
+	// 				</span>
+	// 				<span className="text-md  tracking-wide font-rounded  prose-p text-center mb-5">
+	// 					your threads login token is passed through a secure oauth flow hosted at <code> api.unthread.me</code> and{" "}
+	// 					<strong>never</strong> stored or logged
+	// 				</span>
+	// 				<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
+	// 					once your token is created, your browser interacts with the <strong>threads api directly</strong> at
+	// 					<code> graph.threads.net</code>
+	// 				</span>
+	// 				<span className="text-md tracking-wide font-rounded  prose-p text-center mb-5">
+	// 					you only ever have <strong>READ</strong> access to your threads data
+	// 				</span>
+	// 				<span className="text-md  tracking-wide font-rounded">
+	// 					subscribe to my newsletter and be the first to know when its ready! ⬇️
+	// 				</span>
+	// 			</div>
 
-				<div className="text-center ">
-					<iframe src="https://www.walteh.com/embed" height="320" style={{}} className="rounded-2xl shadow-lg w-96 "></iframe>
-				</div>
-			</div>
-		);
-	}
+	// 			<div className="text-center ">
+	// 				<iframe src="https://www.walteh.com/embed" height="320" style={{}} className="rounded-2xl shadow-lg w-96 "></iframe>
+	// 			</div>
+	// 		</div>
+	// 	);
+	// }
 
 	if (!isLoggedIn) {
 		return (
