@@ -20,9 +20,11 @@ export const useLast2DaysThreadsRefresher = () => {
 			setLoading(true);
 			try {
 				await refresh(kyd, token);
+				setError(null);
 			} catch (error) {
 				console.error(`problem fetching last 2 days threads:`, error);
 				setError(`failed to fetch last 2 days threads - ${error}`);
+				alert(`failed to fetch user data - ${error}`);
 			} finally {
 				setLoading(false);
 			}
@@ -50,9 +52,11 @@ export const useAllThreadsRefresher = () => {
 			setLoading(true);
 			try {
 				await refresh(kyd, token);
+				setError(null);
 			} catch (error) {
 				console.error(`problem fetching all threads:`, error);
 				setError(`failed to fetch all threads - ${error}`);
+				alert(`failed to fetch user data - ${error}`);
 			} finally {
 				setLoading(false);
 			}
@@ -80,9 +84,11 @@ export const useUserDataRefresher = () => {
 			setLoading(true);
 			try {
 				await refresh(kyd, token);
+				setError(null);
 			} catch (error) {
 				console.error(`problem fetching user data:`, error);
 				setError(`failed to fetch user data - ${error}`);
+				alert(`failed to fetch user data - ${error}`);
 			} finally {
 				setLoading(false);
 			}
