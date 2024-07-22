@@ -172,8 +172,12 @@ export default function UserProfile2() {
 											}
 										>
 											{" "}
-											<img width={15} className="dark:hidden" src={"./threads-logo-white.svg"}></img>
-											<img width={15} className=" hidden dark:block" src={"./threads-logo-black.svg"}></img>{" "}
+											<img width={15} className="dark:hidden -mr-2" src={"./threads-logo-white.svg"}></img>
+											<img
+												width={15}
+												className=" hidden dark:block -mr-2"
+												src={"./threads-logo-black.svg"}
+											></img>{" "}
 											<span className="truncate"></span>
 											{profile.username}
 										</button>
