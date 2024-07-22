@@ -39,7 +39,7 @@ interface CacheStoreState {
 	user_insights: SimplifedMetricTypeMap | null;
 	user_follower_demographics: BreakdownMetricTypeMap | null;
 	user_threads: Record<ThreadID, CachedThreadData>;
-	user_profile_refreshed_at: Date;
+	user_profile_refreshed_at: number;
 }
 
 export const cache_store = create(
@@ -47,7 +47,7 @@ export const cache_store = create(
 		persist(
 			combine(
 				{
-					user_profile_refreshed_at: new Date(),
+					user_profile_refreshed_at: 0,
 					user_profile: null,
 					user_insights: null,
 					user_follower_demographics: null,
@@ -115,7 +115,7 @@ export const cache_store = create(
 						const prof = threadsapi.get_user_profile(ky, token).then((data) => {
 							set(() => ({
 								user_profile: data,
-								user_profile_refreshed_at: new Date(),
+								user_profile_refreshed_at: new Date().getTime(),
 							}));
 						});
 
@@ -179,7 +179,7 @@ export const cache_store = create(
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
-				version: 9,
+				version: 10,
 			},
 		),
 	),

@@ -181,9 +181,9 @@ export default function UserProfile2() {
 											<span className="truncate"></span>
 											{profile.username}
 										</button>
-										<p className="text-md font-bold">{getDateStringInPacificTime(profileRefreshedAt)} </p>
+										<p className="text-md font-bold">{getDateStringInPacificTime(new Date(profileRefreshedAt))} </p>
 										<p className="text-xs font-bold">
-											{getTimeInPacificTimeWithVeryPoorPerformance(profileRefreshedAt)}
+											{getTimeInPacificTimeWithVeryPoorPerformance(new Date(profileRefreshedAt))}
 										</p>
 									</div>
 								</div>
