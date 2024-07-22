@@ -112,7 +112,7 @@ export const cache_store = create(
 					};
 
 					const loadUserData = async (ky: KyInstance, token: AccessTokenResponse) => {
-						const prof = threadsapi.get_user_profile(ky, token).then(async (data) => {
+						const prof = threadsapi.get_user_profile(ky, token).then((data) => {
 							set(() => ({
 								user_profile: data,
 								user_profile_refreshed_at: new Date().getTime(),

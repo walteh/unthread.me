@@ -50,9 +50,15 @@ export default function UserProfile2() {
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
-		{ label: "all time likes", value: formatNumber(insights.total_likes), real_value: insights.total_likes },
+		{ label: "threads", value: formatNumber(threads.length), real_value: threads.length },
 		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views },
-		{ label: "all time threads", value: formatNumber(threads.length), real_value: threads.length },
+	];
+
+	const secondaryStats = [
+		{ label: "all time likes", value: formatNumber(insights.total_likes), real_value: insights.total_likes },
+		{ label: "all time replies", value: formatNumber(insights.total_replies), real_value: insights.total_replies },
+		{ label: "all time reposts", value: formatNumber(insights.total_reposts), real_value: insights.total_reposts },
+		{ label: "all time quotes", value: formatNumber(insights.total_quotes), real_value: insights.total_quotes },
 	];
 
 	const todayStats = [
@@ -226,6 +232,22 @@ export default function UserProfile2() {
 
 				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
+						<div key={stat.label}>
+							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl group flex-col flex groupbackdrop-blur-lg bg-opacity-50 shadow-inner  ">
+								<div className="group-hover:hidden">
+									<span className="text-md font-mono ">{stat.value}</span>
+								</div>
+								<div className="hidden group-hover:block">
+									<span className="text-md  font-mono">{stat.real_value.toLocaleString()}</span>
+								</div>
+								<span className="text-xs text-gray-600">{stat.label}</span>
+							</div>
+						</div>
+					))}
+				</div>
+
+				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${secondaryStats.length} mt-3 `}>
+					{secondaryStats.map((stat) => (
 						<div key={stat.label}>
 							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl group flex-col flex groupbackdrop-blur-lg bg-opacity-50 shadow-inner  ">
 								<div className="group-hover:hidden">
