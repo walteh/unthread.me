@@ -179,7 +179,7 @@ export const cache_store = create(
 			{
 				name: "unthread.me/cache_store",
 				storage: createJSONStorage(() => localStorage),
-				version: 8,
+				version: 9,
 			},
 		),
 	),
