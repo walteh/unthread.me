@@ -162,18 +162,19 @@ export default function UserProfile2() {
 									<div>
 										<img className="h-20 w-20 rounded-xl" src={profile.threads_profile_picture_url} alt="" />
 									</div>
-									<div className="text-center sm:text-left  max-w-72 flex items-center flex-col justify-around  dark:text-white ">
+									<div className=" text-center sm:text-left   flex items-center flex-col justify-around  dark:text-white ">
 										<button
 											onClick={() => {
 												window.open(`https://threads.net/@${profile.username}`, "_blank");
 											}}
 											className={
-												"mb-1 shadow-sm font-bold inline-flex items-center gap-x-1.5 rounded-full bg-black dark:bg-white px-3 py-1 text-lg  text-white dark:text-black font-rounded  hover:scale-115 transform transition duration-200 ease-in-out"
+												"truncate max-w-36 sm:max-w-96 mb-1 shadow-sm font-bold inline-flex items-center gap-x-1.5 rounded-full bg-black dark:bg-white px-3 py-1 text-lg  text-white dark:text-black font-rounded  hover:scale-115 transform transition duration-200 ease-in-out"
 											}
 										>
 											{" "}
 											<img width={15} className="dark:hidden" src={"./threads-logo-white.svg"}></img>
 											<img width={15} className=" hidden dark:block" src={"./threads-logo-black.svg"}></img>{" "}
+											<span className="truncate"></span>
 											{profile.username}
 										</button>
 										<p className="text-md font-bold">{getDateStringInPacificTime(profileRefreshedAt)} </p>
