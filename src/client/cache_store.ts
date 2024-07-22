@@ -112,26 +112,28 @@ export const cache_store = create(
 					};
 
 					const loadUserData = async (ky: KyInstance, token: AccessTokenResponse) => {
-						const prof = threadsapi.get_user_profile(ky, token).then((data) => {
+						const prof = threadsapi.get_user_profile(ky, token).then(async (data) => {
 							set(() => ({
 								user_profile: data,
 								user_profile_refreshed_at: new Date().getTime(),
 							}));
 						});
 
-						const ins = threadsapi.get_user_insights(ky, token).then((data) => {
+						const ins = threadsapi.get_user_insights(ky, token).then(async (data) => {
 							set(() => ({
 								user_insights: data,
 							}));
+
+							if (data.total_followers >= 100) {
+								return threadsapi.get_follower_demographics(ky, token).then((data) => {
+									set(() => ({
+										user_follower_demographics: data,
+									}));
+								});
+							}
 						});
 
-						const dem = threadsapi.get_follower_demographics(ky, token).then((data) => {
-							set(() => ({
-								user_follower_demographics: data,
-							}));
-						});
-
-						await Promise.all([prof, ins, dem]);
+						await Promise.all([prof, ins]);
 
 						return;
 					};
