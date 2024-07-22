@@ -63,7 +63,7 @@ const fetch_user_insights_page = async (
 	}
 
 	return await inst
-		.get(`v1.0/${accessToken.user_id}/threads_insights`, {
+		.get(`v1.0/me/threads_insights`, {
 			searchParams,
 			headers: {
 				"Content-Type": "application/json",
