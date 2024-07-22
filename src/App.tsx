@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import useAccessTokenUpdater from "./client/hooks/useAccessTokenUpdater";
 import useFeatureFlagUpdater from "./client/hooks/useFeatureFlagUpdater";
 import Home from "./components/Home";
+import ThreadsButton from "./components/ThreadsButton";
 
 const App: FC = () => {
 	useFeatureFlagUpdater();
@@ -24,28 +25,20 @@ const App: FC = () => {
 const Layout: FC = () => {
 	return (
 		<div className="min-h-screen">
-			<div className="flex items-center justify-center py-3 px-5 text-black font-rounded font-bold text-xs">
-				<div className="relative flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-50 rounded-xl py-4 px-5  border-white m-5">
-					<div className="flex items-center justify-center  text-black font-rounded font-bold text-2xl mb-2">
+			<div className="flex items-center justify-center py-3 px-5 text-gray-950 font-rounded font-bold text-xs">
+				<div className="relative flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-70 rounded-xl py-4 px-5  border-white m-5">
+					<div className="flex items-center justify-center  font-rounded font-bold text-2xl mb-2">
 						<img className="h-7 w-7" src="./unthreadme-logo.svg" alt="" />
 						<span className="ml-2">unthread.me</span>
 					</div>
-					<span className="text-gray-900 font-regular">🔒 private threads insights</span>
-					<button
-						onClick={() => {
-							window.open("https://threads.net/@walt_eh", "_blank");
-						}}
-						style={{ fontSize: "0.6rem" }}
-						className="absolute shadow-sm inline-flex items-center gap-x-1.5 rounded-full bg-black px-2 py-1 text-xs font-medium text-white font-mono -bottom-3 -right-3 hover:scale-115 transform transition duration-200 ease-in-out backdrop-blur-xl bg-opacity-90"
-					>
-						by <img width={10} className="-mr-1" src="./threads-logo-white.svg"></img> walt_eh
-					</button>
+					<span className="text-gray-800 font-regular">🔒 private threads insights</span>
+					<ThreadsButton username="walt_eh" className="absolute -bottom-3 -right-3" />
 				</div>
 			</div>
 
 			<Home />
 			<div className="flex justify-center items-center ">
-				<div className="grid gap-4 grid-cols-3 p-5">
+				<div className="grid gap-4 sm:grid-cols-3 p-5">
 					<button
 						onClick={() => {
 							open("https://github.com/walteh/unthread.me/blob/main/docs/terms-of-service.md", "_blank");

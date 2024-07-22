@@ -5,7 +5,7 @@ import { InsightsByDate } from "@src/lib/ml";
 
 const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, insights }) => {
 	return (
-		<tr className="bg-white dark:bg-gray-800">
+		<tr className="">
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700">{date}</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.totalUserViews}</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.cumlativePostInsights.total_posts}</td>
@@ -27,9 +27,9 @@ export default function DailyReportView() {
 	const dates = Object.keys(allInsights);
 
 	return (
-		<div className="p-6 dark:bg-gray-900 min-h-screen">
+		<div className="sm:p-6  min-h-screen">
 			<div className="overflow-x-auto">
-				<table className="min-w-full bg-white dark:bg-gray-800 rounded-2xl">
+				<table className="min-w-full bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl">
 					<thead>
 						<tr>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">date</th>

@@ -18,7 +18,9 @@ const Home: FC = () => {
 		return (
 			<div className="flex items-center justify-center flex-col ">
 				<div className="flex flex-col items-center m-10">
-					<span className="text-xl font-extrabold text-gray-900 tracking-wide  font-rounded">logging you in...</span>
+					<span className="text-xl font-extrabold text-gray-900 dark:text-white tracking-wide  font-rounded">
+						logging you in...
+					</span>
 				</div>
 			</div>
 		);

@@ -34,11 +34,22 @@ export function getDateStringInPacificTime(date: Date) {
 	// Convert the date to PT by adjusting the timezone offset
 	const pacificDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000 + offset * 60000);
 
-	const year = pacificDate.getUTCFullYear();
-	const month = String(pacificDate.getUTCMonth() + 1).padStart(2, "0");
-	const day = String(pacificDate.getUTCDate()).padStart(2, "0");
+	const year = pacificDate.getFullYear();
+	const month = String(pacificDate.getMonth() + 1).padStart(2, "0");
+	const day = String(pacificDate.getDate()).padStart(2, "0");
 
 	return `${year}-${month}-${day}`;
+}
+
+export function getTimeInPacificTimeWithVeryPoorPerformance(date: Date) {
+	const pacificTime = date.toLocaleString("en-US", {
+		timeZone: "America/Los_Angeles",
+		hour: "numeric",
+		minute: "2-digit",
+		timeZoneName: "short",
+	});
+
+	return pacificTime;
 }
 
 export interface InsightsByDate {

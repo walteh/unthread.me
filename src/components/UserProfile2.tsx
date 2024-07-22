@@ -8,7 +8,7 @@ import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod";
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import useUserInsights from "@src/client/hooks/useUserInsights";
-import { formatNumber, getDateStringInPacificTime } from "@src/lib/ml";
+import { formatNumber, getDateStringInPacificTime, getTimeInPacificTimeWithVeryPoorPerformance } from "@src/lib/ml";
 
 import DailyReportView from "./DailyReportView";
 import Modal from "./Modal";
@@ -24,16 +24,12 @@ const Loader = () => (
 
 export default function UserProfile2() {
 	const [profile] = useCacheStore((state) => [state.user_profile]);
+	const profileRefreshedAt = useCacheStore((state) => state.user_profile_refreshed_at);
 	const [insights] = useUserInsights();
 	const [threads] = useThreadsListSortedByDate();
 	const today = getDateStringInPacificTime(new Date());
 
 	const clearToken = useTokenStore((state) => state.clearTokens);
-
-	// const threadsToday = threads.filter((thread) => {
-	// 	const date = getDateStringInPacificTime(new Date(thread.media.timestamp));
-	// 	return date === today;
-	// });
 
 	const viewsToday =
 		insights.views_by_day.filter((v) => {
@@ -153,23 +149,44 @@ export default function UserProfile2() {
 	// const item = items.find((item) => item.label === currentTab);
 
 	return (
-		<div className="font-rounded flex justify-center flex-col items-center">
-			<div className="rounded-2xl backdrop-blur-2xl bg-white bg-opacity-20 mx-4 sm:max-w-screen-lg mb-2">
+		<div className="font-rounded flex justify-center flex-col items-center text-gray-900 ">
+			<div className="rounded-xl backdrop-blur-2xl bg-white bg-opacity-20 mx-4 sm:max-w-screen-lg mb-2">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview
 				</h2>
 				<div className="p-6 ">
 					<div className="sm:flex sm:items-center sm:justify-center">
 						<div className=" flex justify-around sm:mt-0">
-							<div className="flex space-x-5">
+							{profile ? (
+								<div className="flex space-x-5">
+									<div>
+										<img className="h-20 w-20 rounded-xl" src={profile.threads_profile_picture_url} alt="" />
+									</div>
+									<div className="text-center sm:text-left  max-w-72 flex items-center flex-col justify-around  dark:text-white ">
+										<button
+											onClick={() => {
+												window.open(`https://threads.net/@${profile.username}`, "_blank");
+											}}
+											className={
+												"mb-1 shadow-sm font-bold inline-flex items-center gap-x-1.5 rounded-full bg-black dark:bg-white px-3 py-1 text-lg  text-white dark:text-black font-rounded  hover:scale-115 transform transition duration-200 ease-in-out"
+											}
+										>
+											{" "}
+											<img width={15} className="dark:hidden" src={"./threads-logo-white.svg"}></img>
+											<img width={15} className=" hidden dark:block" src={"./threads-logo-black.svg"}></img>{" "}
+											{profile.username}
+										</button>
+										<p className="text-md font-bold">{getDateStringInPacificTime(profileRefreshedAt)} </p>
+										<p className="text-xs font-bold">
+											{getTimeInPacificTimeWithVeryPoorPerformance(profileRefreshedAt)}
+										</p>
+									</div>
+								</div>
+							) : (
 								<div>
-									<img className="h-14 w-14 rounded-xl" src={profile?.threads_profile_picture_url} alt="" />
+									<p className="dark:text-white">⚠️ reload user data</p>
 								</div>
-								<div className="text-center sm:text-left  max-w-72 flex items-center flex-col justify-start text-gray-900 dark:text-white">
-									<p className="truncate text-2xl font-bold font-rounded  max-w-72 ">@{profile?.username}</p>
-									<p>{getDateStringInPacificTime(new Date())}</p>
-								</div>
-							</div>
+							)}
 						</div>
 					</div>
 				</div>
@@ -180,7 +197,7 @@ export default function UserProfile2() {
 							<button
 								key={tab.label}
 								onClick={tab.action}
-								className="flex justify-around px-5 py-3 font-rounded rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50   text-md font-semibold shadow-md hover:scale-110 transform transition duration-200 ease-in-out hover:shadow-xl"
+								className="flex justify-around px-5 py-3 font-rounded rounded-xl backdrop-blur-2xl bg-white bg-opacity-70  text-xs active:scale-x-95 hover:scale-105 hover:shadow-lg dark:shadow-gray-500 dark:hover:shadow-gray-500 active:shadow-sm  font-semibold shadow-md  transform transition duration-200 ease-in-out "
 							>
 								<div className="flex">
 									{tab.isLoading ? <Loader /> : tab.error ? "❌" : "🔄"} <span className="ml-2">{tab.label}</span>
@@ -192,9 +209,9 @@ export default function UserProfile2() {
 							<button
 								key={tab.label}
 								onClick={tab.action}
-								className="flex justify-around px-5 py-3 font-rounded rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50   text-md font-semibold shadow-md hover:scale-110 transform transition duration-200 ease-in-out hover:shadow-xl"
+								className="flex justify-around px-5 py-3 font-rounded rounded-xl backdrop-blur-2xl bg-white bg-opacity-70   text-xs active:scale-x-95 hover:scale-105 hover:shadow-lg dark:shadow-gray-500 dark:hover:shadow-gray-500  active:shadow-sm  font-semibold shadow-md  transform transition duration-200 ease-in-out"
 							>
-								<div className="flex">
+								<div className="flex  drop-shadow-2xl dark:drop-shadow-gray-500">
 									{tab.isLoading ? <Loader /> : tab.error ? "❌" : tab.emoji} <span className="ml-2">{tab.label}</span>
 								</div>
 							</button>
@@ -205,12 +222,12 @@ export default function UserProfile2() {
 				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
 						<div key={stat.label}>
-							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group hover:bg-gray-200 backdrop-blur-lg bg-opacity-50 shadow-md">
-								<div className=" group-hover:hidden">
-									<span className="text-md font-mono text-gray-900">{stat.value}</span>
+							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl group flex-col flex groupbackdrop-blur-lg bg-opacity-50 shadow-inner  ">
+								<div className="group-hover:hidden">
+									<span className="text-md font-mono ">{stat.value}</span>
 								</div>
 								<div className="hidden group-hover:block">
-									<span className="text-md  text-gray-900 font-mono">{stat.real_value.toLocaleString()}</span>
+									<span className="text-md  font-mono">{stat.real_value.toLocaleString()}</span>
 								</div>
 								<span className="text-xs text-gray-600">{stat.label}</span>
 							</div>
@@ -222,20 +239,21 @@ export default function UserProfile2() {
 				>
 					{todayStats.map((stat) => (
 						<div key={stat.label}>
-							<div className=" px-4 py-3 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group hover:bg-gray-200 backdrop-blur-lg bg-opacity-50 shadow-md">
+							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group backdrop-blur-lg bg-opacity-50 shadow-inner">
 								{stat.is_trend ? (
 									<div>
-										<span className="text-md font-mono text-gray-900">
-											{stat.real_value > 0 ? "➕" : "➖"} {stat.value} <span className="text-xs">/ day</span>
+										<span className="text-md font-mono ">
+											{stat.real_value > 0 ? "+" : "-"}
+											{Math.abs(stat.real_value)} <span className="text-xs font-rounded">/ day</span>
 										</span>
 									</div>
 								) : (
 									<div>
 										<div className=" group-hover:hidden">
-											<span className="text-md font-mono text-gray-900">{stat.value}</span>
+											<span className="text-md font-mono ">{stat.value}</span>
 										</div>
 										<div className="hidden group-hover:block">
-											<span className="text-md  text-gray-900 font-mono">{stat.real_value.toLocaleString()}</span>
+											<span className="text-md   font-mono">{stat.real_value.toLocaleString()}</span>
 										</div>
 									</div>
 								)}
@@ -254,7 +272,7 @@ export default function UserProfile2() {
 								setCurrentTab(tab.comp());
 								setOpenModal(true);
 							}}
-							className="px-6 py-5 text-center text-sm font-medium text-gray-600  rounded-2xl backdrop-blur-2xl bg-white bg-opacity-50  hover:scale-105 transform transition duration-200 ease-in-out hover:shadow-xl shadow-md "
+							className="px-6 py-5 text-center text-sm font-medium  rounded-xl backdrop-blur-2xl bg-white bg-opacity-70  active:scale-x-95 hover:scale-105 hover:shadow-lg dark:shadow-gray-500 dark:hover:shadow-gray-500 active:shadow-sm  shadow-md  transform transition duration-200 ease-in-out "
 						>
 							{tab.label}
 						</button>

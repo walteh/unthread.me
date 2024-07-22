@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 
 import useSessionStore from "@src/client/hooks/useSessionStore";
+import { getDateStringInPacificTime } from "@src/lib/ml";
 import { TimePeriod, TimePeriodLabel } from "@src/threadsapi/types";
 
 // const timePeriods: TimePeriod[] = ["last7days", "last30days", "last90days"];
@@ -102,7 +103,7 @@ export const useTimePeriodListOfDays = (period: TimePeriod): string[] => {
 };
 
 export const useTimePeriodLastNDaysFromToday = (n: number): TimePeriod => {
-	const today = new Date();
+	const today = new Date(getDateStringInPacificTime(new Date()));
 	const daysInMs = n * 24 * 60 * 60 * 1000;
 	const start_date = new Date(today.getTime() - daysInMs);
 	const end_date = today;
