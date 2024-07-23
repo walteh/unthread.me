@@ -2,9 +2,12 @@ import { FC, useState } from "react";
 
 // corrected 'useFeatureFlagStrore'
 import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
+import useModalStore from "@src/client/hooks/useModalStore";
 import useSessionStore from "@src/client/hooks/useSessionStore";
 import UserProfile2 from "@src/components/UserProfile2";
 import threadsapi from "@src/threadsapi";
+
+import Modal from "./Modal";
 
 const Home: FC = () => {
 	const [is_logging_in] = useSessionStore((state) => [state.is_logging_in] as const);
@@ -12,6 +15,10 @@ const Home: FC = () => {
 	// const [is_alpha_user] = useFeatureFlagStore((state) => [state.enable_alpha_i_know_what_im_doing] as const);
 
 	const [checked, setChecked] = useState<boolean>(false);
+
+	const [checked2, setChecked2] = useState<boolean>(false);
+
+	const open = useModalStore((state) => state.setOpen);
 
 	const [isLoggedIn, ,] = useIsLoggedIn();
 	if (is_logging_in) {
@@ -87,8 +94,8 @@ const Home: FC = () => {
 					</span>
 				</div>
 
-				<div className="mb-5">
-					<label className="flex items-center space-x-3 w-80">
+				<div className="mb-5 text-xs">
+					<label className="flex items-center space-x-3 w-80  text-center">
 						<input
 							type="checkbox"
 							checked={checked}
@@ -103,17 +110,69 @@ const Home: FC = () => {
 					</label>
 				</div>
 
+				<div className="mb-5 flex flex-col text-xs">
+					<label className="flex items-center space-x-3 w-80">
+						<input
+							type="checkbox"
+							checked={checked2}
+							onChange={(e) => {
+								setChecked2(e.target.checked);
+							}}
+						/>
+						<span className="text-gray-900 dark:text-gray-100 text-center">
+							I have accepted the invite inside threads
+							<button
+								className="inline text-xs items-center underline text-blue-500 px-2 py-1 "
+								onClick={() => {
+									open(true);
+								}}
+							>
+								click here to see how
+							</button>
+						</span>
+					</label>
+				</div>
+
 				<button
 					onClick={() => {
 						const authUrl = threadsapi.generate_auth_start_url();
 						window.open(authUrl.toString(), "_system");
 					}}
-					disabled={!checked}
-					className="flex items-center bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105 disabled:bg-gray-600"
+					disabled={!checked || !checked2}
+					className="flex items-center bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105 disabled:bg-gray-600 mb-10"
 				>
 					login with
 					<img className="ml-2" width="20" src="./threads-logo-white.svg" alt="Threads Logo" />
 				</button>
+
+				<Modal>
+					<div className="flex justify-center items-center h-full flex-col text-center">
+						<p>inside threads, go here and click accept</p>
+						<p className="mb-5">
+							<button
+								className="mt-5 bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105"
+								onClick={() => {
+									window.open("https://www.threads.net/settings/account", "_system");
+								}}
+							>
+								{" "}
+								<code>{"threads.net > Settings > Account > Website Permissions > Invites"}</code>
+							</button>
+						</p>
+						<p className="mb-5">you should see something that looks like this:</p>
+
+						<img width={300} src="./invites.png"></img>
+
+						<button
+							onClick={() => {
+								open(false);
+							}}
+							className="mt-5 bg-black text-white px-3 py-2 rounded-2xl shadow-2xl"
+						>
+							⬅️ go back
+						</button>
+					</div>
+				</Modal>
 			</div>
 		);
 	}
