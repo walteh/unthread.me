@@ -146,8 +146,8 @@ const Home: FC = () => {
 				</button>
 
 				<Modal>
-					<div className="flex justify-center items-center h-full flex-col text-center">
-						<p>inside threads, go here and click accept</p>
+					<div className="flex justify-center items-center h-full flex-col text-center dark:text-white">
+						<p>inside threads, go here and click {'"Accept"'}</p>
 						<p className="mb-5">
 							<button
 								className="mt-5 bg-black text-white px-3 py-2 rounded-xl shadow-lg hover:bg-gray-800 transition duration-300 transform hover:scale-105"
@@ -159,9 +159,14 @@ const Home: FC = () => {
 								<code>{"threads.net > Settings > Account > Website Permissions > Invites"}</code>
 							</button>
 						</p>
-						<p className="mb-5">you should see something that looks like this:</p>
+
+						<p className="mb-5">when you are done, you should see something that looks like this:</p>
 
 						<img width={300} src="./invites.png"></img>
+						<p className="my-5">
+							note: this is only possible from a browser, but you can open it by clicking on {'"Website permissions"'} in the
+							app
+						</p>
 
 						<button
 							onClick={() => {
