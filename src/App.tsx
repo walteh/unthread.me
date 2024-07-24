@@ -32,7 +32,7 @@ const Layout: FC = () => {
 						<span className="ml-2">unthread.me</span>
 					</div>
 					<span className="text-gray-800 font-regular">🔒 private threads insights</span>
-					<ThreadsButton username="walt_eh" className="absolute -bottom-3 -right-3" />
+					<ThreadsButton username="walt_eh" prefix="by" className="absolute -bottom-3 -right-3" />
 				</div>
 			</div>
 

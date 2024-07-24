@@ -14,8 +14,6 @@ const ChangeRow = ({ change }: { change: ChangeWithSeen }) => (
 				</svg>
 			) : null}
 		</td>
-		<td className="p-4 border-t border-gray-200 dark:border-gray-700">{change.date}</td>
-		<td className="p-4 border-t border-gray-200 dark:border-gray-700">{change.description}</td>
 		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
 			<button
 				className="inline"
@@ -31,16 +29,19 @@ const ChangeRow = ({ change }: { change: ChangeWithSeen }) => (
 		>
 			{change.type}
 		</td>
-		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
-			{change.resolvedBy.map((username) => (
-				<ThreadsButton key={username} prefix="" username={username} className="mr-2"></ThreadsButton>
-			))}
-		</td>
+		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{change.date}</td>
 		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
 			{change.reportedBy.map((username) => (
 				<ThreadsButton key={username} prefix="" username={username} className="mr-2"></ThreadsButton>
 			))}
 		</td>
+		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
+			{change.resolvedBy.map((username) => (
+				<ThreadsButton key={username} prefix="" username={username} className="mr-2"></ThreadsButton>
+			))}
+		</td>
+
+		<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{change.description}</td>
 	</tr>
 );
 
@@ -63,12 +64,14 @@ const ChangesTable = () => {
 					<thead>
 						<tr>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">new</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">date</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">description</th>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">link</th>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">type</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">implemented by</th>
+
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">date</th>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">reported by</th>
+
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">implemented by</th>
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">description</th>
 						</tr>
 					</thead>
 					<tbody>
