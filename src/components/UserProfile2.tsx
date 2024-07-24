@@ -7,10 +7,12 @@ import { useAllThreadsRefresher, useLast2DaysThreadsRefresher, useUserDataRefres
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod";
 import useTokenStore from "@src/client/hooks/useTokenStore";
+import useUnseenChanges from "@src/client/hooks/useUnseenChanges";
 import useUserInsights from "@src/client/hooks/useUserInsights";
 import thread_store from "@src/client/thread_store";
 import { formatNumber, getDateStringInPacificTime, getTimeInPacificTimeWithVeryPoorPerformance } from "@src/lib/ml";
 
+import ChangesTable from "./ChangesTable";
 import DailyReportView from "./DailyReportView";
 import Modal from "./Modal";
 import UserInsightsChartView2 from "./UserInsightsChartView2";
@@ -127,7 +129,16 @@ export default function UserProfile2() {
 
 	const [currentTab, setCurrentTab] = useState<React.ReactNode>(null);
 
+	const changes = useUnseenChanges();
 	const [setOpenModal] = useModalStore((state) => [state.setOpen]);
+	// const [openModal] = useModalStore((state) => [state.open]);
+
+	// useEffect(() => {
+	// 	if (changes.length > 0 && !openModal) {
+	// 		setCurrentTab(<ChangesTable />);
+	// 		setOpenModal(true);
+	// 	}
+	// }, [changes, openModal, setOpenModal]);
 
 	const items = useMemo(() => {
 		return [
@@ -156,6 +167,18 @@ export default function UserProfile2() {
 
 	return (
 		<div className="font-rounded flex justify-center flex-col items-center text-gray-900 ">
+			<button
+				onClick={() => {
+					setCurrentTab(<ChangesTable />);
+					setOpenModal(true);
+				}}
+				className="mb-3 flex justify-around px-3 py-1 font-rounded rounded-xl backdrop-blur-2xl bg-white bg-opacity-70   text-xs active:scale-x-95 hover:scale-105 hover:shadow-lg dark:shadow-gray-500 dark:hover:shadow-gray-500  active:shadow-sm  font-semibold shadow-md  transform transition duration-200 ease-in-out"
+			>
+				new alpha changes
+				<div className="ml-2">
+					<span className="text-xs font-bold">{changes.filter((x) => !x.seen).length}</span>
+				</div>
+			</button>
 			<div className="rounded-xl backdrop-blur-2xl bg-white bg-opacity-20 mx-4 sm:max-w-screen-lg mb-2">
 				<h2 className="sr-only" id="profile-overview-title">
 					Profile Overview

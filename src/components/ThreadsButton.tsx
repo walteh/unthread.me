@@ -1,8 +1,8 @@
-const ThreadsButton = ({ username, className = "" }: { username: string; className: string }) => {
+const ThreadsButton = ({ username, className = "", prefix = "" }: { username: string; className: string; prefix: string }) => {
 	return (
 		<button
 			onClick={() => {
-				window.open("https://threads.net/@walt_eh", "_blank");
+				window.open(`https://threads.net/@${username}`, "_blank");
 			}}
 			style={{ fontSize: "0.6rem" }}
 			className={
@@ -10,7 +10,7 @@ const ThreadsButton = ({ username, className = "" }: { username: string; classNa
 				className
 			}
 		>
-			by <img width={10} className="-mr-1 dark:hidden" src={"./threads-logo-white.svg"}></img>
+			{prefix} <img width={10} className="-mr-1 dark:hidden" src={"./threads-logo-white.svg"}></img>
 			<img width={10} className="-mr-1  hidden dark:block" src={"./threads-logo-black.svg"}></img> {username}
 		</button>
 	);

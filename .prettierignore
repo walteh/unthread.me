@@ -6,3 +6,5 @@ coverage
 **/.svn
 **/.hg
 **/node_modules
+terraform/.mypy_cache
+.mypy_cache
