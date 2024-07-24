@@ -36,7 +36,7 @@ const changelog_store = create(
 		persist(
 			combine(
 				{
-					last_seen_change: changes.length,
+					last_seen_change: 0,
 				},
 				(set) => ({
 					markAllChangesAsSeen: () => {
@@ -47,6 +47,7 @@ const changelog_store = create(
 			{
 				name: "untrhead.me/changelog_store",
 				getStorage: () => localStorage,
+				version: 1,
 			},
 		),
 	),
