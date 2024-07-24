@@ -8,6 +8,7 @@ import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod";
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import useUserInsights from "@src/client/hooks/useUserInsights";
+import thread_store from "@src/client/thread_store";
 import { formatNumber, getDateStringInPacificTime, getTimeInPacificTimeWithVeryPoorPerformance } from "@src/lib/ml";
 
 import DailyReportView from "./DailyReportView";
@@ -41,7 +42,6 @@ export default function UserProfile2() {
 	const [refreshAllThreads, refreshAllThreadsLoading, refreshAllThreadsErr] = useAllThreadsRefresher();
 	const [refreshUserData, refreshUserDataLoading, refreshUserDataError] = useUserDataRefresher();
 
-	const clearThreads = useCacheStore((state) => state.clearThreads);
 	const clearUser = useCacheStore((state) => state.clearUserData);
 
 	const last30Days = useTimePeriodLastNDaysFromToday(30);
@@ -111,7 +111,7 @@ export default function UserProfile2() {
 		},
 		{
 			label: "clear threads",
-			action: clearThreads,
+			action: thread_store.clearThreads,
 			isLoading: false,
 			error: false,
 			emoji: "🗑️",

@@ -1,6 +1,6 @@
 import { linearRegression, linearRegressionLine } from "simple-statistics";
 
-import { CachedThreadData } from "@src/client/cache_store";
+import { CachedThreadData } from "@src/client/thread_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
 // export function getDateStringInPacificTime(date: Date) {
@@ -110,7 +110,7 @@ export const convertToInsightsByDate = (data: CachedThreadData): MinimalThreadDa
 	};
 };
 
-export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads: MinimalThreadData[]): Record<string, InsightsByDate> => {
+export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
@@ -119,7 +119,7 @@ export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads
 
 export const isdbAllNoRelative = (
 	userInsights: SimplifedMetricTypeMap | null,
-	userThreads: MinimalThreadData[],
+	userThreads: CachedThreadData[],
 ): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
@@ -131,7 +131,7 @@ export const isdbRange = (
 	startDate: Date,
 	endDate: Date,
 	userInsights: SimplifedMetricTypeMap | null,
-	userThreads: MinimalThreadData[],
+	userThreads: CachedThreadData[],
 	includeRelativeInsights = true,
 ): Record<string, InsightsByDate> => {
 	const days: string[] = [];
@@ -171,7 +171,7 @@ export const isdbRange = (
 	return wrk;
 };
 
-export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, userThreads: MinimalThreadData[]): InsightsByDate => {
+export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): InsightsByDate => {
 	const ONE_DAY = 24 * 60 * 60 * 1000;
 
 	const dateInfo = {
@@ -202,6 +202,7 @@ export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, 
 	const totalViews = userInsights.views_by_day.filter((v) => getDateStringInPacificTime(new Date(v.label)) === date)[0]?.value ?? 0;
 
 	const cumlativePostInsights = userThreads
+		.map((thread) => convertToInsightsByDate(thread))
 		.filter((thread) => {
 			return getDateStringInPacificTime(new Date(thread.timestamp)) === date;
 		})

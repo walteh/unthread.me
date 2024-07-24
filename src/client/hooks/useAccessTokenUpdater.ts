@@ -7,6 +7,7 @@ import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import threadsapi from "@src/threadsapi";
 
+import thread_store from "../thread_store";
 import useCacheStore from "./useCacheStore";
 
 const useAccessTokenUpdater = () => {
@@ -20,8 +21,7 @@ const useAccessTokenUpdater = () => {
 	const [isLoggedIn] = useIsLoggedIn();
 
 	const refreshUserProfile = useCacheStore((state) => state.loadUserData);
-	const refreshThreads = useCacheStore((state) => state.refreshThreadsLast2Days);
-	const refreshAllThreads = useCacheStore((state) => state.loadThreadsData);
+
 	// const clearAccessToken = client.token_store((state) => state.clearAccessToken);
 
 	// update the access token if a code is present in the URL
@@ -37,8 +37,7 @@ const useAccessTokenUpdater = () => {
 				updateAccessToken(res);
 				const kyd2 = ky.create({ prefixUrl: "https://graph.threads.net" });
 				void refreshUserProfile(kyd2, res);
-				void refreshThreads(kyd2, res);
-				void refreshAllThreads(kyd2, res);
+				void thread_store.loadThreadsData(kyd2, res);
 			} catch (error) {
 				console.error("Error updating access token:", error);
 			} finally {
@@ -55,7 +54,7 @@ const useAccessTokenUpdater = () => {
 					console.error(err);
 				});
 		}
-	}, [searchParams, setSearchParams, updateAccessToken, updateIsLoggingIn, refreshAllThreads, refreshThreads, refreshUserProfile]);
+	}, [searchParams, setSearchParams, updateAccessToken, updateIsLoggingIn, refreshUserProfile]);
 
 	/// generate or refresh long-lived access token
 	// if long lived access token is not present and short-lived access token is present -> generate long-lived access token

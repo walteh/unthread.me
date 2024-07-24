@@ -1,8 +1,8 @@
 import { FC, useState } from "react";
 
-import { ThreadID } from "@src/client/cache_store";
-import useCacheStore from "@src/client/hooks/useCacheStore";
+import useThread from "@src/client/hooks/useThread";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
+import { ThreadID } from "@src/client/thread_store";
 import { Reply } from "@src/threadsapi/types";
 
 const UserThreadsView = () => {
@@ -30,8 +30,8 @@ const UserThreadsView = () => {
 			</div>
 			<div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
 				{threads.map((thread, idx) => (
-					<div key={thread.id} className={thread.media.text?.includes(search) ? "" : "hidden"}>
-						<ThreadCard threadid={thread.id} idx={threads.length - idx} />
+					<div key={thread.thread_id} className={thread.media.text?.includes(search) ? "" : "hidden"}>
+						<ThreadCard threadid={thread.thread_id} idx={threads.length - idx} />
 					</div>
 				))}
 			</div>
@@ -42,7 +42,11 @@ const UserThreadsView = () => {
 const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) => {
 	// const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
-	const thread = useCacheStore((state) => state.user_threads[threadid]);
+	const thread = useThread(threadid);
+
+	if (!thread) {
+		return <div>Loading...</div>;
+	}
 
 	const likes = thread.insights?.total_likes ?? 0;
 	const views = thread.insights?.total_views ?? 0;

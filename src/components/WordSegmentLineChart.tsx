@@ -7,6 +7,7 @@ import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import useTimePeriod, { useTimePeriodFilteredData } from "@src/client/hooks/useTimePeriod";
 import { MetricKey, useByWord, WordType, wordTypes } from "@src/client/hooks/useWords";
 import ErrorMessage from "@src/components/ErrorMessage";
+import Loader from "@src/components/Loader";
 
 const WordSegmentLineChart: FC = () => {
 	const [threads] = useThreadsListSortedByDate();
@@ -404,7 +405,7 @@ const WordSegmentLineChart: FC = () => {
 					maxHeight: "100%",
 				}}
 			>
-				{dats.length === 0 ? <ErrorMessage message="no data available" /> : Chart}
+				{dats.length === 0 ? threads.length == 0 ? <Loader /> : <ErrorMessage message="no data available" /> : Chart}
 			</div>
 		</div>
 	);

@@ -3,7 +3,7 @@ import { outMethods } from "node_modules/compromise/types/misc";
 import Three from "node_modules/compromise/types/view/three";
 import { useMemo } from "react";
 
-import { CachedThreadData } from "../cache_store";
+import { CachedThreadData } from "../thread_store";
 
 interface WordInsightStats {
 	total_likes: number;
@@ -29,7 +29,7 @@ export const extractMetics = (data: WordInsight, key: MetricKey): number => {
 export const useByWord = (data: CachedThreadData[]): WordInsight[] => {
 	return useMemo(() => {
 		const resp = data.reduce<Record<WordSegment, WordInsight | undefined>>((acc, thread) => {
-			if (!thread.media || !thread.insights) return acc;
+			if (!thread.insights) return acc;
 			if (thread.media.text) {
 				const likes = thread.insights.total_likes;
 				const views = thread.insights.total_views;

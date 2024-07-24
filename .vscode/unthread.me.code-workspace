@@ -1,77 +1,77 @@
 {
-    "folders": [
-        {
-            "name": "root",
-            "path": "../",
-        },
-        {
-            "name": "terraform",
-            "path": "../terraform",
-        }
-    ],
-    "settings": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSaveMode": "file",
-        "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": "always",
-            // "source.organizeImports": "always",
-            "source.fixAll": "always",
-        },
-        "files.associations": {
-            "tsconfig.*json": "jsonc",
-            "*.css": "tailwindcss",
-        },
-        "typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": true,
-        "editor.detectIndentation": false,
-        "prettier.requireConfig": true,
-        "typescript.inlayHints.parameterNames.enabled": "all",
-        "typescript.inlayHints.variableTypes.enabled": false,
-        "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
-        "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-        "eslint.useESLintClass": true,
-        "explorer.sortOrder": "type",
-        "explorer.sortOrderLexicographicOptions": "upper",
-        "[dotenv]": {
-            "editor.defaultFormatter": "foxundermoon.shell-format",
-        },
-        "gitlens.codeLens.enabled": false,
-        "workbench.tree.indent": 16,
-        "yaml.format.enable": true,
-        "terraform.experimentalFeatures.validateOnSave": true,
-        "github.copilot.enable": {
-            "*": true,
-            "yaml": false,
-            "plaintext": false,
-            "markdown": false
-        },
-        "[terraform]": {
-            "editor.defaultFormatter": "hashicorp.terraform",
-            "editor.formatOnSave": false,
-            "editor.codeActionsOnSave": {
-                "source.formatAll.terraform": "always"
-            },
-        },
-        "[terraform-vars]": {
-            "editor.defaultFormatter": "hashicorp.terraform",
-            "editor.formatOnSave": false,
-            "editor.codeActionsOnSave": {
-                "source.formatAll.terraform": "always"
-            },
-        },
-        "material-icon-theme.folders.associations": {
-            "dynamo": "database",
-            "mw": "middleware",
-        },
-        "emeraldwalk.runonsave": {
-            "shell": "bash",
-            "commands": [
-                {
-                    "isAsync": true,
-                    "match": "\\.tf$|\\.tfvars$|\\.hcl$|\\.hclvars$",
-                    "cmd": "/opt/homebrew/bin/terraform fmt \"${file}\" && sed -e'':a'' -e's/^\\(\\t*\\)  /\\1\\t/;ta' \"${file}\" > \"${file}\"-notab && mv \"${file}\"-notab \"${file}\""
-                },
-            ]
-        },
-    },
+	"folders": [
+		{
+			"name": "root",
+			"path": "../",
+		},
+		{
+			"name": "terraform",
+			"path": "../terraform",
+		},
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.formatOnSaveMode": "file",
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": "always",
+			// "source.organizeImports": "always",
+			"source.fixAll": "always",
+		},
+		"files.associations": {
+			"tsconfig.*json": "jsonc",
+			"*.css": "tailwindcss",
+		},
+		"typescript.inlayHints.parameterNames.suppressWhenArgumentMatchesName": true,
+		"editor.detectIndentation": false,
+		"prettier.requireConfig": true,
+		"typescript.inlayHints.parameterNames.enabled": "all",
+		"typescript.inlayHints.variableTypes.enabled": false,
+		"typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+		"typescript.tsserver.experimental.enableProjectDiagnostics": true,
+		"eslint.useESLintClass": true,
+		"explorer.sortOrder": "type",
+		"explorer.sortOrderLexicographicOptions": "upper",
+		"[dotenv]": {
+			"editor.defaultFormatter": "foxundermoon.shell-format",
+		},
+		"gitlens.codeLens.enabled": false,
+		"workbench.tree.indent": 16,
+		"yaml.format.enable": true,
+		"terraform.experimentalFeatures.validateOnSave": true,
+		"github.copilot.enable": {
+			"*": true,
+			"yaml": false,
+			"plaintext": false,
+			"markdown": false,
+		},
+		"[terraform]": {
+			"editor.defaultFormatter": "hashicorp.terraform",
+			"editor.formatOnSave": false,
+			"editor.codeActionsOnSave": {
+				"source.formatAll.terraform": "always",
+			},
+		},
+		"[terraform-vars]": {
+			"editor.defaultFormatter": "hashicorp.terraform",
+			"editor.formatOnSave": false,
+			"editor.codeActionsOnSave": {
+				"source.formatAll.terraform": "always",
+			},
+		},
+		"material-icon-theme.folders.associations": {
+			"dynamo": "database",
+			"mw": "middleware",
+		},
+		"emeraldwalk.runonsave": {
+			"shell": "bash",
+			"commands": [
+				{
+					"isAsync": true,
+					"match": "\\.tf$|\\.tfvars$|\\.hcl$|\\.hclvars$",
+					"cmd": "/opt/homebrew/bin/terraform fmt \"${file}\" && sed -e'':a'' -e's/^\\(\\t*\\)  /\\1\\t/;ta' \"${file}\" > \"${file}\"-notab && mv \"${file}\"-notab \"${file}\"",
+				},
+			],
+		},
+	},
 }
