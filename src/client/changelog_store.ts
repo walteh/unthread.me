@@ -36,6 +36,22 @@ export const changes: Change[] = [
 		reportedBy: ["walt_eh"],
 		commitHash: "f58aae39afce906fb48f8626eec42bb6b96c2e63",
 	},
+	{
+		description: "chart not rerendering correcly",
+		type: "bug",
+		date: "2024-08-02",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["firerock31"],
+		commitHash: "2500e449944b1fa52e675c0a408c809366c76677",
+	},
+	{
+		description: "add engagement rate stats to charts",
+		type: "feature",
+		date: "2024-08-02",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["firerock31"],
+		commitHash: "2500e449944b1fa52e675c0a408c809366c76677",
+	},
 ];
 
 // Create the Zustand store

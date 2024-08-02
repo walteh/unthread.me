@@ -106,9 +106,9 @@ const UserInsightsChartView2: FC = () => {
 						show: labelsOnChart,
 					},
 					logarithmic: logarithmic,
-					logBase: 2,
+					logBase: 10,
 					show: labelsOnChart,
-					forceNiceScale: true,
+					// forceNiceScale: true,
 				},
 			],
 			xaxis: {
