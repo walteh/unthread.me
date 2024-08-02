@@ -19,9 +19,6 @@ const UserInsightsChartView2: FC = () => {
 
 	const [logarithmic, setLogarithmic] = useState<boolean>(true);
 
-	// const [insights] = useUserInsights();
-	// const [threads] = useThreadsListSortedByDate();
-
 	const [timePeriod, timePeriods, handleTimePeriodChange] = useTimePeriod();
 
 	const currentDays = useTimePeriodListOfDays(timePeriod);
@@ -32,18 +29,7 @@ const UserInsightsChartView2: FC = () => {
 
 	const [includeToday, setIncludeToday] = useState<boolean>(false);
 
-	const [dummy, setDummy] = useState<boolean>(false);
-
 	const isdark = useDarkMode();
-
-	const triggerRerender = () => {
-		setDummy(true);
-		setDummy(false);
-	};
-
-	useEffect(() => {
-		triggerRerender();
-	}, [chartType]);
 
 	const [opts, chartSeries, cw, ch] = useMemo(() => {
 		const opts: ApexOptions = {
@@ -86,6 +72,9 @@ const UserInsightsChartView2: FC = () => {
 								compactDisplay: "short",
 								minimumFractionDigits: 0,
 							});
+							if (chartTypeData.multiplyBy100) {
+								return formatter.format(val / 100) + "x";
+							}
 							return formatter.format(val);
 						},
 					},
@@ -95,6 +84,9 @@ const UserInsightsChartView2: FC = () => {
 								notation: "compact",
 								minimumFractionDigits: 0,
 							});
+							if (chartTypeData.multiplyBy100) {
+								return formatter.format(val / 100) + "x";
+							}
 							return formatter.format(val);
 						},
 					},
@@ -106,6 +98,9 @@ const UserInsightsChartView2: FC = () => {
 					labels: {
 						formatter: (val) => {
 							const formatter = Intl.NumberFormat("en", { notation: "compact", minimumSignificantDigits: 2 });
+							if (chartTypeData.multiplyBy100) {
+								return formatter.format(val / 100) + "x";
+							}
 							return formatter.format(val);
 						},
 						show: labelsOnChart,
@@ -113,6 +108,7 @@ const UserInsightsChartView2: FC = () => {
 					logarithmic: logarithmic,
 					logBase: 2,
 					show: labelsOnChart,
+					forceNiceScale: true,
 				},
 			],
 			xaxis: {
@@ -259,7 +255,7 @@ const UserInsightsChartView2: FC = () => {
 				analysis={analysis}
 				setIsFlyoutOpen={setIsFlyoutOpen}
 				isFlyoutOpen={isFlyoutOpen}
-				triggerRerender={triggerRerender}
+				// triggerRerender={triggerRerender}
 			/>
 			<div
 				ref={chartContainerRef}
@@ -268,7 +264,14 @@ const UserInsightsChartView2: FC = () => {
 					maxHeight: "100%",
 				}}
 			>
-				{dummy ? null : <ReactApexChart options={opts} series={chartSeries} width={cw} height={ch} type="area" />}
+				<ReactApexChart
+					options={opts}
+					series={chartSeries}
+					width={cw}
+					height={ch}
+					type="area"
+					key={`${chartType}-${timePeriod.label}-${logarithmic}`}
+				/>
 			</div>
 		</div>
 	);
@@ -287,7 +290,7 @@ interface MyComponentProps {
 	analysis: { slope: number; dataWithCorrectedTrend: number[] };
 	setIsFlyoutOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	isFlyoutOpen: boolean;
-	triggerRerender: () => void;
+	// triggerRerender: () => void;
 }
 
 const Selector: React.FC<MyComponentProps> = ({

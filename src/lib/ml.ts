@@ -282,6 +282,9 @@ export interface MLData {
 	repostsData: number[];
 	quotesData: number[];
 	userViewsData: number[];
+	engagementRateData: number[];
+	reachRateData: number[];
+	activityRateData: number[];
 }
 
 export const transformDataForML = (relativeInsights: Record<string, InsightsByDate>, date: Date): MLData => {
@@ -293,6 +296,9 @@ export const transformDataForML = (relativeInsights: Record<string, InsightsByDa
 	const repostsData: number[] = [];
 	const quotesData: number[] = [];
 	const userViewsData: number[] = [];
+	const engagementRateData: number[] = [];
+	const reachRateData: number[] = [];
+	const activityRateData: number[] = [];
 
 	const insights = relativeInsights[date.toISOString().slice(0, 10)].relativeInsights();
 	Object.keys(insights).forEach((insight) => {
@@ -306,10 +312,24 @@ export const transformDataForML = (relativeInsights: Record<string, InsightsByDa
 			repostsData.push(isi.cumlativePostInsights.total_reposts);
 			quotesData.push(isi.cumlativePostInsights.total_quotes);
 			userViewsData.push(isi.totalUserViews);
+			engagementRateData.push(isi.engegementRate);
+			reachRateData.push(isi.reachRate);
+			activityRateData.push(isi.activityRate);
 		}
 	});
 
-	return { dates, viewsData, likesData, repliesData, repostsData, quotesData, userViewsData };
+	return {
+		dates,
+		viewsData,
+		likesData,
+		repliesData,
+		repostsData,
+		quotesData,
+		userViewsData,
+		engagementRateData,
+		reachRateData,
+		activityRateData,
+	};
 };
 
 export const transormFullDataForML = (relativeInsights: Record<string, InsightsByDate>): MLData => {
@@ -321,6 +341,9 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 	const repostsData: number[] = [];
 	const quotesData: number[] = [];
 	const userViewsData: number[] = [];
+	const engagementRateData: number[] = [];
+	const reachRateData: number[] = [];
+	const activityRateData: number[] = [];
 
 	const insightsArrayByDateSorted = Object.entries(relativeInsights)
 		.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
@@ -339,11 +362,25 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 		repostsData.push(total_reposts);
 		quotesData.push(total_quotes);
 		userViewsData.push(isi.totalUserViews);
+		engagementRateData.push(isi.engegementRate);
+		reachRateData.push(isi.reachRate);
+		activityRateData.push(isi.activityRate);
 	});
 
 	// r
 
-	return { dates, viewsData, likesData, repliesData, repostsData, quotesData, userViewsData };
+	return {
+		dates,
+		viewsData,
+		likesData,
+		repliesData,
+		repostsData,
+		quotesData,
+		userViewsData,
+		engagementRateData,
+		reachRateData,
+		activityRateData,
+	};
 };
 
 export const movingAverage = (data: number[], windowSize: number): number[] => {
