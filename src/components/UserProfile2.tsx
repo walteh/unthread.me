@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import useCacheStore from "@src/client/hooks/useCacheStore";
+import { useUserEngagementRate } from "@src/client/hooks/useEngagementRate";
 import useMLByDate from "@src/client/hooks/useMLByDate";
 import useModalStore from "@src/client/hooks/useModalStore";
 import { useAllThreadsRefresher, useLast2DaysThreadsRefresher, useUserDataRefresher } from "@src/client/hooks/useRefreshers";
@@ -31,6 +32,8 @@ export default function UserProfile2() {
 	const [insights] = useUserInsights();
 	const [threads] = useThreadsListSortedByDate();
 	const today = getDateStringInPacificTime(new Date());
+
+	const [engagement, reach, activity] = useUserEngagementRate();
 
 	const clearToken = useTokenStore((state) => state.clearTokens);
 
@@ -101,6 +104,12 @@ export default function UserProfile2() {
 			isLoading: refreshLast2DayThreadsLoading,
 			error: refreshLast2DayThreadsErr,
 		},
+	];
+
+	const engagmentStats = [
+		{ label: "engagement", value: engagement.toFixed(2), sub: "interactions / followers" },
+		{ label: "reach", value: reach.toFixed(2), sub: "views / followers" },
+		{ label: "activity", value: activity.toFixed(2), sub: "interactions / views" },
 	];
 
 	const reseters = [
@@ -309,6 +318,28 @@ export default function UserProfile2() {
 								)}
 
 								<span className="text-xs text-gray-600">{stat.label}</span>
+							</div>
+						</div>
+					))}
+				</div>
+
+				<div
+					className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${engagmentStats.length} mt-3 justify-center`}
+				>
+					{engagmentStats.map((stat) => (
+						<div key={stat.label}>
+							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl  flex-col flex group backdrop-blur-lg bg-opacity-50 shadow-inner">
+								<div>
+									<span className="text-md font-mono ">
+										{stat.value}
+										<span className="text-xs font-rounded">x</span>
+									</span>
+								</div>
+
+								<span className="text-xs text-gray-600">all time {stat.label}</span>
+								<span className="text-xs text-gray-500" style={{ fontSize: ".5rem" }}>
+									{stat.sub}
+								</span>
 							</div>
 						</div>
 					))}

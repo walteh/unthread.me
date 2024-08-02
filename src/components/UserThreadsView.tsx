@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
 
+import { useThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
 import useThread from "@src/client/hooks/useThread";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { ThreadID } from "@src/client/thread_store";
@@ -43,6 +44,8 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 	// const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	const thread = useThread(threadid);
+
+	const [engagement, reach, activity] = useThreadEngagementRate(threadid);
 
 	if (!thread) {
 		return <div>Loading...</div>;
@@ -98,9 +101,10 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 						{views} views
 					</span>
 				)}
+
 				{replyCount > 0 && (
-					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
-						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-orange-100 px-3 py-2 text-xs font-medium text-orange-800">
+						<svg className="h-3 w-3 fill-orange-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
 						{replyCount} replies
@@ -120,6 +124,30 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 							<circle cx={3} cy={3} r={3} />
 						</svg>
 						{reposts} reposts
+					</span>
+				)}
+				{engagement > 0 && (
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-green-100 px-3 py-2 text-xs font-medium text-green-800">
+						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{engagement.toPrecision(2)}x engagement
+					</span>
+				)}
+				{reach > 0 && (
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-cyan-100 px-3 py-2 text-xs font-medium text-cyan-800">
+						<svg className="h-3 w-3 fill-cyan-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{reach.toPrecision(2)}x reach
+					</span>
+				)}
+				{activity > 0 && (
+					<span className="shadow-lg inline-flex items-center gap-x-1.5 rounded-full bg-teal-100 px-3 py-2 text-xs font-medium text-teal-800">
+						<svg className="h-3 w-3 fill-teal-500" viewBox="0 0 6 6" aria-hidden="true">
+							<circle cx={3} cy={3} r={3} />
+						</svg>
+						{activity.toPrecision(2)}x activity
 					</span>
 				)}
 				{thread.media.is_quote_post && (

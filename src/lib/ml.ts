@@ -1,5 +1,6 @@
 import { linearRegression, linearRegressionLine } from "simple-statistics";
 
+import { calculateCombinedThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
 import { CachedThreadData } from "@src/client/thread_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
@@ -41,6 +42,12 @@ export function getDateStringInPacificTime(date: Date) {
 	return `${year}-${month}-${day}`;
 }
 
+export const getDayOfWeek = (date: string) => {
+	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	const day = new Date(date + "T00:00:00").getDay();
+	return days[day].toUpperCase();
+};
+
 export function getTimeInPacificTimeWithVeryPoorPerformance(date: Date) {
 	const pacificTime = date.toLocaleString("en-US", {
 		timeZone: "America/Los_Angeles",
@@ -64,6 +71,9 @@ export interface InsightsByDate {
 		this_day_last_month: string;
 	};
 	totalUserViews: number;
+	engegementRate: number;
+	activityRate: number;
+	reachRate: number;
 
 	cumlativePostInsights: {
 		total_likes: number;
@@ -186,6 +196,9 @@ export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, 
 	};
 	if (!userInsights)
 		return {
+			engegementRate: 0,
+			activityRate: 0,
+			reachRate: 0,
 			dateInfo: dateInfo,
 			totalUserViews: 0,
 			cumlativePostInsights: {
@@ -227,7 +240,17 @@ export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, 
 			},
 		);
 
+	const [engagement, reach, activity] = calculateCombinedThreadEngagementRate(
+		userThreads.filter((thread) => {
+			return getDateStringInPacificTime(new Date(thread.media.timestamp)) === date;
+		}),
+		userInsights,
+	);
+
 	return {
+		engegementRate: engagement,
+		activityRate: activity,
+		reachRate: reach,
 		relativeInsights: () => ({}) as RelativeInsightsByDate,
 		totalUserViews: totalViews,
 		cumlativePostInsights,

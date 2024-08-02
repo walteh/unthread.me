@@ -1,23 +1,39 @@
 import { FC } from "react";
 
 import { useDaily } from "@src/client/hooks/useInsightsByDate";
-import { InsightsByDate } from "@src/lib/ml";
+import { getDayOfWeek, InsightsByDate } from "@src/lib/ml";
 
 const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, insights }) => {
 	return (
 		<tr className="">
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700">{date}</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.totalUserViews}</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.cumlativePostInsights.total_posts}</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.cumlativePostInsights.total_views}</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.cumlativePostInsights.total_likes}</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-nowrap text-center font-mono">{date}</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-nowrap text-center font-mono">{getDayOfWeek(date)}</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">{insights.totalUserViews}</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.cumlativePostInsights.total_posts}
+			</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.cumlativePostInsights.total_views}
+			</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.cumlativePostInsights.total_likes}
+			</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
 				{insights.cumlativePostInsights.total_replies}
 			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
 				{insights.cumlativePostInsights.total_reposts}
 			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-center">{insights.cumlativePostInsights.total_quotes}</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.cumlativePostInsights.total_quotes}
+			</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.engegementRate.toPrecision(2)}x
+			</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">{insights.reachRate.toPrecision(2)}x</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
+				{insights.activityRate.toPrecision(2)}x
+			</td>
 		</tr>
 	);
 };
@@ -27,19 +43,36 @@ export default function DailyReportView() {
 	const dates = Object.keys(allInsights);
 
 	return (
-		<div className="sm:p-6  min-h-screen">
+		<div className="sm:p-6 min-h-screen">
 			<div className="overflow-x-auto">
 				<table className="min-w-full bg-white bg-opacity-50 backdrop-blur-xl rounded-2xl">
 					<thead>
 						<tr>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">date</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">user views</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">posts</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">post views</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">post likes</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">post replies</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">post reposts</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700">post quotes</th>
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700 " rowSpan={2}>
+								date
+							</th>
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700" rowSpan={2}>
+								day
+							</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700" rowSpan={2}>
+								user views
+							</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700" rowSpan={2}>
+								posts
+							</th>
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700" colSpan={8}>
+								post metrics
+							</th>
+						</tr>
+						<tr>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">views</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">likes</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">replies</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">reposts</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">quotes</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">engagement</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">reach</th>
+							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">activity</th>
 						</tr>
 					</thead>
 					<tbody>
