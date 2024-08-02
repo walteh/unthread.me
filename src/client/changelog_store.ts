@@ -28,6 +28,14 @@ export const changes: Change[] = [
 		reportedBy: ["walt_eh"],
 		commitHash: "cab5f7b921ee7c7a8d9251176ed1ebc818f29d52",
 	},
+	{
+		description: "add engagement rate stats",
+		type: "feature",
+		date: "2024-08-02",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["walt_eh"],
+		commitHash: "f58aae39afce906fb48f8626eec42bb6b96c2e63",
+	},
 ];
 
 // Create the Zustand store
