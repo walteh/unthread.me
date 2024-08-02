@@ -32,16 +32,20 @@ const UserInsightsChartView2: FC = () => {
 
 	const [includeToday, setIncludeToday] = useState<boolean>(false);
 
-	const [dummy] = useState<boolean>(false);
+	const [dummy, setDummy] = useState<boolean>(false);
 
 	const isdark = useDarkMode();
 
-	// const triggerRerender = () => {
-	// 	setDummy(true);
-	// 	setDummy(false);
-	// };
+	const triggerRerender = () => {
+		setDummy(true);
+		setDummy(false);
+	};
 
-	const Chart = useMemo(() => {
+	useEffect(() => {
+		triggerRerender();
+	}, [chartType]);
+
+	const [opts, chartSeries, cw, ch] = useMemo(() => {
 		const opts: ApexOptions = {
 			chart: {
 				type: "area",
@@ -192,7 +196,7 @@ const UserInsightsChartView2: FC = () => {
 			},
 		];
 
-		return <ReactApexChart options={opts} series={chartSeries} width={chartWidth} height={chartHeight} type="area" />;
+		return [opts, chartSeries, chartWidth, chartHeight] as const;
 	}, [
 		//
 		insights,
@@ -255,7 +259,7 @@ const UserInsightsChartView2: FC = () => {
 				analysis={analysis}
 				setIsFlyoutOpen={setIsFlyoutOpen}
 				isFlyoutOpen={isFlyoutOpen}
-				// triggerRerender={triggerRerender}
+				triggerRerender={triggerRerender}
 			/>
 			<div
 				ref={chartContainerRef}
@@ -264,7 +268,7 @@ const UserInsightsChartView2: FC = () => {
 					maxHeight: "100%",
 				}}
 			>
-				{dummy ? null : Chart}
+				{dummy ? null : <ReactApexChart options={opts} series={chartSeries} width={cw} height={ch} type="area" />}
 			</div>
 		</div>
 	);
@@ -283,7 +287,7 @@ interface MyComponentProps {
 	analysis: { slope: number; dataWithCorrectedTrend: number[] };
 	setIsFlyoutOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	isFlyoutOpen: boolean;
-	// triggerRerender: () => void;
+	triggerRerender: () => void;
 }
 
 const Selector: React.FC<MyComponentProps> = ({
