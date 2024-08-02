@@ -53,9 +53,14 @@ const fetch_user_insights_page = async (
 		metric: allUserMetrics.join(","),
 		access_token: accessToken.access_token,
 	};
-
+	let isapril = false;
 	if (params.all_time) {
-		searchParams.since = 1712991600; // from the docs
+		if (params.june_not_april === true) {
+			searchParams.since = 1717225200; // from the docs
+		} else {
+			searchParams.since = 1712991600; // from the docs
+			isapril = true;
+		}
 		searchParams.until = Math.floor(Date.now() / 1000);
 	} else {
 		if (params.since) searchParams.since = params.since;
@@ -83,6 +88,12 @@ const fetch_user_insights_page = async (
 		.then((response) => response.json<InsightsResponse<MetricTypeMap[Metric]>>())
 		.catch((error: unknown) => {
 			console.error("Error fetching user insights:", error);
+			if (`${error}`.includes("June 1st") && isapril) {
+				return fetch_user_insights_page(inst, accessToken, {
+					...params,
+					june_not_april: true,
+				});
+			}
 			throw error;
 		});
 };

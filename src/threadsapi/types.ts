@@ -23,6 +23,7 @@ export interface GetUserInsightsParams {
 	until?: number;
 	breakdown?: Breakdown;
 	all_time?: boolean;
+	june_not_april?: boolean;
 }
 
 export interface GetMediaInsightsParams {
