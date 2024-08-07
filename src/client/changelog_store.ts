@@ -10,6 +10,7 @@ export interface Change {
 	commitHash: string;
 }
 
+//
 // Define the changes that will be returned
 export const changes: Change[] = [
 	{
@@ -51,6 +52,14 @@ export const changes: Change[] = [
 		resolvedBy: ["walt_eh"],
 		reportedBy: ["firerock31"],
 		commitHash: "2500e449944b1fa52e675c0a408c809366c76677",
+	},
+	{
+		description: "fix reach display number",
+		type: "bug",
+		date: "2024-08-07",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["mrjoshuapack"],
+		commitHash: "2f58a75d9524e4811b8e1aa65abd96d1e4378485",
 	},
 ];
 
