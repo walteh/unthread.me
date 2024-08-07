@@ -15,6 +15,10 @@ export const calculateThreadEngagementRate = (thread: CachedThreadData, user: Si
 
 	const engagement = (likes + replies + quotes + reposts) / followers;
 
+	if (views === 0) {
+		return [engagement, 0, 0] as const;
+	}
+
 	const reach = views / followers;
 
 	const activity = (likes + replies + quotes + reposts) / views;
@@ -33,6 +37,10 @@ export const calculateCombinedThreadEngagementRate = (threads: CachedThreadData[
 
 	const engagement = (likes + replies + quotes + reposts) / followers;
 
+	if (views === 0) {
+		return [engagement, 0, 0] as const;
+	}
+
 	const reach = views / followers;
 
 	const activity = (likes + replies + quotes + reposts) / views;
@@ -49,6 +57,10 @@ export const calculateUserEngagementRate = (user: SimplifedMetricTypeMap | null)
 	const followers = user?.total_followers ?? 0;
 
 	const engagement = (likes + replies + quotes + reposts) / followers;
+
+	if (views === 0) {
+		return [engagement, 0, 0] as const;
+	}
 
 	const reach = views / followers;
 

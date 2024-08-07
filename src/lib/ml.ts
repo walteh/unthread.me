@@ -394,9 +394,16 @@ export const movingAverage = (data: number[], windowSize: number): number[] => {
 };
 
 export const formatNumber = (number: number) => {
+	if (!Number.isFinite(number)) {
+		return "0.0";
+	}
+	if (Number.isNaN(number)) {
+		return "0.0";
+	}
+	if (number < 1) return number.toPrecision(2);
 	const num = Math.round(number);
 	if (number < 1000) num.toString();
-	const formatter = Intl.NumberFormat("en", { notation: "compact", minimumFractionDigits: 0 });
+	const formatter = Intl.NumberFormat("en", { notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 2 });
 	return formatter.format(num);
 };
 

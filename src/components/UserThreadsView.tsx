@@ -4,6 +4,7 @@ import { useThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
 import useThread from "@src/client/hooks/useThread";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { ThreadID } from "@src/client/thread_store";
+import { formatNumber } from "@src/lib/ml";
 import { Reply } from "@src/threadsapi/types";
 
 const UserThreadsView = () => {
@@ -131,7 +132,7 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 						<svg className="h-3 w-3 fill-green-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
-						{engagement.toPrecision(2)}x engagement
+						{formatNumber(engagement)}x engagement
 					</span>
 				)}
 				{reach > 0 && (
@@ -139,7 +140,7 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 						<svg className="h-3 w-3 fill-cyan-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
-						{reach.toPrecision(2)}x reach
+						{formatNumber(reach)}x reach
 					</span>
 				)}
 				{activity > 0 && (
@@ -147,7 +148,7 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 						<svg className="h-3 w-3 fill-teal-500" viewBox="0 0 6 6" aria-hidden="true">
 							<circle cx={3} cy={3} r={3} />
 						</svg>
-						{activity.toPrecision(2)}x activity
+						{formatNumber(activity)}x activity
 					</span>
 				)}
 				{thread.media.is_quote_post && (

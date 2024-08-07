@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 import { useDaily } from "@src/client/hooks/useInsightsByDate";
-import { getDayOfWeek, InsightsByDate } from "@src/lib/ml";
+import { formatNumber, getDayOfWeek, InsightsByDate } from "@src/lib/ml";
 
 const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, insights }) => {
 	return (
@@ -28,11 +28,11 @@ const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, ins
 				{insights.cumlativePostInsights.total_quotes}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.engegementRate.toPrecision(2)}x
+				{formatNumber(insights.engegementRate)}x
 			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">{insights.reachRate.toPrecision(2)}x</td>
+			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">{formatNumber(insights.reachRate)}x</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.activityRate.toPrecision(2)}x
+				{formatNumber(insights.activityRate)}x
 			</td>
 		</tr>
 	);

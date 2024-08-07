@@ -107,9 +107,9 @@ export default function UserProfile2() {
 	];
 
 	const engagmentStats = [
-		{ label: "engagement", value: engagement.toFixed(2), sub: "interactions / followers" },
-		{ label: "reach", value: reach.toFixed(2), sub: "views / followers" },
-		{ label: "activity", value: activity.toFixed(2), sub: "interactions / views" },
+		{ label: "engagement", value: formatNumber(engagement), sub: "interactions / followers" },
+		{ label: "reach", value: formatNumber(reach), sub: "views / followers" },
+		{ label: "activity", value: formatNumber(activity), sub: "interactions / views" },
 	];
 
 	const reseters = [
