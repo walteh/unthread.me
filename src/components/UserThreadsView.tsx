@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 
 import { useThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
-import useThread from "@src/client/hooks/useThread";
+import useThread, { useAllThreadReplies } from "@src/client/hooks/useThread";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { ThreadID } from "@src/client/thread_store";
 import { formatNumber } from "@src/lib/ml";
@@ -45,16 +45,17 @@ const ThreadCard: FC<{ threadid: ThreadID; idx: number }> = ({ threadid, idx }) 
 	// const [likes, views, replies, quotes, reposts] = useThreadInfo(thread);
 
 	const thread = useThread(threadid);
+	const thread_replies = useAllThreadReplies(threadid);
 
 	const [engagement, reach, activity] = useThreadEngagementRate(threadid);
 
-	if (!thread) {
+	if (!thread || !thread_replies) {
 		return <div>Loading...</div>;
 	}
 
 	const likes = thread.insights?.total_likes ?? 0;
 	const views = thread.insights?.total_views ?? 0;
-	const replyCount = thread.replies?.data.length ?? 0;
+	const replyCount = thread_replies.length;
 	const quotes = thread.insights?.total_quotes ?? 0;
 	const reposts = thread.insights?.total_reposts ?? 0;
 

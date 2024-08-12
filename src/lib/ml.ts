@@ -1,7 +1,8 @@
 import { linearRegression, linearRegressionLine } from "simple-statistics";
 
-import { calculateCombinedThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
-import { CachedThreadData } from "@src/client/thread_store";
+import { calculateCombinedReplyEngagementRate, calculateCombinedThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
+import { CachedReplyData } from "@src/client/reply_store";
+import { CachedThreadData, ThreadID } from "@src/client/thread_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
 // export function getDateStringInPacificTime(date: Date) {
@@ -71,11 +72,23 @@ export interface InsightsByDate {
 		this_day_last_month: string;
 	};
 	totalUserViews: number;
-	engegementRate: number;
-	activityRate: number;
-	reachRate: number;
 
 	cumlativePostInsights: {
+		engegementRate: number;
+		activityRate: number;
+		reachRate: number;
+		total_likes: number;
+		total_replies: number;
+		total_reposts: number;
+		total_quotes: number;
+		total_views: number;
+		total_posts: number;
+	};
+
+	cumlativeReplyInsights: {
+		engegementRate: number;
+		activityRate: number;
+		reachRate: number;
 		total_likes: number;
 		total_replies: number;
 		total_reposts: number;
@@ -120,21 +133,38 @@ export const convertToInsightsByDate = (data: CachedThreadData): MinimalThreadDa
 	};
 };
 
-export const isdbAll = (userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): Record<string, InsightsByDate> => {
+export const convertToInsightsByDateReply = (data: CachedReplyData): MinimalThreadData => {
+	return {
+		total_likes: data.insights?.total_likes ?? 0,
+		total_replies: data.insights?.total_replies ?? 0,
+		total_reposts: data.insights?.total_reposts ?? 0,
+		total_quotes: data.insights?.total_quotes ?? 0,
+		total_views: data.insights?.total_views ?? 0,
+		timestamp: data.media.timestamp,
+		total_posts: 1,
+	};
+};
+
+export const isdbAll = (
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	allReplies: Record<ThreadID, CachedReplyData[]>,
+): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
-	return isdbRange(startDate, endDate, userInsights, userThreads);
+	return isdbRange(startDate, endDate, userInsights, userThreads, allReplies);
 };
 
 export const isdbAllNoRelative = (
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
+	allReplies: Record<ThreadID, CachedReplyData[]>,
 ): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
-	return isdbRange(startDate, endDate, userInsights, userThreads, false);
+	return isdbRange(startDate, endDate, userInsights, userThreads, allReplies, false);
 };
 
 export const isdbRange = (
@@ -142,6 +172,7 @@ export const isdbRange = (
 	endDate: Date,
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
+	allReplies: Record<ThreadID, CachedReplyData[]>,
 	includeRelativeInsights = true,
 ): Record<string, InsightsByDate> => {
 	const days: string[] = [];
@@ -153,7 +184,7 @@ export const isdbRange = (
 	const wrk = days
 		.reverse()
 		.map((date) => {
-			return isbd(date, userInsights, userThreads);
+			return isbd(date, userInsights, userThreads, allReplies);
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {
 			acc[data.dateInfo.today] = data;
@@ -181,7 +212,12 @@ export const isdbRange = (
 	return wrk;
 };
 
-export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, userThreads: CachedThreadData[]): InsightsByDate => {
+export const isbd = (
+	date: string,
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	allReplies: Record<ThreadID, CachedReplyData[]>,
+): InsightsByDate => {
 	const ONE_DAY = 24 * 60 * 60 * 1000;
 
 	const dateInfo = {
@@ -196,12 +232,23 @@ export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, 
 	};
 	if (!userInsights)
 		return {
-			engegementRate: 0,
-			activityRate: 0,
-			reachRate: 0,
 			dateInfo: dateInfo,
 			totalUserViews: 0,
 			cumlativePostInsights: {
+				engegementRate: 0,
+				activityRate: 0,
+				reachRate: 0,
+				total_likes: 0,
+				total_replies: 0,
+				total_reposts: 0,
+				total_quotes: 0,
+				total_views: 0,
+				total_posts: 0,
+			},
+			cumlativeReplyInsights: {
+				engegementRate: 0,
+				activityRate: 0,
+				reachRate: 0,
 				total_likes: 0,
 				total_replies: 0,
 				total_reposts: 0,
@@ -240,20 +287,67 @@ export const isbd = (date: string, userInsights: SimplifedMetricTypeMap | null, 
 			},
 		);
 
+	const cumlativeReplyInsights = Object.values(allReplies)
+		.flatMap((replies) => replies)
+		.filter((reply) => {
+			return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
+		})
+		.map((thread) => convertToInsightsByDateReply(thread))
+
+		.reduce(
+			(acc, data) => {
+				return {
+					total_likes: acc.total_likes + data.total_likes,
+					total_replies: acc.total_replies + data.total_replies,
+					total_reposts: acc.total_reposts + data.total_reposts,
+					total_quotes: acc.total_quotes + data.total_quotes,
+					total_views: acc.total_views + data.total_views,
+					total_posts: acc.total_posts + 1,
+				};
+			},
+			{
+				total_likes: 0,
+				total_replies: 0,
+				total_reposts: 0,
+				total_quotes: 0,
+				total_views: 0,
+				total_posts: 0,
+			},
+		);
+
 	const [engagement, reach, activity] = calculateCombinedThreadEngagementRate(
 		userThreads.filter((thread) => {
 			return getDateStringInPacificTime(new Date(thread.media.timestamp)) === date;
 		}),
+		allReplies,
+		userInsights,
+	);
+
+	const [engagementReply, reachReply, activityReply] = calculateCombinedReplyEngagementRate(
+		Object.values(allReplies)
+			.flatMap((replies) => replies)
+			.filter((reply) => {
+				return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
+			}),
+		allReplies,
 		userInsights,
 	);
 
 	return {
-		engegementRate: engagement,
-		activityRate: activity,
-		reachRate: reach,
 		relativeInsights: () => ({}) as RelativeInsightsByDate,
 		totalUserViews: totalViews,
-		cumlativePostInsights,
+		cumlativePostInsights: {
+			engegementRate: engagement,
+			activityRate: activity,
+			reachRate: reach,
+			...cumlativePostInsights,
+		},
+		cumlativeReplyInsights: {
+			engegementRate: engagementReply,
+			activityRate: activityReply,
+			reachRate: reachReply,
+			...cumlativeReplyInsights,
+		},
 		dateInfo,
 	};
 };
@@ -276,18 +370,23 @@ const this_day_last_month = (date: string): string => {
 
 export interface MLData {
 	dates: string[];
-	viewsData: number[];
-	likesData: number[];
-	repliesData: number[];
-	repostsData: number[];
-	quotesData: number[];
-	userViewsData: number[];
-	engagementRateData: number[];
-	reachRateData: number[];
-	activityRateData: number[];
+	userViews: number[];
+	posts: MLDatas;
+	replies: MLDatas;
 }
 
-export const transformDataForML = (relativeInsights: Record<string, InsightsByDate>, date: Date): MLData => {
+export interface MLDatas {
+	views: number[];
+	likes: number[];
+	replies: number[];
+	reposts: number[];
+	quotes: number[];
+	engagementRate: number[];
+	reachRate: number[];
+	activityRate: number[];
+}
+
+export const transformPostDataForML = (relativeInsights: Record<string, InsightsByDate>, date: Date): MLData => {
 	const dates: string[] = [];
 
 	const viewsData: number[] = [];
@@ -299,6 +398,15 @@ export const transformDataForML = (relativeInsights: Record<string, InsightsByDa
 	const engagementRateData: number[] = [];
 	const reachRateData: number[] = [];
 	const activityRateData: number[] = [];
+
+	const replyViewsData: number[] = [];
+	const replyLikesData: number[] = [];
+	const replyRepliesData: number[] = [];
+	const replyRepostsData: number[] = [];
+	const replyQuotesData: number[] = [];
+	const replyEngagementRateData: number[] = [];
+	const replyReachRateData: number[] = [];
+	const replyActivityRateData: number[] = [];
 
 	const insights = relativeInsights[date.toISOString().slice(0, 10)].relativeInsights();
 	Object.keys(insights).forEach((insight) => {
@@ -312,27 +420,47 @@ export const transformDataForML = (relativeInsights: Record<string, InsightsByDa
 			repostsData.push(isi.cumlativePostInsights.total_reposts);
 			quotesData.push(isi.cumlativePostInsights.total_quotes);
 			userViewsData.push(isi.totalUserViews);
-			engagementRateData.push(isi.engegementRate);
-			reachRateData.push(isi.reachRate);
-			activityRateData.push(isi.activityRate);
+			engagementRateData.push(isi.cumlativePostInsights.engegementRate);
+			reachRateData.push(isi.cumlativePostInsights.reachRate);
+			activityRateData.push(isi.cumlativePostInsights.activityRate);
+			replyViewsData.push(isi.cumlativeReplyInsights.total_views);
+			replyLikesData.push(isi.cumlativeReplyInsights.total_likes);
+			replyRepliesData.push(isi.cumlativeReplyInsights.total_replies);
+			replyRepostsData.push(isi.cumlativeReplyInsights.total_reposts);
+			replyQuotesData.push(isi.cumlativeReplyInsights.total_quotes);
+			replyEngagementRateData.push(isi.cumlativeReplyInsights.engegementRate);
+			replyReachRateData.push(isi.cumlativeReplyInsights.reachRate);
+			replyActivityRateData.push(isi.cumlativeReplyInsights.activityRate);
 		}
 	});
 
 	return {
 		dates,
-		viewsData,
-		likesData,
-		repliesData,
-		repostsData,
-		quotesData,
-		userViewsData,
-		engagementRateData,
-		reachRateData,
-		activityRateData,
+		userViews: userViewsData,
+		posts: {
+			views: viewsData,
+			likes: likesData,
+			replies: repliesData,
+			reposts: repostsData,
+			quotes: quotesData,
+			engagementRate: engagementRateData,
+			reachRate: reachRateData,
+			activityRate: activityRateData,
+		},
+		replies: {
+			views: replyViewsData,
+			likes: replyLikesData,
+			replies: replyRepliesData,
+			reposts: replyRepostsData,
+			quotes: replyQuotesData,
+			engagementRate: replyEngagementRateData,
+			reachRate: replyReachRateData,
+			activityRate: replyActivityRateData,
+		},
 	};
 };
 
-export const transormFullDataForML = (relativeInsights: Record<string, InsightsByDate>): MLData => {
+export const transormFullPostDataForML = (relativeInsights: Record<string, InsightsByDate>): MLData => {
 	const dates: string[] = [];
 
 	const viewsData: number[] = [];
@@ -344,6 +472,15 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 	const engagementRateData: number[] = [];
 	const reachRateData: number[] = [];
 	const activityRateData: number[] = [];
+
+	const replyViewsData: number[] = [];
+	const replyLikesData: number[] = [];
+	const replyRepliesData: number[] = [];
+	const replyRepostsData: number[] = [];
+	const replyQuotesData: number[] = [];
+	const replyEngagementRateData: number[] = [];
+	const replyReachRateData: number[] = [];
+	const replyActivityRateData: number[] = [];
 
 	const insightsArrayByDateSorted = Object.entries(relativeInsights)
 		.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
@@ -362,24 +499,44 @@ export const transormFullDataForML = (relativeInsights: Record<string, InsightsB
 		repostsData.push(total_reposts);
 		quotesData.push(total_quotes);
 		userViewsData.push(isi.totalUserViews);
-		engagementRateData.push(isi.engegementRate);
-		reachRateData.push(isi.reachRate);
-		activityRateData.push(isi.activityRate);
+		engagementRateData.push(isi.cumlativePostInsights.engegementRate);
+		reachRateData.push(isi.cumlativePostInsights.reachRate);
+		activityRateData.push(isi.cumlativePostInsights.activityRate);
+		replyViewsData.push(isi.cumlativeReplyInsights.total_views);
+		replyLikesData.push(isi.cumlativeReplyInsights.total_likes);
+		replyRepliesData.push(isi.cumlativeReplyInsights.total_replies);
+		replyRepostsData.push(isi.cumlativeReplyInsights.total_reposts);
+		replyQuotesData.push(isi.cumlativeReplyInsights.total_quotes);
+		replyEngagementRateData.push(isi.cumlativeReplyInsights.engegementRate);
+		replyReachRateData.push(isi.cumlativeReplyInsights.reachRate);
+		replyActivityRateData.push(isi.cumlativeReplyInsights.activityRate);
 	});
 
 	// r
 
 	return {
 		dates,
-		viewsData,
-		likesData,
-		repliesData,
-		repostsData,
-		quotesData,
-		userViewsData,
-		engagementRateData,
-		reachRateData,
-		activityRateData,
+		userViews: userViewsData,
+		posts: {
+			views: viewsData,
+			likes: likesData,
+			replies: repliesData,
+			reposts: repostsData,
+			quotes: quotesData,
+			engagementRate: engagementRateData,
+			reachRate: reachRateData,
+			activityRate: activityRateData,
+		},
+		replies: {
+			views: replyViewsData,
+			likes: replyLikesData,
+			replies: replyRepliesData,
+			reposts: replyRepostsData,
+			quotes: replyQuotesData,
+			engagementRate: replyEngagementRateData,
+			reachRate: replyReachRateData,
+			activityRate: replyActivityRateData,
+		},
 	};
 };
 

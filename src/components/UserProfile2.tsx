@@ -10,6 +10,7 @@ import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import useUnseenChanges from "@src/client/hooks/useUnseenChanges";
 import useUserInsights from "@src/client/hooks/useUserInsights";
+import reply_store from "@src/client/reply_store";
 import thread_store from "@src/client/thread_store";
 import { formatNumber, getDateStringInPacificTime, getTimeInPacificTimeWithVeryPoorPerformance } from "@src/lib/ml";
 
@@ -122,7 +123,10 @@ export default function UserProfile2() {
 		},
 		{
 			label: "clear threads",
-			action: thread_store.clearThreads,
+			action: () => {
+				thread_store.clearThreads();
+				reply_store.clearThreads();
+			},
 			isLoading: false,
 			error: false,
 			emoji: "🗑️",
