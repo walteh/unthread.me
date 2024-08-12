@@ -41,7 +41,7 @@ const UserThreadsView = () => {
 						className="block w-full rounded-full py-2 pl-12 pr-4 text-gray-900 shadow-2xl placeholder:text-gray-400 sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4"
 						placeholder="search..."
 					/>
-					<span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+					<span className="absolute top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
 					<select
 						value={viewType}
 						onChange={(e) => {
@@ -49,9 +49,9 @@ const UserThreadsView = () => {
 						}}
 						className="rounded-full py-2 px-4 text-gray-900 shadow-2xl sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4"
 					>
-						<option value="all">All</option>
-						<option value="posts">Posts Only</option>
-						<option value="replies">Replies Only</option>
+						<option value="all">all</option>
+						<option value="posts">posts only</option>
+						<option value="replies">replies only</option>
 					</select>
 				</div>
 			</div>
@@ -79,7 +79,7 @@ const ReplyCard: FC<{ replyid: ReplyID; idx: number }> = ({ replyid, idx }) => {
 	const [engagement, reach, activity] = useReplyEngagementRate(replyid);
 
 	if (!thread || !thread_replies) {
-		return <div>Loading...</div>;
+		return <div>loading...</div>;
 	}
 
 	const likes = thread.insights?.total_likes ?? 0;

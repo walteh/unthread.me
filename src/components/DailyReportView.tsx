@@ -78,9 +78,9 @@ export default function DailyReportView() {
 						}}
 						className="p-2 rounded"
 					>
-						<option value="daily">Daily</option>
-						<option value="weekly">Weekly</option>
-						<option value="monthly">Monthly</option>
+						<option value="daily">daily</option>
+						<option value="weekly">weekly</option>
+						<option value="monthly">monthly</option>
 					</select>
 				</div>
 				<div>
@@ -95,9 +95,9 @@ export default function DailyReportView() {
 						}}
 						className="p-2 rounded"
 					>
-						<option value="combined">Combined</option>
-						<option value="posts">Posts Only</option>
-						<option value="replies">Replies Only</option>
+						<option value="combined">combined</option>
+						<option value="posts">posts only</option>
+						<option value="replies">replies only</option>
 					</select>
 				</div>
 			</div>
