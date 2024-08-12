@@ -61,6 +61,15 @@ export const changes: Change[] = [
 		reportedBy: ["mrjoshuapack"],
 		commitHash: "2f58a75d9524e4811b8e1aa65abd96d1e4378485",
 	},
+
+	{
+		description: "support for replies",
+		type: "feature",
+		date: "2024-08-12",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["walt_eh"],
+		commitHash: "0eafbbad8a30cc1ee600494fc8fb75f739fa450f",
+	},
 ];
 
 // Create the Zustand store
