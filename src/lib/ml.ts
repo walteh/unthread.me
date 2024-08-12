@@ -504,6 +504,7 @@ export interface MLData {
 	userViews: number[];
 	posts: MLDatas;
 	replies: MLDatas;
+	combined: MLDatas;
 }
 
 export interface MLDatas {
@@ -661,6 +662,16 @@ export const transormFullPostDataForML = (relativeInsights: InsightsByDate[]): M
 			engagementRate: replyEngagementRateData,
 			reachRate: replyReachRateData,
 			activityRate: replyActivityRateData,
+		},
+		combined: {
+			views: viewsData.map((value, index) => value + replyViewsData[index]),
+			likes: likesData.map((value, index) => value + replyLikesData[index]),
+			replies: repliesData.map((value, index) => value + replyRepliesData[index]),
+			reposts: repostsData.map((value, index) => value + replyRepostsData[index]),
+			quotes: quotesData.map((value, index) => value + replyQuotesData[index]),
+			engagementRate: engagementRateData.map((value, index) => value + replyEngagementRateData[index]),
+			reachRate: reachRateData.map((value, index) => value + replyReachRateData[index]),
+			activityRate: activityRateData.map((value, index) => value + replyActivityRateData[index]),
 		},
 	};
 };

@@ -127,6 +127,62 @@ export const chartTypes = {
 		isbd: (data: InsightsByDate) => data.cumlativePostInsights.activityRate * 100,
 		multiplyBy100: true,
 	},
+	"combined views": {
+		name: "combined views",
+		color: "#1C64F2",
+		mldata: (data: MLData) => data.combined.views,
+		isbd: (data: InsightsByDate) => data.combinedInsights.total_views,
+		multiplyBy100: false,
+	},
+	"combined likes": {
+		name: "combined likes",
+		color: "#EF4444",
+		mldata: (data: MLData) => data.combined.likes,
+		isbd: (data: InsightsByDate) => data.combinedInsights.total_likes,
+		multiplyBy100: false,
+	},
+	"combined replies": {
+		name: "combined replies",
+		color: "#10B981",
+		mldata: (data: MLData) => data.combined.replies,
+		isbd: (data: InsightsByDate) => data.combinedInsights.total_replies,
+		multiplyBy100: false,
+	},
+	"combined reposts": {
+		name: "combined reposts",
+		color: "#F59E0B",
+		mldata: (data: MLData) => data.combined.reposts,
+		isbd: (data: InsightsByDate) => data.combinedInsights.total_reposts,
+		multiplyBy100: false,
+	},
+	"combined quotes": {
+		name: "combined quotes",
+		color: "#3B82F6",
+		mldata: (data: MLData) => data.combined.quotes,
+		isbd: (data: InsightsByDate) => data.combinedInsights.total_quotes,
+		multiplyBy100: false,
+	},
+	"combined engagement": {
+		name: "combined engagement",
+		color: "#10B981",
+		mldata: (data: MLData) => data.combined.engagementRate.map((d) => d * 100),
+		isbd: (data: InsightsByDate) => data.combinedInsights.engegementRate * 100,
+		multiplyBy100: true,
+	},
+	"combined reach": {
+		name: "combined reach",
+		color: "#F59E0B",
+		mldata: (data: MLData) => data.combined.reachRate.map((d) => d * 100),
+		isbd: (data: InsightsByDate) => data.combinedInsights.reachRate * 100,
+		multiplyBy100: true,
+	},
+	"combined activity": {
+		name: "combined activity",
+		color: "#3B82F6",
+		mldata: (data: MLData) => data.combined.activityRate.map((d) => d * 100),
+		isbd: (data: InsightsByDate) => data.combinedInsights.activityRate * 100,
+		multiplyBy100: true,
+	},
 } as const;
 
 export const useAllMlData = (timePeriod: TimePeriod): Record<keyof typeof chartTypes, ReturnType<typeof useMLByDate>> => {
@@ -148,6 +204,14 @@ export const useAllMlData = (timePeriod: TimePeriod): Record<keyof typeof chartT
 		"reply engagement": useMLByDate("reply engagement", timePeriod),
 		"reply reach": useMLByDate("reply reach", timePeriod),
 		"reply activity": useMLByDate("reply activity", timePeriod),
+		"combined views": useMLByDate("combined views", timePeriod),
+		"combined likes": useMLByDate("combined likes", timePeriod),
+		"combined replies": useMLByDate("combined replies", timePeriod),
+		"combined reposts": useMLByDate("combined reposts", timePeriod),
+		"combined quotes": useMLByDate("combined quotes", timePeriod),
+		"combined engagement": useMLByDate("combined engagement", timePeriod),
+		"combined reach": useMLByDate("combined reach", timePeriod),
+		"combined activity": useMLByDate("combined activity", timePeriod),
 	};
 };
 

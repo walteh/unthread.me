@@ -16,7 +16,7 @@ const useThreadList = () => {
 export const useMyReplyList = () => {
 	const profile = useCacheStore((state) => state.user_profile);
 	const thread = useLiveQuery(async () => {
-		const thread = await yo.replies.where({ username: profile?.username }).toArray();
+		const thread = await yo.replies.where({ username: profile?.username ?? "invalid" }).toArray();
 		return thread;
 	}, []);
 

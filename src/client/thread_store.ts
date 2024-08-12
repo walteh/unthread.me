@@ -36,9 +36,8 @@ const db = new Dexie("unthread.me/thread_store") as Dexie & {
 };
 
 // Schema declaration:
-db.version(1).stores({
-	threads: "++thread_id, username, media,  insights, type", // Primary key and indexed props
-	// version: "1",
+db.version(2).stores({
+	threads: "++thread_id, username, media, insights, type", // Primary key and indexed props
 });
 
 export { db };
