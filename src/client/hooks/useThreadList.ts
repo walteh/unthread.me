@@ -2,10 +2,21 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { db as yo } from "../reply_store";
 import { db, ThreadID } from "../thread_store";
+import useCacheStore from "./useCacheStore";
 
 const useThreadList = () => {
 	const thread = useLiveQuery(async () => {
 		const thread = await db.threads.toArray();
+		return thread;
+	}, []);
+
+	return thread ?? [];
+};
+
+export const useMyReplyList = () => {
+	const profile = useCacheStore((state) => state.user_profile);
+	const thread = useLiveQuery(async () => {
+		const thread = await yo.replies.where({ username: profile?.username }).toArray();
 		return thread;
 	}, []);
 

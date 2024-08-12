@@ -154,7 +154,12 @@ export const useAllMlData = (timePeriod: TimePeriod): Record<keyof typeof chartT
 const useMLByDate = (chartType: keyof typeof chartTypes, timePeriod: TimePeriod) => {
 	const insights = useInsightsByDateRange(timePeriod.start_date, timePeriod.end_date);
 
-	const data = transormFullPostDataForML(insights);
+	const data = transormFullPostDataForML(
+		Object.entries(insights)
+			.map(([date, data]) => ({ date, data }))
+			.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+			.map((d) => d.data),
+	);
 
 	const chartTypeData = chartTypes[chartType];
 

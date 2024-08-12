@@ -50,6 +50,7 @@ export const get_media_insights_with_params = async (
 					},
 				],
 			},
+
 			timeout: 30000,
 		})
 		.then((response) => response.json<InsightsResponse<MediaMetricTypeMap[MediaMetric]>>())

@@ -16,7 +16,7 @@ export const fetch_user_replies_page = async (
 	cursor?: string,
 ) => {
 	const searchParams: Record<string, string | number | boolean> = {
-		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status,username,is_reply_owned_by_me",
+		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status,username,is_reply_owned_by_me,permalink",
 		access_token: accessToken.access_token,
 	};
 
@@ -27,7 +27,7 @@ export const fetch_user_replies_page = async (
 		if (params?.since) searchParams.since = params.since;
 		if (params?.until) searchParams.until = params.until;
 	}
-	searchParams.limit = 25;
+	searchParams.limit = 100;
 
 	if (cursor) {
 		searchParams.after = cursor;

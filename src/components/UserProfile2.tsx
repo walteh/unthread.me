@@ -5,6 +5,7 @@ import { useUserEngagementRate } from "@src/client/hooks/useEngagementRate";
 import useMLByDate from "@src/client/hooks/useMLByDate";
 import useModalStore from "@src/client/hooks/useModalStore";
 import { useAllThreadsRefresher, useLast2DaysThreadsRefresher, useUserDataRefresher } from "@src/client/hooks/useRefreshers";
+import { useMyReplyList } from "@src/client/hooks/useThreadList";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod";
 import useTokenStore from "@src/client/hooks/useTokenStore";
@@ -32,6 +33,7 @@ export default function UserProfile2() {
 	const profileRefreshedAt = useCacheStore((state) => state.user_profile_refreshed_at);
 	const [insights] = useUserInsights();
 	const [threads] = useThreadsListSortedByDate();
+	const replies = useMyReplyList();
 	const today = getDateStringInPacificTime(new Date());
 
 	const [engagement, reach, activity] = useUserEngagementRate();
@@ -56,7 +58,9 @@ export default function UserProfile2() {
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
-		{ label: "threads", value: formatNumber(threads.length), real_value: threads.length },
+		{ label: "post threads", value: formatNumber(threads.length), real_value: threads.length },
+		{ label: "reply threads", value: formatNumber(replies.length), real_value: replies.length },
+
 		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views },
 	];
 

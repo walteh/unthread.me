@@ -6,7 +6,7 @@ import {
 	calculateMultiThreadEngagementRate,
 } from "@src/client/hooks/useEngagementRate";
 import { CachedReplyData } from "@src/client/reply_store";
-import { CachedThreadData, ThreadID } from "@src/client/thread_store";
+import { CachedThreadData } from "@src/client/thread_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
 
 // export function getDateStringInPacificTime(date: Date) {
@@ -50,7 +50,19 @@ export function getDateStringInPacificTime(date: Date) {
 export const getDayOfWeek = (date: string) => {
 	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 	const day = new Date(date + "T00:00:00").getDay();
+
+	if (isNaN(day)) return "Invalid Date";
 	return days[day].toUpperCase();
+};
+
+export const getWeekOfYear = (date: string) => {
+	const dateObject = new Date(date + "T00:00:00");
+	const startOfYear = new Date(dateObject.getFullYear(), 0, 0);
+	const diff = dateObject.getTime() - startOfYear.getTime();
+	const oneDay = 1000 * 60 * 60 * 24;
+	const day = Math.floor(diff / oneDay);
+	const week = Math.floor(day / 7);
+	return `${dateObject.getFullYear()}-W${String(week).padStart(2, "0")}`;
 };
 
 export function getTimeInPacificTimeWithVeryPoorPerformance(date: Date) {
@@ -64,54 +76,38 @@ export function getTimeInPacificTimeWithVeryPoorPerformance(date: Date) {
 	return pacificTime;
 }
 
+export interface AggregatedInsights {
+	engegementRate: number;
+	activityRate: number;
+	reachRate: number;
+	total_likes: number;
+	total_replies: number;
+	total_reposts: number;
+	total_quotes: number;
+	total_views: number;
+	total_posts: number;
+}
 export interface InsightsByDate {
-	dateInfo: {
-		today: string;
-		one_week_ago: string;
-		two_weeks_ago: string;
-		three_weeks_ago: string;
-		four_weeks_ago: string;
-		five_weeks_ago: string;
-		six_weeks_ago: string;
-		this_day_last_month: string;
-	};
+	// dateInfo: {
+	// 	today: string;
+	// 	one_week_ago: string;
+	// 	two_weeks_ago: string;
+	// 	three_weeks_ago: string;
+	// 	four_weeks_ago: string;
+	// 	five_weeks_ago: string;
+	// 	six_weeks_ago: string;
+	// 	this_day_last_month: string;
+	// };
+
+	label: string;
+
 	totalUserViews: number;
 
-	cumlativePostInsights: {
-		engegementRate: number;
-		activityRate: number;
-		reachRate: number;
-		total_likes: number;
-		total_replies: number;
-		total_reposts: number;
-		total_quotes: number;
-		total_views: number;
-		total_posts: number;
-	};
+	cumlativePostInsights: AggregatedInsights;
 
-	cumlativeReplyInsights: {
-		engegementRate: number;
-		activityRate: number;
-		reachRate: number;
-		total_likes: number;
-		total_replies: number;
-		total_reposts: number;
-		total_quotes: number;
-		total_views: number;
-		total_posts: number;
-	};
+	cumlativeReplyInsights: AggregatedInsights;
 
-	combinedInsights: {
-		engegementRate: number;
-		activityRate: number;
-		reachRate: number;
-		total_likes: number;
-		total_replies: number;
-		total_reposts: number;
-		total_quotes: number;
-		total_views: number;
-		total_posts: number;
-	};
+	combinedInsights: AggregatedInsights;
 
 	relativeInsights(): RelativeInsightsByDate;
 }
@@ -164,23 +160,45 @@ export const convertToInsightsByDateReply = (data: CachedReplyData): MinimalThre
 export const isdbAll = (
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
-	allReplies: Record<ThreadID, CachedReplyData[]>,
+	userReplies: CachedReplyData[],
 ): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
-	return isdbRange(startDate, endDate, userInsights, userThreads, allReplies);
+	return isdbRange(startDate, endDate, userInsights, userThreads, userReplies);
 };
 
 export const isdbAllNoRelative = (
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
-	allReplies: Record<ThreadID, CachedReplyData[]>,
+	userReplies: CachedReplyData[],
 ): Record<string, InsightsByDate> => {
 	const startDate = new Date("2024-04-01");
 	const endDate = new Date();
 
-	return isdbRange(startDate, endDate, userInsights, userThreads, allReplies, false);
+	return isdbRange(startDate, endDate, userInsights, userThreads, userReplies, false);
+};
+
+export const isdbAllNoRelativeWeekly = (
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	userReplies: CachedReplyData[],
+): Record<string, InsightsByDate> => {
+	const startDate = new Date("2024-04-01");
+	const endDate = new Date();
+
+	return isdbRangeWeekly(startDate, endDate, userInsights, userThreads, userReplies);
+};
+
+export const isdbAllNoRelativeMonthly = (
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	userReplies: CachedReplyData[],
+): Record<string, InsightsByDate> => {
+	const startDate = new Date("2024-04-01");
+	const endDate = new Date();
+
+	return isdbRangeMonthly(startDate, endDate, userInsights, userThreads, userReplies);
 };
 
 export const isdbRange = (
@@ -188,7 +206,7 @@ export const isdbRange = (
 	endDate: Date,
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
-	allReplies: Record<ThreadID, CachedReplyData[]>,
+	userReplies: CachedReplyData[],
 	includeRelativeInsights = true,
 ): Record<string, InsightsByDate> => {
 	const days: string[] = [];
@@ -200,55 +218,126 @@ export const isdbRange = (
 	const wrk = days
 		.reverse()
 		.map((date) => {
-			return isbd(date, userInsights, userThreads, allReplies);
+			return {
+				date: date,
+				isdb: isbd(date, userInsights, userThreads, userReplies, (d) => getDateStringInPacificTime(new Date(d)) === date),
+			};
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {
-			acc[data.dateInfo.today] = data;
+			acc[data.date] = data.isdb;
 
 			return acc;
 		}, {});
 
 	if (!includeRelativeInsights) return wrk;
 
-	Object.keys(wrk).forEach((value) => {
-		const today = value;
+	// Object.keys(wrk).forEach((value) => {
+	// 	const today = value;
 
-		wrk[value].relativeInsights = () => ({
-			today: wrk[today],
-			one_week_ago: wrk[wrk[today].dateInfo.one_week_ago],
-			two_weeks_ago: wrk[wrk[today].dateInfo.two_weeks_ago],
-			three_weeks_ago: wrk[wrk[today].dateInfo.three_weeks_ago],
-			four_weeks_ago: wrk[wrk[today].dateInfo.four_weeks_ago],
-			five_weeks_ago: wrk[wrk[today].dateInfo.five_weeks_ago],
-			six_weeks_ago: wrk[wrk[today].dateInfo.six_weeks_ago],
-			this_day_last_month: wrk[wrk[today].dateInfo.this_day_last_month],
-		});
-	});
+	// 	wrk[value].relativeInsights = () => ({
+	// 		today: wrk[today],
+	// 		one_week_ago: wrk[wrk[today].dateInfo.one_week_ago],
+	// 		two_weeks_ago: wrk[wrk[today].dateInfo.two_weeks_ago],
+	// 		three_weeks_ago: wrk[wrk[today].dateInfo.three_weeks_ago],
+	// 		four_weeks_ago: wrk[wrk[today].dateInfo.four_weeks_ago],
+	// 		five_weeks_ago: wrk[wrk[today].dateInfo.five_weeks_ago],
+	// 		six_weeks_ago: wrk[wrk[today].dateInfo.six_weeks_ago],
+	// 		this_day_last_month: wrk[wrk[today].dateInfo.this_day_last_month],
+	// 	});
+	// });
+
+	return wrk;
+};
+
+export const isdbRangeWeekly = (
+	startDate: Date,
+	endDate: Date,
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	userReplies: CachedReplyData[],
+): Record<string, InsightsByDate> => {
+	const weeks: string[] = [];
+
+	for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 7)) {
+		weeks.push(getWeekOfYear(new Date(d).toISOString().slice(0, 10)));
+	}
+
+	const wrk = weeks
+		.reverse()
+		.map((weekOfYear) => {
+			return {
+				date: weekOfYear,
+				isdb: isbd(
+					weekOfYear,
+					userInsights,
+					userThreads,
+					userReplies,
+					(d) => getWeekOfYear(getDateStringInPacificTime(new Date(d))) === weekOfYear,
+				),
+			};
+		})
+		.reduce<Record<string, InsightsByDate>>((acc, data) => {
+			acc[data.date] = data.isdb;
+
+			return acc;
+		}, {});
+
+	return wrk;
+};
+
+export const isdbRangeMonthly = (
+	startDate: Date,
+	endDate: Date,
+	userInsights: SimplifedMetricTypeMap | null,
+	userThreads: CachedThreadData[],
+	userReplies: CachedReplyData[],
+): Record<string, InsightsByDate> => {
+	const months: string[] = [];
+
+	for (let d = new Date(startDate); d <= endDate; d.setMonth(d.getMonth() + 1)) {
+		months.push(new Date(d).toISOString().slice(0, 7));
+	}
+
+	const wrk = months
+		.reverse()
+		.map((month) => {
+			return {
+				date: month,
+				isdb: isbd(month, userInsights, userThreads, userReplies, (d) => new Date(d).toISOString().slice(0, 7) === month),
+			};
+		})
+		.reduce<Record<string, InsightsByDate>>((acc, data) => {
+			acc[data.date] = data.isdb;
+
+			return acc;
+		}, {});
 
 	return wrk;
 };
 
 export const isbd = (
-	date: string,
+	label: string,
 	userInsights: SimplifedMetricTypeMap | null,
 	userThreads: CachedThreadData[],
-	allReplies: Record<ThreadID, CachedReplyData[]>,
+	userReplies: CachedReplyData[],
+	dateFunc: (date: string) => boolean,
 ): InsightsByDate => {
-	const ONE_DAY = 24 * 60 * 60 * 1000;
+	// const ONE_DAY = 24 * 60 * 60 * 1000;
 
-	const dateInfo = {
-		today: date,
-		one_week_ago: new Date(new Date(date).getTime() - 7 * ONE_DAY).toISOString().slice(0, 10),
-		two_weeks_ago: new Date(new Date(date).getTime() - 14 * ONE_DAY).toISOString().slice(0, 10),
-		three_weeks_ago: new Date(new Date(date).getTime() - 21 * ONE_DAY).toISOString().slice(0, 10),
-		four_weeks_ago: new Date(new Date(date).getTime() - 28 * ONE_DAY).toISOString().slice(0, 10),
-		five_weeks_ago: new Date(new Date(date).getTime() - 35 * ONE_DAY).toISOString().slice(0, 10),
-		six_weeks_ago: new Date(new Date(date).getTime() - 42 * ONE_DAY).toISOString().slice(0, 10),
-		this_day_last_month: this_day_last_month(date),
-	};
+	// const dateInfo = {
+	// 	today: startDate,
+	// 	one_week_ago: new Date(new Date(startDate).getTime() - 7 * ONE_DAY).toISOString().slice(0, 10),
+	// 	two_weeks_ago: new Date(new Date(startDate).getTime() - 14 * ONE_DAY).toISOString().slice(0, 10),
+	// 	three_weeks_ago: new Date(new Date(startDate).getTime() - 21 * ONE_DAY).toISOString().slice(0, 10),
+	// 	four_weeks_ago: new Date(new Date(startDate).getTime() - 28 * ONE_DAY).toISOString().slice(0, 10),
+	// 	five_weeks_ago: new Date(new Date(startDate).getTime() - 35 * ONE_DAY).toISOString().slice(0, 10),
+	// 	six_weeks_ago: new Date(new Date(startDate).getTime() - 42 * ONE_DAY).toISOString().slice(0, 10),
+	// 	this_day_last_month: this_day_last_month(startDate),
+	// };
 	if (!userInsights)
 		return {
-			dateInfo: dateInfo,
+			label: label,
+			// dateInfo: dateInfo,
 			totalUserViews: 0,
 			cumlativePostInsights: {
 				engegementRate: 0,
@@ -286,12 +375,12 @@ export const isbd = (
 			relativeInsights: () => ({}) as RelativeInsightsByDate,
 		};
 
-	const totalViews = userInsights.views_by_day.filter((v) => getDateStringInPacificTime(new Date(v.label)) === date)[0]?.value ?? 0;
+	const totalViews = userInsights.views_by_day.filter((v) => dateFunc(v.label)).reduce((acc, data) => acc + data.value, 0);
 
 	const cumlativePostInsights = userThreads
 		.map((thread) => convertToInsightsByDate(thread))
 		.filter((thread) => {
-			return getDateStringInPacificTime(new Date(thread.timestamp)) === date;
+			return dateFunc(thread.timestamp);
 		})
 		.reduce(
 			(acc, data) => {
@@ -314,10 +403,9 @@ export const isbd = (
 			},
 		);
 
-	const cumlativeReplyInsights = Object.values(allReplies)
-		.flatMap((replies) => replies)
+	const cumlativeReplyInsights = userReplies
 		.filter((reply) => {
-			return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
+			return dateFunc(reply.media.timestamp);
 		})
 		.map((thread) => convertToInsightsByDateReply(thread))
 
@@ -352,27 +440,25 @@ export const isbd = (
 	};
 
 	const threadsFiltered = userThreads.filter((thread) => {
-		return getDateStringInPacificTime(new Date(thread.media.timestamp)) === date;
+		return dateFunc(thread.media.timestamp);
 	});
 
-	const repliesFiltered = Object.values(allReplies)
-		.flatMap((replies) => replies)
-		.filter((reply) => {
-			return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
-		});
+	const repliesFiltered = userReplies.filter((reply) => {
+		return dateFunc(reply.media.timestamp);
+	});
 
-	const [engagement, reach, activity] = calculateMultiThreadEngagementRate(threadsFiltered, allReplies, userInsights);
+	const [engagement, reach, activity] = calculateMultiThreadEngagementRate(threadsFiltered, userInsights);
 
-	const [engagementReply, reachReply, activityReply] = calculateMultiReplyEngagementRate(repliesFiltered, allReplies, userInsights);
+	const [engagementReply, reachReply, activityReply] = calculateMultiReplyEngagementRate(repliesFiltered, userInsights);
 
 	const [engagementCombined, reachCombined, activityCombined] = calculateMultiCombinedEngagementRate(
 		threadsFiltered,
 		repliesFiltered,
-		allReplies,
 		userInsights,
 	);
 
 	return {
+		label: label,
 		relativeInsights: () => ({}) as RelativeInsightsByDate,
 		totalUserViews: totalViews,
 		cumlativePostInsights: {
@@ -393,11 +479,11 @@ export const isbd = (
 			reachRate: reachCombined,
 			...combinedInsights,
 		},
-		dateInfo,
+		// dateInfo,
 	};
 };
 
-const this_day_last_month = (date: string): string => {
+export const this_day_last_month = (date: string): string => {
 	const split = date.split("-");
 
 	const month = parseInt(split[1]);
@@ -431,7 +517,81 @@ export interface MLDatas {
 	activityRate: number[];
 }
 
-export const transformPostDataForML = (relativeInsights: Record<string, InsightsByDate>, date: Date): MLData => {
+// export const transformPostDataForML = (relativeInsights: Record<string, InsightsByDate>, date: Date): MLData => {
+// 	const dates: string[] = [];
+
+// 	const viewsData: number[] = [];
+// 	const likesData: number[] = [];
+// 	const repliesData: number[] = [];
+// 	const repostsData: number[] = [];
+// 	const quotesData: number[] = [];
+// 	const userViewsData: number[] = [];
+// 	const engagementRateData: number[] = [];
+// 	const reachRateData: number[] = [];
+// 	const activityRateData: number[] = [];
+
+// 	const replyViewsData: number[] = [];
+// 	const replyLikesData: number[] = [];
+// 	const replyRepliesData: number[] = [];
+// 	const replyRepostsData: number[] = [];
+// 	const replyQuotesData: number[] = [];
+// 	const replyEngagementRateData: number[] = [];
+// 	const replyReachRateData: number[] = [];
+// 	const replyActivityRateData: number[] = [];
+
+// 	const insights = relativeInsights[date.toISOString().slice(0, 10)].relativeInsights();
+// 	Object.keys(insights).forEach((insight) => {
+// 		const key = insight as keyof RelativeInsightsByDate;
+// 		const isi = insights[key] as InsightsByDate | undefined;
+// 		if (isi && (key === "today" || key.includes("week"))) {
+// 			dates.push(isi.label);
+// 			viewsData.push(isi.cumlativePostInsights.total_views);
+// 			likesData.push(isi.cumlativePostInsights.total_likes);
+// 			repliesData.push(isi.cumlativePostInsights.total_replies);
+// 			repostsData.push(isi.cumlativePostInsights.total_reposts);
+// 			quotesData.push(isi.cumlativePostInsights.total_quotes);
+// 			userViewsData.push(isi.totalUserViews);
+// 			engagementRateData.push(isi.cumlativePostInsights.engegementRate);
+// 			reachRateData.push(isi.cumlativePostInsights.reachRate);
+// 			activityRateData.push(isi.cumlativePostInsights.activityRate);
+// 			replyViewsData.push(isi.cumlativeReplyInsights.total_views);
+// 			replyLikesData.push(isi.cumlativeReplyInsights.total_likes);
+// 			replyRepliesData.push(isi.cumlativeReplyInsights.total_replies);
+// 			replyRepostsData.push(isi.cumlativeReplyInsights.total_reposts);
+// 			replyQuotesData.push(isi.cumlativeReplyInsights.total_quotes);
+// 			replyEngagementRateData.push(isi.cumlativeReplyInsights.engegementRate);
+// 			replyReachRateData.push(isi.cumlativeReplyInsights.reachRate);
+// 			replyActivityRateData.push(isi.cumlativeReplyInsights.activityRate);
+// 		}
+// 	});
+
+// 	return {
+// 		dates,
+// 		userViews: userViewsData,
+// 		posts: {
+// 			views: viewsData,
+// 			likes: likesData,
+// 			replies: repliesData,
+// 			reposts: repostsData,
+// 			quotes: quotesData,
+// 			engagementRate: engagementRateData,
+// 			reachRate: reachRateData,
+// 			activityRate: activityRateData,
+// 		},
+// 		replies: {
+// 			views: replyViewsData,
+// 			likes: replyLikesData,
+// 			replies: replyRepliesData,
+// 			reposts: replyRepostsData,
+// 			quotes: replyQuotesData,
+// 			engagementRate: replyEngagementRateData,
+// 			reachRate: replyReachRateData,
+// 			activityRate: replyActivityRateData,
+// 		},
+// 	};
+// };
+
+export const transormFullPostDataForML = (relativeInsights: InsightsByDate[]): MLData => {
 	const dates: string[] = [];
 
 	const viewsData: number[] = [];
@@ -453,91 +613,11 @@ export const transformPostDataForML = (relativeInsights: Record<string, Insights
 	const replyReachRateData: number[] = [];
 	const replyActivityRateData: number[] = [];
 
-	const insights = relativeInsights[date.toISOString().slice(0, 10)].relativeInsights();
-	Object.keys(insights).forEach((insight) => {
-		const key = insight as keyof RelativeInsightsByDate;
-		const isi = insights[key] as InsightsByDate | undefined;
-		if (isi && (key === "today" || key.includes("week"))) {
-			dates.push(isi.dateInfo.today);
-			viewsData.push(isi.cumlativePostInsights.total_views);
-			likesData.push(isi.cumlativePostInsights.total_likes);
-			repliesData.push(isi.cumlativePostInsights.total_replies);
-			repostsData.push(isi.cumlativePostInsights.total_reposts);
-			quotesData.push(isi.cumlativePostInsights.total_quotes);
-			userViewsData.push(isi.totalUserViews);
-			engagementRateData.push(isi.cumlativePostInsights.engegementRate);
-			reachRateData.push(isi.cumlativePostInsights.reachRate);
-			activityRateData.push(isi.cumlativePostInsights.activityRate);
-			replyViewsData.push(isi.cumlativeReplyInsights.total_views);
-			replyLikesData.push(isi.cumlativeReplyInsights.total_likes);
-			replyRepliesData.push(isi.cumlativeReplyInsights.total_replies);
-			replyRepostsData.push(isi.cumlativeReplyInsights.total_reposts);
-			replyQuotesData.push(isi.cumlativeReplyInsights.total_quotes);
-			replyEngagementRateData.push(isi.cumlativeReplyInsights.engegementRate);
-			replyReachRateData.push(isi.cumlativeReplyInsights.reachRate);
-			replyActivityRateData.push(isi.cumlativeReplyInsights.activityRate);
-		}
-	});
-
-	return {
-		dates,
-		userViews: userViewsData,
-		posts: {
-			views: viewsData,
-			likes: likesData,
-			replies: repliesData,
-			reposts: repostsData,
-			quotes: quotesData,
-			engagementRate: engagementRateData,
-			reachRate: reachRateData,
-			activityRate: activityRateData,
-		},
-		replies: {
-			views: replyViewsData,
-			likes: replyLikesData,
-			replies: replyRepliesData,
-			reposts: replyRepostsData,
-			quotes: replyQuotesData,
-			engagementRate: replyEngagementRateData,
-			reachRate: replyReachRateData,
-			activityRate: replyActivityRateData,
-		},
-	};
-};
-
-export const transormFullPostDataForML = (relativeInsights: Record<string, InsightsByDate>): MLData => {
-	const dates: string[] = [];
-
-	const viewsData: number[] = [];
-	const likesData: number[] = [];
-	const repliesData: number[] = [];
-	const repostsData: number[] = [];
-	const quotesData: number[] = [];
-	const userViewsData: number[] = [];
-	const engagementRateData: number[] = [];
-	const reachRateData: number[] = [];
-	const activityRateData: number[] = [];
-
-	const replyViewsData: number[] = [];
-	const replyLikesData: number[] = [];
-	const replyRepliesData: number[] = [];
-	const replyRepostsData: number[] = [];
-	const replyQuotesData: number[] = [];
-	const replyEngagementRateData: number[] = [];
-	const replyReachRateData: number[] = [];
-	const replyActivityRateData: number[] = [];
-
-	const insightsArrayByDateSorted = Object.entries(relativeInsights)
-		.sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
-		.map(([, value]) => value);
-
-	insightsArrayByDateSorted.forEach((isi) => {
-		const { today, total_likes, total_replies, total_reposts, total_quotes, total_views } = {
-			today: isi.dateInfo.today,
+	relativeInsights.forEach((isi) => {
+		const { total_likes, total_replies, total_reposts, total_quotes, total_views } = {
 			...isi.cumlativePostInsights,
 		};
 
-		dates.push(today);
 		viewsData.push(total_views);
 		likesData.push(total_likes);
 		repliesData.push(total_replies);

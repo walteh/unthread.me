@@ -9,6 +9,7 @@ import { AccessTokenResponse, SimplifedMediaMetricTypeMap, ThreadMedia } from ".
 import { db as yo, makeReplyID } from "./reply_store";
 
 export interface CachedThreadData {
+	type: "thread";
 	thread_id: ThreadID;
 	username: string;
 	media: ThreadMedia;
@@ -36,7 +37,7 @@ const db = new Dexie("unthread.me/thread_store") as Dexie & {
 
 // Schema declaration:
 db.version(1).stores({
-	threads: "++thread_id, username, media,  insights", // Primary key and indexed props
+	threads: "++thread_id, username, media,  insights, type", // Primary key and indexed props
 	// version: "1",
 });
 
@@ -61,6 +62,7 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 						username: thread.username,
 						media: thread,
 						insights: null,
+						type: "thread",
 					};
 				}),
 			),
@@ -68,7 +70,10 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 
 		for (const thread of data.data) {
 			const thread_id = makeThreadID(thread.id);
-			promises.push(loadThreadInsightsData(ky, token, thread_id), loadThreadRepliesData(ky, token, thread_id));
+			promises.push(
+				loadThreadInsightsData(ky, token, thread_id),
+				// loadThreadRepliesData(ky, token, thread_id)
+			);
 		}
 
 		if (data.paging?.cursors.after && !params?.limit) {
@@ -85,7 +90,7 @@ const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse
 		await db.threads.update(id, { insights: data });
 	});
 };
-const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
+export const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
 	await get_conversation(ky, token, extractThreadID(id)).then(async (data) => {
 		await yo.replies.bulkPut(
 			data.data.map((thread) => {
@@ -97,6 +102,7 @@ const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse,
 					parent_reply_id: thread.replied_to ? (isRoot ? id : makeReplyID(thread.replied_to.id)) : null,
 					media: thread,
 					insights: null,
+					type: "reply",
 				};
 			}),
 		);
