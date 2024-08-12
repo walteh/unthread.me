@@ -18,7 +18,7 @@ const fetch_conversation_page = async (
 	cursor?: string,
 ): Promise<ConversationResponse> => {
 	const searchParams: Record<string, string | boolean | number> = {
-		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status,username",
+		fields: "id,text,timestamp,media_product_type,media_type,media_url,shortcode,thumbnail_url,children,has_replies,root_post,replied_to,is_reply,hide_status,username,is_reply_owned_by_me,permalink",
 		access_token: accessToken.access_token,
 		reverse: params?.reverse ?? true,
 	};

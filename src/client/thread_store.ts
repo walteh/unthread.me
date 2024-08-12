@@ -5,16 +5,20 @@ import get_conversation from "@src/threadsapi/get_conversation";
 import get_media_insights from "@src/threadsapi/get_media_insights";
 import { fetch_user_threads_page, GetUserThreadsParams } from "@src/threadsapi/get_user_threads";
 
-import { AccessTokenResponse, ConversationResponse, SimplifedMediaMetricTypeMap, ThreadMedia } from "../threadsapi/types";
+import { AccessTokenResponse, SimplifedMediaMetricTypeMap, ThreadMedia } from "../threadsapi/types";
+import { db as yo, makeReplyID } from "./reply_store";
 
 export interface CachedThreadData {
+	type: "thread";
 	thread_id: ThreadID;
+	username: string;
 	media: ThreadMedia;
-	replies: ConversationResponse | null;
 	insights: SimplifedMediaMetricTypeMap | null;
 }
 
 export type ThreadID = `thread_${string}`;
+
+export const unknownThreadID: ThreadID = "thread_unknown";
 
 function makeThreadID(id: string): ThreadID {
 	return `thread_${id}`;
@@ -32,8 +36,8 @@ const db = new Dexie("unthread.me/thread_store") as Dexie & {
 };
 
 // Schema declaration:
-db.version(1).stores({
-	threads: "++thread_id, media, replies, insights", // Primary key and indexed props
+db.version(2).stores({
+	threads: "++thread_id, username, media, insights, type", // Primary key and indexed props
 });
 
 export { db };
@@ -45,7 +49,7 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 		localStorage.removeItem("unthread.me/thread_store");
 	}
 	// let count = 0;
-	const fetchAllPages = async (cursor?: string): Promise<void> => {
+	const fetchAllThreadPages = async (cursor?: string): Promise<void> => {
 		const data = await fetch_user_threads_page(ky, token, params, cursor);
 
 		promises.push(
@@ -54,28 +58,29 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 					const id = makeThreadID(thread.id);
 					return {
 						thread_id: id,
+						username: thread.username,
 						media: thread,
-						replies: null,
 						insights: null,
+						type: "thread",
 					};
 				}),
-				// {
-				// 	allKeys: false,
-				// },
 			),
 		);
 
 		for (const thread of data.data) {
 			const thread_id = makeThreadID(thread.id);
-			promises.push(loadThreadInsightsData(ky, token, thread_id), loadThreadRepliesData(ky, token, thread_id));
+			promises.push(
+				loadThreadInsightsData(ky, token, thread_id),
+				// loadThreadRepliesData(ky, token, thread_id)
+			);
 		}
 
 		if (data.paging?.cursors.after && !params?.limit) {
-			await fetchAllPages(data.paging.cursors.after);
+			await fetchAllThreadPages(data.paging.cursors.after);
 		}
 	};
 
-	await fetchAllPages();
+	await fetchAllThreadPages();
 	await Promise.all(promises);
 };
 
@@ -84,9 +89,22 @@ const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse
 		await db.threads.update(id, { insights: data });
 	});
 };
-const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
+export const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
 	await get_conversation(ky, token, extractThreadID(id)).then(async (data) => {
-		await db.threads.update(id, { replies: data });
+		await yo.replies.bulkPut(
+			data.data.map((thread) => {
+				const isRoot = id === thread.replied_to?.id;
+				return {
+					reply_id: makeReplyID(thread.id),
+					thread_id: id,
+					username: thread.username,
+					parent_reply_id: thread.replied_to ? (isRoot ? id : makeReplyID(thread.replied_to.id)) : null,
+					media: thread,
+					insights: null,
+					type: "reply",
+				};
+			}),
+		);
 	});
 };
 
@@ -96,7 +114,11 @@ export default {
 	},
 
 	getThreadReplies: async (id: ThreadID) => {
-		return await db.threads.get(id).then((data) => data?.replies);
+		return await yo.replies.filter((thread) => thread.thread_id === id).toArray();
+	},
+
+	getThreadImmediateReplies: async (id: ThreadID) => {
+		return await yo.replies.filter((thread) => thread.thread_id === id && thread.parent_reply_id === null).toArray();
 	},
 
 	getThreadMedia: async (id: ThreadID) => {

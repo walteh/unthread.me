@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 
 import { AccessTokenResponse } from "@src/threadsapi/types";
 
+import reply_store from "../reply_store";
 import thread_store from "../thread_store";
 import useCacheStore from "./useCacheStore";
 import { useIsLoggedIn } from "./useIsLoggedIn";
@@ -19,7 +20,7 @@ export const useLast2DaysThreadsRefresher = () => {
 		async function fetchData(token: AccessTokenResponse) {
 			setLoading(true);
 			try {
-				await thread_store.refreshThreadsLast2Days(kyd, token);
+				await Promise.all([thread_store.refreshThreadsLast2Days(kyd, token), reply_store.refreshThreadsLast2Days(kyd, token)]);
 				setError(null);
 			} catch (error) {
 				console.error(`problem fetching last 2 days threads:`, error);
@@ -50,7 +51,7 @@ export const useAllThreadsRefresher = () => {
 		async function fetchData(token: AccessTokenResponse) {
 			setLoading(true);
 			try {
-				await thread_store.loadThreadsData(kyd, token);
+				await Promise.all([thread_store.loadThreadsData(kyd, token), reply_store.loadUserRepliesData(kyd, token)]);
 				setError(null);
 			} catch (error) {
 				console.error(`problem fetching all threads:`, error);

@@ -7,7 +7,6 @@ export const useUserThreadsByDateRange = (start_date: string, end_date: string) 
 
 	return useMemo(() => {
 		return userThreads.filter((thread) => {
-			if (!thread.media) return false;
 			const threadDate = new Date(thread.media.timestamp).toISOString().slice(0, 10);
 			return threadDate >= start_date && threadDate <= end_date;
 		});

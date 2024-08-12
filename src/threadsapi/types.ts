@@ -184,7 +184,7 @@ export interface Reply {
 	thumbnail_url?: string;
 	children?: Reply[];
 	has_replies: boolean;
-	root_post: { id: string };
+	root_post: { id: string } | null;
 	replied_to: { id: string } | null;
 	is_reply: boolean;
 	hide_status: string;
