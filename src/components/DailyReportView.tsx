@@ -13,53 +13,31 @@ const InsightsRow: FC<{ date: string; insights: InsightsByDate }> = ({ date, ins
 				{insights.cumlativePostInsights.total_posts}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativePostInsights.total_views}
+				{insights.cumlativeReplyInsights.total_posts}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativePostInsights.total_likes}
+				{insights.combinedInsights.total_views}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativePostInsights.total_replies}
+				{insights.combinedInsights.total_likes}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativePostInsights.total_reposts}
+				{insights.combinedInsights.total_replies}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativePostInsights.total_quotes}
+				{insights.combinedInsights.total_reposts}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativePostInsights.engegementRate)}x
+				{insights.combinedInsights.total_quotes}
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativePostInsights.reachRate)}x
+				{formatNumber(insights.combinedInsights.engegementRate)}x
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativePostInsights.activityRate)}x
-			</td>
-
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativeReplyInsights.total_views}
+				{formatNumber(insights.combinedInsights.reachRate)}x
 			</td>
 			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativeReplyInsights.total_likes}
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativeReplyInsights.total_replies}
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativeReplyInsights.total_reposts}
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{insights.cumlativeReplyInsights.total_quotes}
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativeReplyInsights.engegementRate)}x
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativeReplyInsights.reachRate)}x
-			</td>
-			<td className="p-4 border-t border-gray-200 dark:border-gray-700 text-right font-mono">
-				{formatNumber(insights.cumlativeReplyInsights.activityRate)}x
+				{formatNumber(insights.combinedInsights.activityRate)}x
 			</td>
 		</tr>
 	);
@@ -87,23 +65,14 @@ export default function DailyReportView() {
 							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700" rowSpan={2}>
 								posts
 							</th>
-							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700" colSpan={8}>
-								post metrics
+							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700" rowSpan={2}>
+								replies
 							</th>
 							<th className="p-4 border-b-2 border-gray-200 dark:border-gray-700" colSpan={8}>
-								reply metrics
+								metrics
 							</th>
 						</tr>
 						<tr>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">views</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">likes</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">replies</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">reposts</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">quotes</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">engagement</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">reach</th>
-							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">activity</th>
-
 							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">views</th>
 							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">likes</th>
 							<th className="text-right p-4 border-b-2 border-gray-200 dark:border-gray-700">replies</th>

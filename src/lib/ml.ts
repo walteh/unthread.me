@@ -1,6 +1,10 @@
 import { linearRegression, linearRegressionLine } from "simple-statistics";
 
-import { calculateCombinedReplyEngagementRate, calculateCombinedThreadEngagementRate } from "@src/client/hooks/useEngagementRate";
+import {
+	calculateMultiCombinedEngagementRate,
+	calculateMultiReplyEngagementRate,
+	calculateMultiThreadEngagementRate,
+} from "@src/client/hooks/useEngagementRate";
 import { CachedReplyData } from "@src/client/reply_store";
 import { CachedThreadData, ThreadID } from "@src/client/thread_store";
 import { SimplifedMetricTypeMap } from "@src/threadsapi/types";
@@ -86,6 +90,18 @@ export interface InsightsByDate {
 	};
 
 	cumlativeReplyInsights: {
+		engegementRate: number;
+		activityRate: number;
+		reachRate: number;
+		total_likes: number;
+		total_replies: number;
+		total_reposts: number;
+		total_quotes: number;
+		total_views: number;
+		total_posts: number;
+	};
+
+	combinedInsights: {
 		engegementRate: number;
 		activityRate: number;
 		reachRate: number;
@@ -256,6 +272,17 @@ export const isbd = (
 				total_views: 0,
 				total_posts: 0,
 			},
+			combinedInsights: {
+				engegementRate: 0,
+				activityRate: 0,
+				reachRate: 0,
+				total_likes: 0,
+				total_replies: 0,
+				total_reposts: 0,
+				total_quotes: 0,
+				total_views: 0,
+				total_posts: 0,
+			},
 			relativeInsights: () => ({}) as RelativeInsightsByDate,
 		};
 
@@ -315,20 +342,32 @@ export const isbd = (
 			},
 		);
 
-	const [engagement, reach, activity] = calculateCombinedThreadEngagementRate(
-		userThreads.filter((thread) => {
-			return getDateStringInPacificTime(new Date(thread.media.timestamp)) === date;
-		}),
-		allReplies,
-		userInsights,
-	);
+	const combinedInsights = {
+		total_likes: cumlativePostInsights.total_likes + cumlativeReplyInsights.total_likes,
+		total_replies: cumlativePostInsights.total_replies + cumlativeReplyInsights.total_replies,
+		total_reposts: cumlativePostInsights.total_reposts + cumlativeReplyInsights.total_reposts,
+		total_quotes: cumlativePostInsights.total_quotes + cumlativeReplyInsights.total_quotes,
+		total_views: cumlativePostInsights.total_views + cumlativeReplyInsights.total_views,
+		total_posts: cumlativePostInsights.total_posts + cumlativeReplyInsights.total_posts,
+	};
 
-	const [engagementReply, reachReply, activityReply] = calculateCombinedReplyEngagementRate(
-		Object.values(allReplies)
-			.flatMap((replies) => replies)
-			.filter((reply) => {
-				return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
-			}),
+	const threadsFiltered = userThreads.filter((thread) => {
+		return getDateStringInPacificTime(new Date(thread.media.timestamp)) === date;
+	});
+
+	const repliesFiltered = Object.values(allReplies)
+		.flatMap((replies) => replies)
+		.filter((reply) => {
+			return getDateStringInPacificTime(new Date(reply.media.timestamp)) === date && reply.media.username === "walt_eh";
+		});
+
+	const [engagement, reach, activity] = calculateMultiThreadEngagementRate(threadsFiltered, allReplies, userInsights);
+
+	const [engagementReply, reachReply, activityReply] = calculateMultiReplyEngagementRate(repliesFiltered, allReplies, userInsights);
+
+	const [engagementCombined, reachCombined, activityCombined] = calculateMultiCombinedEngagementRate(
+		threadsFiltered,
+		repliesFiltered,
 		allReplies,
 		userInsights,
 	);
@@ -347,6 +386,12 @@ export const isbd = (
 			activityRate: activityReply,
 			reachRate: reachReply,
 			...cumlativeReplyInsights,
+		},
+		combinedInsights: {
+			engegementRate: engagementCombined,
+			activityRate: activityCombined,
+			reachRate: reachCombined,
+			...combinedInsights,
 		},
 		dateInfo,
 	};

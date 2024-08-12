@@ -31,14 +31,14 @@ export const calculateThreadEngagementRate = (
 	return [engagement, reach, activity] as const;
 };
 
-export const calculateCombinedThreadEngagementRate = (
+export const calculateMultiThreadEngagementRate = (
 	threads: CachedThreadData[],
-	replyData: Record<ThreadID | ReplyID, CachedReplyData[] | null>,
+	replyDatas: Record<ThreadID | ReplyID, CachedReplyData[] | null>,
 	user: SimplifedMetricTypeMap | null,
 ) => {
 	const likes = threads.reduce((acc, thread) => acc + (thread.insights?.total_likes ?? 0), 0);
 	const views = threads.reduce((acc, thread) => acc + (thread.insights?.total_views ?? 0), 0);
-	const replies = threads.reduce((acc, thread) => acc + (replyData[thread.thread_id]?.length ?? 0), 0);
+	const replies = threads.reduce((acc, thread) => acc + (replyDatas[thread.thread_id]?.length ?? 0), 0);
 	const quotes = threads.reduce((acc, thread) => acc + (thread.insights?.total_quotes ?? 0), 0);
 	const reposts = threads.reduce((acc, thread) => acc + (thread.insights?.total_reposts ?? 0), 0);
 
@@ -57,7 +57,7 @@ export const calculateCombinedThreadEngagementRate = (
 	return [engagement, reach, activity] as const;
 };
 
-export const calculateCombinedReplyEngagementRate = (
+export const calculateMultiReplyEngagementRate = (
 	replyData: CachedReplyData[],
 	replyDatas: Record<ThreadID | ReplyID, CachedReplyData[] | null>,
 	user: SimplifedMetricTypeMap | null,
@@ -79,6 +79,39 @@ export const calculateCombinedReplyEngagementRate = (
 	const reach = views / followers;
 
 	const activity = (likes + replies + quotes + reposts) / views;
+
+	return [engagement, reach, activity] as const;
+};
+
+export const calculateMultiCombinedEngagementRate = (
+	threads: CachedThreadData[],
+	replyData: CachedReplyData[],
+	replyDatas: Record<ThreadID | ReplyID, CachedReplyData[] | null>,
+	user: SimplifedMetricTypeMap | null,
+) => {
+	const likes = threads.reduce((acc, thread) => acc + (thread.insights?.total_likes ?? 0), 0);
+	const views = threads.reduce((acc, thread) => acc + (thread.insights?.total_views ?? 0), 0);
+	const replies = threads.reduce((acc, thread) => acc + (replyDatas[thread.thread_id]?.length ?? 0), 0);
+	const quotes = threads.reduce((acc, thread) => acc + (thread.insights?.total_quotes ?? 0), 0);
+	const reposts = threads.reduce((acc, thread) => acc + (thread.insights?.total_reposts ?? 0), 0);
+
+	const replyLikes = replyData.reduce((acc, thread) => acc + (thread.insights?.total_likes ?? 0), 0);
+	const replyViews = replyData.reduce((acc, thread) => acc + (thread.insights?.total_views ?? 0), 0);
+	const replyReplies = replyData.reduce((acc, thread) => acc + (replyDatas[thread.reply_id]?.length ?? 0), 0);
+	const replyQuotes = replyData.reduce((acc, thread) => acc + (thread.insights?.total_quotes ?? 0), 0);
+	const replyReposts = replyData.reduce((acc, thread) => acc + (thread.insights?.total_reposts ?? 0), 0);
+
+	const followers = user?.total_followers ?? 0;
+
+	const engagement = (likes + replies + quotes + reposts + replyLikes + replyReplies + replyQuotes + replyReposts) / followers;
+
+	if (views === 0) {
+		return [engagement, 0, 0] as const;
+	}
+
+	const reach = (views + replyViews) / followers;
+
+	const activity = (likes + replies + quotes + reposts + replyLikes + replyReplies + replyQuotes + replyReposts) / (views + replyViews);
 
 	return [engagement, reach, activity] as const;
 };
