@@ -1,7 +1,6 @@
 import ky from "ky";
 import { useCallback, useState } from "react";
 
-import { loadAllThreadInsightsData } from "@src/lib/breaker";
 import { AccessTokenResponse } from "@src/threadsapi/types";
 
 import reply_store from "../reply_store";
@@ -81,36 +80,36 @@ export const useAllThreadsRefresher = () => {
 	return [caller, isLoading, error] as const;
 };
 
-export const useAllInsightsRefresher = () => {
-	const [isLoading, setLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+// export const useAllInsightsRefresher = () => {
+// 	const [isLoading, setLoading] = useState(false);
+// 	const [error, setError] = useState<string | null>(null);
 
-	const [isLoggedIn, accessToken] = useIsLoggedIn();
+// 	const [isLoggedIn, accessToken] = useIsLoggedIn();
 
-	const caller = useCallback(() => {
-		async function fetchData(token: AccessTokenResponse) {
-			setLoading(true);
-			try {
-				await loadAllThreadInsightsData(kyd, token);
-				setError(null);
-			} catch (error) {
-				console.error(`problem fetching all insights:`, error);
-				setError(`failed to fetch all insights - ${error}`);
-				alert(`failed to fetch user data - ${error}`);
-			} finally {
-				setLoading(false);
-			}
-		}
+// 	const caller = useCallback(() => {
+// 		async function fetchData(token: AccessTokenResponse) {
+// 			setLoading(true);
+// 			try {
+// 				await loadAllThreadInsightsData(kyd, token);
+// 				setError(null);
+// 			} catch (error) {
+// 				console.error(`problem fetching all insights:`, error);
+// 				setError(`failed to fetch all insights - ${error}`);
+// 				alert(`failed to fetch user data - ${error}`);
+// 			} finally {
+// 				setLoading(false);
+// 			}
+// 		}
 
-		if (isLoggedIn) {
-			void fetchData(accessToken);
-		}
+// 		if (isLoggedIn) {
+// 			void fetchData(accessToken);
+// 		}
 
-		return;
-	}, [isLoggedIn, accessToken, setLoading, setError]);
+// 		return;
+// 	}, [isLoggedIn, accessToken, setLoading, setError]);
 
-	return [caller, isLoading, error] as const;
-};
+// 	return [caller, isLoading, error] as const;
+// };
 
 export const useUserDataRefresher = () => {
 	const refresh = useCacheStore((state) => state.loadUserData);
