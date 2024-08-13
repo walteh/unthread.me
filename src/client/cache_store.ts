@@ -25,6 +25,10 @@ export const cache_store = create(
 				} as CacheStoreState,
 				(set) => {
 					const loadUserData = async (ky: KyInstance, token: AccessTokenResponse) => {
+						if (localStorage.getItem("unthread.me/cache_store")) {
+							localStorage.removeItem("unthread.me/cache_store");
+						}
+
 						const prof = threadsapi.get_user_profile(ky, token).then((data) => {
 							set(() => ({
 								user_profile: data,
@@ -66,7 +70,7 @@ export const cache_store = create(
 				},
 			),
 			{
-				name: "unthread.me/cache_store",
+				name: "unthread.me/user_store",
 				storage: createJSONStorage(() => localStorage, {}),
 				version: 10,
 			},
