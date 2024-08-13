@@ -88,7 +88,7 @@ const fetch_user_insights_page = async (
 		.then((response) => response.json<InsightsResponse<MetricTypeMap[Metric]>>())
 		.catch((error: unknown) => {
 			console.error("Error fetching user insights:", error);
-			if (`${error}`.includes("June 1st") && isapril) {
+			if (isapril) {
 				return fetch_user_insights_page(inst, accessToken, {
 					...params,
 					june_not_april: true,
