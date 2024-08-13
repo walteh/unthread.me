@@ -81,6 +81,15 @@ export const changes: Change[] = [
 		commitHash: "ddcc2a388c3e8bbd9c1af8aaa1db0c2ce7adbfe4",
 		permalink: "https://www.threads.net/@w3stfa11/post/C-lgELPJJew?xmt=AQGzSCgiSnR-Q2Sl0KuswyNVWMmBuGeMcmk31Ga9CRbd5w",
 	},
+	{
+		description: "old cache store not clearing",
+		type: "bug",
+		date: "2024-08-13",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["firerock31"],
+		commitHash: "5018f60e3073c90c2a792ebc2a448a3214dc26c5",
+		permalink: "https://www.threads.net/@firerock31/post/C-lhMlISGdo?xmt=AQGzh5X6Dns9t0LK9CgvIQgESPpGMpQcjtMgj7H3Anl7sQ",
+	},
 ];
 
 const changelog_store = create(
