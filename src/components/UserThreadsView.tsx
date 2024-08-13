@@ -13,18 +13,19 @@ const UserThreadsView = () => {
 	const [search, setSearch] = useState("");
 	const [viewType, setViewType] = useState("posts"); // "all", "posts", or "replies"
 
-	const filteredThreads = threads.filter((thread) => {
-		const textMatch = thread.media.text?.includes(search);
-		const typeMatch =
-			viewType === "all"
+	const filteredThreads = threads
+		.filter((thread) => {
+			return viewType === "combined"
 				? true
 				: viewType === "posts"
 					? thread.type === "thread"
 					: viewType === "replies"
 						? thread.type === "reply"
 						: false;
-		return textMatch && typeMatch;
-	});
+		})
+		.filter((thread) => {
+			return (thread.media.text ?? "").toLowerCase().includes(search.toLowerCase());
+		});
 
 	return (
 		<div className="container mx-auto sm:p-6 p-2 flex flex-col items-center">
@@ -47,9 +48,9 @@ const UserThreadsView = () => {
 						onChange={(e) => {
 							setViewType(e.target.value);
 						}}
-						className="rounded-full py-2 px-4 text-gray-900 shadow-2xl sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4"
+						className="rounded-full py-2 px-4 text-gray-900 shadow-2xl sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4 w-40"
 					>
-						<option value="all">all</option>
+						<option value="combined">combined</option>
 						<option value="posts">posts only</option>
 						<option value="replies">replies only</option>
 					</select>

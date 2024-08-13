@@ -65,35 +65,25 @@ export default function DailyReportView() {
 
 	return (
 		<div className="sm:p-6 min-h-screen">
-			<div className="mb-4 flex justify-between">
-				<div>
-					<label htmlFor="timeframe" className="mr-2">
-						Timeframe:
-					</label>
+			<div className="flex mb-4 justify-between items-center w-full">
+				<div className="relative w-full sm:w-1/2 flex items-center space-x-4">
 					<select
-						id="timeframe"
 						value={timeframe}
 						onChange={(e) => {
 							setTimeframe(e.target.value);
 						}}
-						className="p-2 rounded"
+						className="rounded-full py-2 px-4 text-gray-900 shadow-2xl sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4 w-32"
 					>
 						<option value="daily">daily</option>
 						<option value="weekly">weekly</option>
 						<option value="monthly">monthly</option>
 					</select>
-				</div>
-				<div>
-					<label htmlFor="viewType" className="mr-2">
-						View Type:
-					</label>
 					<select
-						id="viewType"
 						value={viewType}
 						onChange={(e) => {
 							setViewType(e.target.value);
 						}}
-						className="p-2 rounded"
+						className="rounded-full py-2 px-4 text-gray-900 shadow-2xl sm:text-sm sm:leading-6 font-mono bg-gray-50 border-4 w-40"
 					>
 						<option value="combined">combined</option>
 						<option value="posts">posts only</option>
