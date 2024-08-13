@@ -8,6 +8,7 @@ export interface Change {
 	resolvedBy: string[];
 	reportedBy: string[];
 	commitHash: string;
+	permalink?: string;
 }
 
 //
@@ -70,9 +71,18 @@ export const changes: Change[] = [
 		reportedBy: ["walt_eh"],
 		commitHash: "0eafbbad8a30cc1ee600494fc8fb75f739fa450f",
 	},
+
+	{
+		description: "case insensitive search",
+		type: "feature",
+		date: "2024-08-13",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["w3stfa11"],
+		commitHash: "ddcc2a388c3e8bbd9c1af8aaa1db0c2ce7adbfe4",
+		permalink: "https://www.threads.net/@w3stfa11/post/C-lgELPJJew?xmt=AQGzSCgiSnR-Q2Sl0KuswyNVWMmBuGeMcmk31Ga9CRbd5w",
+	},
 ];
 
-// Create the Zustand store
 const changelog_store = create(
 	devtools(
 		persist(
