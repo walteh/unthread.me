@@ -25,6 +25,9 @@ export const get_media_insights_with_params = async (
 	mediaId: string,
 	params: GetMediaInsightsParams = {},
 ): Promise<SimplifedMediaMetricTypeMap> => {
+	if (mediaId.includes("_")) {
+		mediaId = mediaId.split("_")[1];
+	}
 	const searchParams: Record<string, string | number> = {
 		metric: allMediaMetrics.join(","),
 		access_token: accessToken.access_token,

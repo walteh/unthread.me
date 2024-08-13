@@ -42,7 +42,7 @@ db.version(2).stores({
 
 export { db };
 
-const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
+const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams, get_insights = false) => {
 	const promises: Promise<unknown>[] = [];
 
 	if (localStorage.getItem("unthread.me/thread_store")) {
@@ -67,11 +67,12 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 			),
 		);
 
-		for (const thread of data.data) {
-			const thread_id = makeThreadID(thread.id);
+		if (get_insights) {
 			promises.push(
-				loadThreadInsightsData(ky, token, thread_id),
-				// loadThreadRepliesData(ky, token, thread_id)
+				...data.data.map((thread) => {
+					const id = makeThreadID(thread.id);
+					return loadThreadInsightsData(ky, token, id);
+				}),
 			);
 		}
 
@@ -84,11 +85,25 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 	await Promise.all(promises);
 };
 
-const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
+export const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
 	await get_media_insights(ky, token, extractThreadID(id)).then(async (data) => {
 		await db.threads.update(id, { insights: data });
 	});
 };
+
+// export const loadAllThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse) => {
+// 	await db.threads.each(async (thread) => {
+// 		await get_media_insights(ky, token, extractThreadID(thread.thread_id)).then(async (data) => {
+// 			await db.threads.update(thread.thread_id, { insights: data });
+// 		});
+// 	});
+// 	await yo.replies.each(async (reply) => {
+// 		await get_media_insights(ky, token, extractReplyID(reply.reply_id)).then(async (data) => {
+// 			await yo.replies.update(reply.reply_id, { insights: data });
+// 		});
+// 	});
+// };
+
 export const loadThreadRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
 	await get_conversation(ky, token, extractThreadID(id)).then(async (data) => {
 		await yo.replies.bulkPut(
@@ -128,7 +143,7 @@ export default {
 	loadThreadsData,
 
 	refreshThreadsLast2Days: async (ky: KyInstance, token: AccessTokenResponse) => {
-		await loadThreadsData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` });
+		await loadThreadsData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` }, true);
 	},
 
 	clearThreads: () => {

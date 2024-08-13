@@ -24,7 +24,7 @@ export function makeReplyID(id: string): ReplyID {
 	return `reply_${id}`;
 }
 
-function extractReplyID(id: ReplyID): string {
+export function extractReplyID(id: ReplyID): string {
 	return id.replace(/^reply_/, "").split("_")[0];
 }
 
@@ -42,7 +42,7 @@ db.version(1).stores({
 
 export { db };
 
-const loadUserRepliesData = async (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams) => {
+const loadUserRepliesData = async (ky: KyInstance, token: AccessTokenResponse, params?: GetUserThreadsParams, get_insights = false) => {
 	const promises: Promise<unknown>[] = [];
 
 	if (localStorage.getItem("unthread.me/reply_store")) {
@@ -79,14 +79,13 @@ const loadUserRepliesData = async (ky: KyInstance, token: AccessTokenResponse, p
 			),
 		);
 
-		for (const thread of data.data) {
-			const reply_id = makeReplyID(thread.id);
-			setTimeout(() => {
-				promises.push(
-					loadReplyInsightsData(ky, token, reply_id),
-					// loadReplyRepliesData(ky, token, reply_id)
-				);
-			}, 100);
+		if (get_insights) {
+			promises.push(
+				...data.data.map((reply) => {
+					const id = makeReplyID(reply.id);
+					return loadReplyInsightsData(ky, token, id);
+				}),
+			);
 		}
 
 		if (data.paging?.cursors.after && !params?.limit) {
@@ -103,6 +102,14 @@ const loadReplyInsightsData = async (ky: KyInstance, token: AccessTokenResponse,
 		await db.replies.update(id, { insights: data });
 	});
 };
+
+// const loadAllReplyInsightsData = async (ky: KyInstance, token: AccessTokenResponse) => {
+// 	await db.replies.each(async (reply) => {
+// 		await get_media_insights(ky, token, extractReplyID(reply.reply_id)).then(async (data) => {
+// 			await db.replies.update(reply.reply_id, { insights: data });
+// 		});
+// 	});
+// };
 
 // const loadReplyRepliesData = async (ky: KyInstance, token: AccessTokenResponse, id: ReplyID) => {
 // 	await get_conversation(ky, token, extractReplyID(id)).then(async (data) => {
@@ -145,12 +152,14 @@ export default {
 	loadUserRepliesData,
 
 	refreshThreadsLast2Days: async (ky: KyInstance, token: AccessTokenResponse) => {
-		await loadUserRepliesData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` });
+		await loadUserRepliesData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` }, true);
 	},
 
 	clearThreads: () => {
 		void db.replies.clear();
 	},
+	loadReplyInsightsData,
+	// loadAllReplyInsightsData,
 };
 
 /// check if unthread.me/thread_store exists in local storage

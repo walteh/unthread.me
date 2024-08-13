@@ -1,6 +1,7 @@
 import ky from "ky";
 import { useCallback, useState } from "react";
 
+import { loadAllThreadInsightsData } from "@src/lib/breaker";
 import { AccessTokenResponse } from "@src/threadsapi/types";
 
 import reply_store from "../reply_store";
@@ -15,12 +16,17 @@ export const useLast2DaysThreadsRefresher = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	const [isLoggedIn, accessToken] = useIsLoggedIn();
+	// const refresh = useCacheStore((state) => state.loadUserData);
 
 	const caller = useCallback(() => {
 		async function fetchData(token: AccessTokenResponse) {
 			setLoading(true);
 			try {
-				await Promise.all([thread_store.refreshThreadsLast2Days(kyd, token), reply_store.refreshThreadsLast2Days(kyd, token)]);
+				await Promise.all([
+					// refresh(kyd, token),
+					thread_store.refreshThreadsLast2Days(kyd, token),
+					reply_store.refreshThreadsLast2Days(kyd, token),
+				]);
 				setError(null);
 			} catch (error) {
 				console.error(`problem fetching last 2 days threads:`, error);
@@ -51,11 +57,45 @@ export const useAllThreadsRefresher = () => {
 		async function fetchData(token: AccessTokenResponse) {
 			setLoading(true);
 			try {
-				await Promise.all([thread_store.loadThreadsData(kyd, token), reply_store.loadUserRepliesData(kyd, token)]);
+				await Promise.all([
+					thread_store.loadThreadsData(kyd, token, {}, true),
+					reply_store.loadUserRepliesData(kyd, token, {}, true),
+				]);
 				setError(null);
 			} catch (error) {
 				console.error(`problem fetching all threads:`, error);
 				setError(`failed to fetch all threads - ${error}`);
+				alert(`failed to fetch user data - ${error}`);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		if (isLoggedIn) {
+			void fetchData(accessToken);
+		}
+
+		return;
+	}, [isLoggedIn, accessToken, setLoading, setError]);
+
+	return [caller, isLoading, error] as const;
+};
+
+export const useAllInsightsRefresher = () => {
+	const [isLoading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const [isLoggedIn, accessToken] = useIsLoggedIn();
+
+	const caller = useCallback(() => {
+		async function fetchData(token: AccessTokenResponse) {
+			setLoading(true);
+			try {
+				await loadAllThreadInsightsData(kyd, token);
+				setError(null);
+			} catch (error) {
+				console.error(`problem fetching all insights:`, error);
+				setError(`failed to fetch all insights - ${error}`);
 				alert(`failed to fetch user data - ${error}`);
 			} finally {
 				setLoading(false);

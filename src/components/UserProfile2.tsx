@@ -98,16 +98,17 @@ export default function UserProfile2() {
 			error: refreshUserDataError,
 		},
 		{
-			label: "all threads (slow)",
-			action: refreshAllThreads,
-			isLoading: refreshAllThreadsLoading,
-			error: refreshAllThreadsErr,
-		},
-		{
 			label: "threads last 2 days",
 			action: refreshLast2DayThreads,
 			isLoading: refreshLast2DayThreadsLoading,
 			error: refreshLast2DayThreadsErr,
+		},
+
+		{
+			label: "all threads (slow)",
+			action: refreshAllThreads,
+			isLoading: refreshAllThreadsLoading,
+			error: refreshAllThreadsErr,
 		},
 	];
 

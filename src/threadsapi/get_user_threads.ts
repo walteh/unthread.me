@@ -27,7 +27,7 @@ export const fetch_user_threads_page = async (
 		if (params?.since) searchParams.since = params.since;
 		if (params?.until) searchParams.until = params.until;
 	}
-	searchParams.limit = 25;
+	searchParams.limit = 100;
 
 	if (cursor) {
 		searchParams.after = cursor;
