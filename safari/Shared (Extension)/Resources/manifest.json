@@ -21,7 +21,7 @@
 
     "content_scripts": [{
         "js": [ "content.js" ],
-        "matches": [ "*://threads.net/*" ]
+        "matches": [ "*://www.threads.net/*" ]
     }],
 
     "action": {

@@ -64,6 +64,7 @@
 		A6A121C62C64F1E70006CC5A /* Exceptions for "Shared (App)" folder in "unthread.me (iOS)" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"/Localized: Main.html",
 				Assets.xcassets,
 				Resources/Icon.png,
 				Resources/Script.js,
@@ -144,6 +145,13 @@
 			);
 			target = A6A121A02C64F1E60006CC5A /* unthread.me Extension (macOS) */;
 		};
+		A6D1CA7F2C6D1F340070FE37 /* Exceptions for "Shared (Extension)" folder in "unthread.me (iOS)" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/content.js,
+			);
+			target = A6A121782C64F1E60006CC5A /* unthread.me (iOS) */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
@@ -177,6 +185,7 @@
 		A6A1216A2C64F1E60006CC5A /* Shared (Extension) */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				A6D1CA7F2C6D1F340070FE37 /* Exceptions for "Shared (Extension)" folder in "unthread.me (iOS)" target */,
 				A6A121DE2C64F1E70006CC5A /* Exceptions for "Shared (Extension)" folder in "unthread.me Extension (iOS)" target */,
 				A6A121DF2C64F1E70006CC5A /* Exceptions for "Shared (Extension)" folder in "unthread.me Extension (macOS)" target */,
 			);

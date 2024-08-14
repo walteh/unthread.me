@@ -76,18 +76,23 @@ function getElementsByXPath(xpath, contextNode = document) {
 function processThread(node) {
 	processedNodes.add(node);
 
-	const hasMedia = node.querySelectorAll("img").length > 1;
-	node.hasMedia = hasMedia; // Store this information on the node
+	const hasNonProfileImage = Array.from(node.querySelectorAll('img')).some(img => {
+		const altText = img.getAttribute('alt') || '';
+		return !altText.toLowerCase().includes('profile picture');
+	});
 
-	if (hasMedia) {
-		console.log("Media detected in thread:", node);
+	node.hasMedia = hasNonProfileImage;  // Store this information on the node
+
+	if (hasNonProfileImage) {
+		console.log('Non-profile image detected in thread:', node);
 		if (config.hideImageThreads) {
-			node.style.display = "none";
+			node.style.display = 'none';
 		}
 	} else {
-		console.log("Text-only thread detected:", node);
+		console.log('Text-only or profile-picture-only thread detected:', node);
 	}
 }
+
 
 // Initial setup
 createToggleButton();
