@@ -1,27 +1,47 @@
-browser.runtime.sendMessage({ greeting: "hello" }).then((response) => {
-    console.log("Received response: ", response);
+/* eslint-disable */
 
-	
-});
+// Configuration object
+const config = {
+	hideImageThreads: true,
+	// Add more feature flags here as needed
+};
 
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("Received request: ", request);
+// Create a button to toggle the extension
+function createToggleButton() {
+	const button = document.createElement("button");
+	button.textContent = "Toggle Hide Image Threads";
+	button.style.position = "fixed";
+	button.style.top = "10px";
+	button.style.right = "10px";
+	button.style.zIndex = "9999";
+	button.addEventListener("click", toggleHideImageThreads);
+	document.body.appendChild(button);
+}
 
-});
+// Toggle the hideImageThreads feature
+function toggleHideImageThreads() {
+	config.hideImageThreads = !config.hideImageThreads;
+	updateThreadVisibility();
+}
 
-const observer = new MutationObserver((mutationsList, observer) => {
+// Update visibility of all processed threads
+function updateThreadVisibility() {
+	processedNodes.forEach((node) => {
+		if (node.hasMedia) {
+			node.style.display = config.hideImageThreads ? "none" : "";
+		}
+	});
+}
+
+const processedNodes = new Set();
+
+const observer = new MutationObserver((mutationsList) => {
 	for (let mutation of mutationsList) {
-		if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-			mutation.addedNodes.forEach(node => {
-				// Check if the added node itself is the SVG we're interested in
-				if (node.tagName === 'svg' && node.ariaLabel === 'View activity' && !node.hasAttribute('data-processed')) {
-					updateSVG(node);
-				}
-
-				// If the added node is an element, check its descendants
-				if (node.nodeType === Node.ELEMENT_NODE) {
-					const svgElements = node.querySelectorAll('svg[aria-label="View activity"]:not([data-processed])');
-					svgElements.forEach(svg => updateSVG(svg));
+		if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+			mutation.addedNodes.forEach((node) => {
+				if (node.nodeType === Node.ELEMENT_NODE && !processedNodes.has(node)) {
+					console.log("New node detected:", node);
+					processPotentialThreadContainer(node);
 				}
 			});
 		}
@@ -30,12 +50,45 @@ const observer = new MutationObserver((mutationsList, observer) => {
 
 observer.observe(document.body, { childList: true, subtree: true });
 
-function updateSVG(svg) {
-	console.log('Found SVG: ', svg);
+function processPotentialThreadContainer(node) {
+	const xpath = '//*[@id="barcelona-page-layout"]/div/div/div[2]/div[1]/div[3]/div/div[1]';
+	const threadContainers = getElementsByXPath(xpath, node);
 
-	// Mark this SVG as processed to avoid reprocessing
-	svg.setAttribute('data-processed', 'true');
-
-	// Update the SVG or its ancestors as needed
-	svg.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.innerHTML += "<div style=\"display: flex; height: 20px; width: 100%; background: red;\"></div>";
+	threadContainers.forEach((threadContainer) => {
+		threadContainer.childNodes.forEach((childNode) => {
+			if (childNode.nodeType === Node.ELEMENT_NODE && !processedNodes.has(childNode)) {
+				console.log("Processing child node of thread container:", childNode);
+				processThread(childNode);
+			}
+		});
+	});
 }
+
+function getElementsByXPath(xpath, contextNode = document) {
+	const result = [];
+	const nodesSnapshot = document.evaluate(xpath, contextNode, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+	for (let i = 0; i < nodesSnapshot.snapshotLength; i++) {
+		result.push(nodesSnapshot.snapshotItem(i));
+	}
+	return result;
+}
+
+function processThread(node) {
+	processedNodes.add(node);
+
+	const hasMedia = node.querySelectorAll("img").length > 1;
+	node.hasMedia = hasMedia; // Store this information on the node
+
+	if (hasMedia) {
+		console.log("Media detected in thread:", node);
+		if (config.hideImageThreads) {
+			node.style.display = "none";
+		}
+	} else {
+		console.log("Text-only thread detected:", node);
+	}
+}
+
+// Initial setup
+createToggleButton();
+processPotentialThreadContainer(document);
