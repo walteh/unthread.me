@@ -53,27 +53,38 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 		const data = await fetch_user_threads_page(ky, token, params, cursor);
 
 		promises.push(
-			db.threads.bulkPut(
+			db.threads.bulkUpdate(
 				data.data.map((thread) => {
 					const id = makeThreadID(thread.id);
 					return {
-						thread_id: id,
-						username: thread.username,
-						media: thread,
-						insights: null,
-						type: "thread",
+						key: id,
+						changes: {
+							thread_id: id,
+							username: thread.username,
+							media: thread,
+							insights: null,
+							type: "thread",
+						},
 					};
 				}),
 			),
 		);
 
 		if (get_insights) {
-			promises.push(
-				...data.data.map((thread) => {
-					const id = makeThreadID(thread.id);
-					return loadThreadInsightsData(ky, token, id);
-				}),
-			);
+			const proms = data.data.map((thread) => {
+				return justLoadThreadInsightsData(ky, token, makeThreadID(thread.id)).then((data) => {
+					return { changes: { insights: data }, key: makeThreadID(thread.id) };
+				});
+			});
+
+			const allProms = Promise.all(proms).then(async (data) => {
+				console.log("updating insights");
+				await db.threads.bulkUpdate(data).then(() => {
+					console.log("done updating insights");
+				});
+			});
+
+			promises.push(allProms);
 		}
 
 		if (data.paging?.cursors.after && !params?.limit) {
@@ -89,6 +100,10 @@ export const loadThreadInsightsData = async (ky: KyInstance, token: AccessTokenR
 	await get_media_insights(ky, token, extractThreadID(id)).then(async (data) => {
 		await db.threads.update(id, { insights: data });
 	});
+};
+
+export const justLoadThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: ThreadID) => {
+	return await get_media_insights(ky, token, extractThreadID(id));
 };
 
 // export const loadAllThreadInsightsData = async (ky: KyInstance, token: AccessTokenResponse) => {

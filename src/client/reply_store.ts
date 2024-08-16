@@ -80,12 +80,20 @@ const loadUserRepliesData = async (ky: KyInstance, token: AccessTokenResponse, p
 		);
 
 		if (get_insights) {
-			promises.push(
-				...data.data.map((reply) => {
-					const id = makeReplyID(reply.id);
-					return loadReplyInsightsData(ky, token, id);
-				}),
-			);
+			const proms = data.data.map((reply) => {
+				return justLoadReplyInsightsData(ky, token, makeReplyID(reply.id)).then((data) => {
+					return { changes: { insights: data }, key: makeReplyID(reply.id) };
+				});
+			});
+
+			const allProms = Promise.all(proms).then(async (data) => {
+				console.log("updating reply insights");
+				await db.replies.bulkUpdate(data).then(() => {
+					console.log("done updating reply insights");
+				});
+			});
+
+			promises.push(allProms);
 		}
 
 		if (data.paging?.cursors.after && !params?.limit) {
@@ -101,6 +109,10 @@ const loadReplyInsightsData = async (ky: KyInstance, token: AccessTokenResponse,
 	await get_media_insights(ky, token, extractReplyID(id)).then(async (data) => {
 		await db.replies.update(id, { insights: data });
 	});
+};
+
+const justLoadReplyInsightsData = async (ky: KyInstance, token: AccessTokenResponse, id: ReplyID) => {
+	return await get_media_insights(ky, token, extractReplyID(id));
 };
 
 // const loadAllReplyInsightsData = async (ky: KyInstance, token: AccessTokenResponse) => {
@@ -152,6 +164,7 @@ export default {
 	loadUserRepliesData,
 
 	refreshThreadsLast2Days: async (ky: KyInstance, token: AccessTokenResponse) => {
+		console.log("refreshing replies last 2 days");
 		await loadUserRepliesData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` }, true);
 	},
 

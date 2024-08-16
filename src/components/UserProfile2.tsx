@@ -13,6 +13,7 @@ import useUnseenChanges from "@src/client/hooks/useUnseenChanges";
 import useUserInsights from "@src/client/hooks/useUserInsights";
 import reply_store from "@src/client/reply_store";
 import thread_store from "@src/client/thread_store";
+import { handleDownloadReplies, handleDownloadThreads } from "@src/lib/download";
 import { formatNumber, getDateStringInPacificTime, getTimeInPacificTimeWithVeryPoorPerformance } from "@src/lib/ml";
 
 import ChangesTable from "./ChangesTable";
@@ -57,11 +58,10 @@ export default function UserProfile2() {
 	const [last30Days_analysis, ,] = useMLByDate("user views", last30Days);
 
 	const stats = [
-		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers },
-		{ label: "post threads", value: formatNumber(threads.length), real_value: threads.length },
-		{ label: "reply threads", value: formatNumber(replies.length), real_value: replies.length },
-
-		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views },
+		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers, download_func: null },
+		{ label: "post threads", value: formatNumber(threads.length), real_value: threads.length, download_func: handleDownloadReplies },
+		{ label: "reply threads", value: formatNumber(replies.length), real_value: replies.length, download_func: handleDownloadThreads },
+		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views, download_func: null },
 	];
 
 	const secondaryStats = [
@@ -274,7 +274,7 @@ export default function UserProfile2() {
 				<div className={`grid grid-cols-2 gap-4 divide-gray-200 border-gray-200 px-4 sm:grid-cols-${stats.length}`}>
 					{stats.map((stat) => (
 						<div key={stat.label}>
-							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl group flex-col flex groupbackdrop-blur-lg bg-opacity-50 shadow-inner  ">
+							<div className=" px-2 py-1 text-center text-sm font-medium bg-gray-200 rounded-xl group flex-col flex groupbackdrop-blur-lg bg-opacity-50 shadow-inner  relative">
 								<div className="group-hover:hidden">
 									<span className="text-md font-mono ">{stat.value}</span>
 								</div>
@@ -282,6 +282,16 @@ export default function UserProfile2() {
 									<span className="text-md  font-mono">{stat.real_value.toLocaleString()}</span>
 								</div>
 								<span className="text-xs text-gray-600">{stat.label}</span>
+								{stat.download_func ? (
+									<button
+										onClick={() => {
+											void stat.download_func();
+										}}
+										className="text-xs text-gray-500 absolute active:scale-x-95 hover:scale-105"
+									>
+										⬇️
+									</button>
+								) : null}
 							</div>
 						</div>
 					))}

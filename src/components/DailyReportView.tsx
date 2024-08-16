@@ -41,6 +41,7 @@ const InsightsRow: FC<{
 		</tr>
 	);
 };
+
 export default function DailyReportView() {
 	const [timeframe, setTimeframe] = useState("daily");
 	const [viewType, setViewType] = useState("combined");
@@ -134,13 +135,11 @@ export default function DailyReportView() {
 								date={timeframe === "daily" ? `${date} - ${getDayOfWeek(date)}` : date}
 								insights={allInsights[date]}
 								aggregateFunc={(ibd: InsightsByDate) => {
-									// Implement the aggregation logic based on viewType
 									if (viewType === "posts") {
 										return ibd.cumlativePostInsights;
 									} else if (viewType === "replies") {
 										return ibd.cumlativeReplyInsights;
 									} else {
-										// Combine post and reply insights
 										return ibd.combinedInsights;
 									}
 								}}

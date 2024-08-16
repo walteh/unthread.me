@@ -220,7 +220,7 @@ export const isdbRange = (
 		.map((date) => {
 			return {
 				date: date,
-				isdb: isbd(date, userInsights, userThreads, userReplies, (d) => getDateStringInPacificTime(new Date(d)) === date),
+				isdb: isbd(date, userInsights, userThreads, userReplies, (d) => calculateDayInPacificTime(d) === date),
 			};
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {
@@ -249,6 +249,18 @@ export const isdbRange = (
 	return wrk;
 };
 
+export const calculateWeekInPacificTime = (date: string) => {
+	return getWeekOfYear(getDateStringInPacificTime(new Date(date)));
+};
+
+export const calculateMonthInPacificTime = (date: string) => {
+	return getDateStringInPacificTime(new Date(date)).slice(0, 7);
+};
+
+export const calculateDayInPacificTime = (date: string) => {
+	return getDateStringInPacificTime(new Date(date));
+};
+
 export const isdbRangeWeekly = (
 	startDate: Date,
 	endDate: Date,
@@ -267,13 +279,7 @@ export const isdbRangeWeekly = (
 		.map((weekOfYear) => {
 			return {
 				date: weekOfYear,
-				isdb: isbd(
-					weekOfYear,
-					userInsights,
-					userThreads,
-					userReplies,
-					(d) => getWeekOfYear(getDateStringInPacificTime(new Date(d))) === weekOfYear,
-				),
+				isdb: isbd(weekOfYear, userInsights, userThreads, userReplies, (d) => calculateWeekInPacificTime(d) === weekOfYear),
 			};
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {
@@ -303,7 +309,7 @@ export const isdbRangeMonthly = (
 		.map((month) => {
 			return {
 				date: month,
-				isdb: isbd(month, userInsights, userThreads, userReplies, (d) => new Date(d).toISOString().slice(0, 7) === month),
+				isdb: isbd(month, userInsights, userThreads, userReplies, (d) => calculateMonthInPacificTime(d) === month),
 			};
 		})
 		.reduce<Record<string, InsightsByDate>>((acc, data) => {

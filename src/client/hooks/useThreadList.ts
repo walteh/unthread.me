@@ -1,5 +1,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 
+import { calculateDayInPacificTime, calculateMonthInPacificTime, calculateWeekInPacificTime, getDayOfWeek } from "@src/lib/ml";
+
 import { db as yo } from "../reply_store";
 import { db, ThreadID } from "../thread_store";
 import useCacheStore from "./useCacheStore";
@@ -8,6 +10,47 @@ const useThreadList = () => {
 	const thread = useLiveQuery(async () => {
 		const thread = await db.threads.toArray();
 		return thread;
+	}, []);
+
+	return thread ?? [];
+};
+
+export const getThreadsListWithLabels = async () => {
+	const thread = await db.threads.toArray();
+	return thread.map((thread) => {
+		return {
+			...thread,
+			week: calculateWeekInPacificTime(thread.media.timestamp),
+			day: calculateDayInPacificTime(thread.media.timestamp),
+			month: calculateMonthInPacificTime(thread.media.timestamp),
+			day_of_week: getDayOfWeek(calculateDayInPacificTime(thread.media.timestamp)),
+		};
+	});
+};
+export const useThreadListWithLabels = () => {
+	const thread = useLiveQuery(async () => {
+		return getThreadsListWithLabels();
+	}, []);
+
+	return thread ?? [];
+};
+
+export const getReplyListWithLabels = async () => {
+	const thread = await yo.replies.toArray();
+	return thread.map((thread) => {
+		return {
+			...thread,
+			week: calculateWeekInPacificTime(thread.media.timestamp),
+			day: calculateDayInPacificTime(thread.media.timestamp),
+			month: calculateMonthInPacificTime(thread.media.timestamp),
+			day_of_week: getDayOfWeek(calculateDayInPacificTime(thread.media.timestamp)),
+		};
+	});
+};
+
+export const useReplyListWithLabels = () => {
+	const thread = useLiveQuery(async () => {
+		return getReplyListWithLabels();
 	}, []);
 
 	return thread ?? [];
