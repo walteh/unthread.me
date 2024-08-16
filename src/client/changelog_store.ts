@@ -90,6 +90,14 @@ export const changes: Change[] = [
 		commitHash: "5018f60e3073c90c2a792ebc2a448a3214dc26c5",
 		permalink: "https://www.threads.net/@firerock31/post/C-lhMlISGdo?xmt=AQGzh5X6Dns9t0LK9CgvIQgESPpGMpQcjtMgj7H3Anl7sQ",
 	},
+	{
+		description: "add download buttons",
+		type: "feature",
+		date: "2024-08-16",
+		resolvedBy: ["walt_eh"],
+		reportedBy: ["walt_eh"],
+		commitHash: "f49d158e74f40d328bdde8c08d799662acb9818f",
+	},
 ];
 
 const changelog_store = create(
