@@ -53,18 +53,15 @@ const loadThreadsData = async (ky: KyInstance, token: AccessTokenResponse, param
 		const data = await fetch_user_threads_page(ky, token, params, cursor);
 
 		promises.push(
-			db.threads.bulkUpdate(
+			db.threads.bulkPut(
 				data.data.map((thread) => {
 					const id = makeThreadID(thread.id);
 					return {
-						key: id,
-						changes: {
-							thread_id: id,
-							username: thread.username,
-							media: thread,
-							insights: null,
-							type: "thread",
-						},
+						thread_id: id,
+						username: thread.username,
+						media: thread,
+						insights: null,
+						type: "thread",
 					};
 				}),
 			),
