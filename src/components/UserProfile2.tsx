@@ -59,8 +59,8 @@ export default function UserProfile2() {
 
 	const stats = [
 		{ label: "followers", value: formatNumber(insights.total_followers), real_value: insights.total_followers, download_func: null },
-		{ label: "post threads", value: formatNumber(threads.length), real_value: threads.length, download_func: handleDownloadReplies },
-		{ label: "reply threads", value: formatNumber(replies.length), real_value: replies.length, download_func: handleDownloadThreads },
+		{ label: "post threads", value: formatNumber(threads.length), real_value: threads.length, download_func: handleDownloadThreads },
+		{ label: "reply threads", value: formatNumber(replies.length), real_value: replies.length, download_func: handleDownloadReplies },
 		{ label: "all time views", value: formatNumber(insights.total_views), real_value: insights.total_views, download_func: null },
 	];
 
