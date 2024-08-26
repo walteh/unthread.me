@@ -1,6 +1,7 @@
 <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400"
 	viewBox="0, 0, 400,400">
-
+	<!-- add border radius -->
+	<rect width="400" height="400" fill="white" rx="60" />
 
 	<g id="svgg">
 		<path id="path0"

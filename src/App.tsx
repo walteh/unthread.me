@@ -28,7 +28,7 @@ const Layout: FC = () => {
 			<div className="flex items-center justify-center py-3 px-5 text-gray-950 font-rounded font-bold text-xs">
 				<div className="relative flex flex-col justify-center items-center backdrop-blur-2xl bg-white bg-opacity-70 rounded-xl py-4 px-5  border-white m-5">
 					<div className="flex items-center justify-center  font-rounded font-bold text-2xl mb-2">
-						<img className="h-7 w-7" src="./unthreadme-logo.svg" alt="" />
+						<img className="h-9 w-9 shadow-2xl -mr-2" src="./unthreadme-logo.svg" alt="" />
 						<span className="ml-2">unthread.me</span>
 					</div>
 					<span className="text-gray-800 font-regular">🔒 private threads insights</span>
