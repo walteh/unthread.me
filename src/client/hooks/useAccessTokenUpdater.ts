@@ -38,6 +38,7 @@ const useAccessTokenUpdater = () => {
 			localStorage.setItem("unthread.me/token_store", atob(demo));
 
 			setSearchParams({});
+			window.location.reload();
 			return;
 		} // // refresh
 
