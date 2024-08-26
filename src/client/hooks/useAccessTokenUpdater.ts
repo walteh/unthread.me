@@ -7,6 +7,7 @@ import { useIsLoggedIn } from "@src/client/hooks/useIsLoggedIn";
 import useTokenStore from "@src/client/hooks/useTokenStore";
 import threadsapi from "@src/threadsapi";
 
+import reply_store from "../reply_store";
 import thread_store from "../thread_store";
 import useCacheStore from "./useCacheStore";
 
@@ -20,9 +21,36 @@ const useAccessTokenUpdater = () => {
 	const accessToken = client.token_store((state) => state.access_token);
 	const [isLoggedIn] = useIsLoggedIn();
 
+	const clearTokenStore = client.token_store((state) => state.clearTokens);
+	const clearUserProfile = useCacheStore((state) => state.clearUserData);
+
 	const refreshUserProfile = useCacheStore((state) => state.loadUserData);
 
 	// const clearAccessToken = client.token_store((state) => state.clearAccessToken);
+
+	React.useEffect(() => {
+		// if there is a demo query parameter, parse the base64 encoded token and set it as the access token
+
+		const demo = searchParams.get("demo");
+		const ls_demo = localStorage.getItem("unthread.me/demo");
+		if (demo) {
+			localStorage.setItem("unthread.me/demo", new Date().getTime().toString());
+			localStorage.setItem("unthread.me/token_store", atob(demo));
+
+			setSearchParams({});
+			return;
+		} // // refresh
+
+		// check if the demo is older than 1 hour, if so, clear the token store
+		if (ls_demo && new Date().getTime() - parseInt(ls_demo) > 60 * 15 * 1000) {
+			clearTokenStore();
+			clearUserProfile();
+			thread_store.clearThreads();
+			reply_store.clearThreads();
+			localStorage.removeItem("unthread.me/demo");
+			localStorage.removeItem("unthread.me/token_store");
+		}
+	}, [searchParams, setSearchParams, clearTokenStore, clearUserProfile]);
 
 	// update the access token if a code is present in the URL
 	React.useEffect(() => {
