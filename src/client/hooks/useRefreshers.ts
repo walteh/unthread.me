@@ -10,7 +10,7 @@ import { useIsLoggedIn } from "./useIsLoggedIn";
 
 const kyd = ky.create({ prefixUrl: "https://graph.threads.net" });
 
-export const useLast2DaysThreadsRefresher = () => {
+export const useLastNDaysThreadsRefresher = (days = 2) => {
 	const [isLoading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -23,13 +23,13 @@ export const useLast2DaysThreadsRefresher = () => {
 			try {
 				await Promise.all([
 					// refresh(kyd, token),
-					thread_store.refreshThreadsLast2Days(kyd, token),
-					reply_store.refreshThreadsLast2Days(kyd, token),
+					thread_store.refreshThreadsLastNDays(kyd, token, days),
+					reply_store.refreshThreadsLastNDays(kyd, token, days),
 				]);
 				setError(null);
 			} catch (error) {
-				console.error(`problem fetching last 2 days threads:`, error);
-				setError(`failed to fetch last 2 days threads - ${error}`);
+				console.error(`problem fetching last 3 days threads:`, error);
+				setError(`failed to fetch last 3 days threads - ${error}`);
 				alert(`failed to fetch user data - ${error}`);
 			} finally {
 				setLoading(false);
@@ -41,7 +41,7 @@ export const useLast2DaysThreadsRefresher = () => {
 		}
 
 		return;
-	}, [isLoggedIn, accessToken, setLoading, setError]);
+	}, [isLoggedIn, accessToken, setLoading, setError, days]);
 
 	return [caller, isLoading, error] as const;
 };

@@ -4,7 +4,7 @@ import useCacheStore from "@src/client/hooks/useCacheStore";
 import { useUserEngagementRate } from "@src/client/hooks/useEngagementRate";
 import useMLByDate from "@src/client/hooks/useMLByDate";
 import useModalStore from "@src/client/hooks/useModalStore";
-import { useAllThreadsRefresher, useLast2DaysThreadsRefresher, useUserDataRefresher } from "@src/client/hooks/useRefreshers";
+import { useAllThreadsRefresher, useLastNDaysThreadsRefresher, useUserDataRefresher } from "@src/client/hooks/useRefreshers";
 import { useMyReplyList } from "@src/client/hooks/useThreadList";
 import useThreadsListSortedByDate from "@src/client/hooks/useThreadsListByDate";
 import { useTimePeriodLastNDaysFromToday } from "@src/client/hooks/useTimePeriod";
@@ -47,7 +47,7 @@ export default function UserProfile2() {
 			return date === today;
 		})[0]?.value || 0;
 
-	const [refreshLast2DayThreads, refreshLast2DayThreadsLoading, refreshLast2DayThreadsErr] = useLast2DaysThreadsRefresher();
+	const [refreshLastNDayThreads, refreshLastNDayThreadsLoading, refreshLastNDayThreadsErr] = useLastNDaysThreadsRefresher(7);
 	const [refreshAllThreads, refreshAllThreadsLoading, refreshAllThreadsErr] = useAllThreadsRefresher();
 	const [refreshUserData, refreshUserDataLoading, refreshUserDataError] = useUserDataRefresher();
 
@@ -98,10 +98,10 @@ export default function UserProfile2() {
 			error: refreshUserDataError,
 		},
 		{
-			label: "threads last 2 days",
-			action: refreshLast2DayThreads,
-			isLoading: refreshLast2DayThreadsLoading,
-			error: refreshLast2DayThreadsErr,
+			label: "threads week",
+			action: refreshLastNDayThreads,
+			isLoading: refreshLastNDayThreadsLoading,
+			error: refreshLastNDayThreadsErr,
 		},
 
 		{

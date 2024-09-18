@@ -163,9 +163,8 @@ export default {
 
 	loadUserRepliesData,
 
-	refreshThreadsLast2Days: async (ky: KyInstance, token: AccessTokenResponse) => {
-		console.log("refreshing replies last 2 days");
-		await loadUserRepliesData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * 2) / 1000)}` }, true);
+	refreshThreadsLastNDays: async (ky: KyInstance, token: AccessTokenResponse, days = 2) => {
+		await loadUserRepliesData(ky, token, { since: `${Math.round((Date.now() - 1000 * 60 * 60 * 24 * days) / 1000)}` }, true);
 	},
 
 	clearThreads: () => {
