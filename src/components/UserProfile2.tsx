@@ -98,7 +98,7 @@ export default function UserProfile2() {
 			error: refreshUserDataError,
 		},
 		{
-			label: "threads week",
+			label: "threads last week",
 			action: refreshLastNDayThreads,
 			isLoading: refreshLastNDayThreadsLoading,
 			error: refreshLastNDayThreadsErr,
